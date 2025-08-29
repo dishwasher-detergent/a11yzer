@@ -1,6 +1,6 @@
 {
-    "projectId": "appwrite-nextjs-starter",
-    "projectName": "appwrite-nextjs-starter",
+    "projectId": "accessibility-checker",
+    "projectName": "accessibility-checker",
     "settings": {
         "services": {
             "account": true,
@@ -39,71 +39,18 @@
     },
     "databases": [
         {
-            "$id": "sample",
-            "name": "sample",
+            "$id": "main",
+            "name": "main",
             "enabled": true
         }
     ],
     "collections": [
         {
-            "$id": "sample",
-            "$permissions": [
-                "create(\"users\")"
-            ],
-            "databaseId": "sample",
-            "name": "sample",
-            "enabled": true,
-            "documentSecurity": true,
-            "attributes": [
-                {
-                    "key": "name",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 32,
-                    "default": null
-                },
-                {
-                    "key": "description",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 128,
-                    "default": null
-                },
-                {
-                    "key": "image",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 128,
-                    "default": null
-                },
-                {
-                    "key": "userId",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 32,
-                    "default": null
-                },
-                {
-                    "key": "teamId",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 128,
-                    "default": null
-                }
-            ],
-            "indexes": []
-        },
-        {
             "$id": "user",
             "$permissions": [
                 "create(\"users\")"
             ],
-            "databaseId": "sample",
+            "databaseId": "main",
             "name": "user",
             "enabled": true,
             "documentSecurity": true,
@@ -140,7 +87,7 @@
             "$permissions": [
                 "create(\"users\")"
             ],
-            "databaseId": "sample",
+            "databaseId": "main",
             "name": "team",
             "enabled": true,
             "documentSecurity": true,
@@ -174,36 +121,6 @@
         }
     ],
     "buckets": [
-        {
-            "$id": "sample",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"any\")"
-            ],
-            "fileSecurity": true,
-            "name": "sample",
-            "enabled": true,
-            "maximumFileSize": 30000000,
-            "allowedFileExtensions": [],
-            "compression": "none",
-            "encryption": true,
-            "antivirus": true
-        },
-        {
-            "$id": "avatar",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"users\")"
-            ],
-            "fileSecurity": true,
-            "name": "avatar",
-            "enabled": true,
-            "maximumFileSize": 30000000,
-            "allowedFileExtensions": [],
-            "compression": "none",
-            "encryption": true,
-            "antivirus": true
-        }
     ],
     "teams": [],
     "functions": []

@@ -1,33 +1,32 @@
-# 🚀 Appwrite NextJS Starter
+# 🌐 AI Accessibility Checker
 
-A starter template for building web applications with Next.js and Appwrite.
+An AI-powered web accessibility analysis tool built with Next.js and Appwrite.
 
 ## 📚 Overview
 
-This starter template provides everything you need to build a
-modern web application with Next.js and Appwrite. It includes a
-full authentication system, user profile management, and a clean,
-responsive UI.
+This application provides comprehensive accessibility analysis for any website using AI technology. It performs automated WCAG compliance checks, identifies UI/UX issues, and provides actionable recommendations for improving web accessibility.
 
-Perfect for quickly bootstrapping your next project without
-spending time on repetitive setup tasks.
+Perfect for developers, designers, and accessibility professionals who want to ensure their websites are inclusive and accessible to all users.
 
 ## ✨ Features
 
-- 🔐 **Authentication Flows**
+- 🤖 **AI-Powered Analysis**
+  - 🧠 OpenAI GPT-4 integration for intelligent accessibility insights
+  - 📊 Comprehensive WCAG compliance checking
+  - 🎯 Automated issue detection and prioritization
+  - 💡 Actionable improvement recommendations
+- 🔐 **Authentication & Teams**
   - 📧 Email & Password Sign In/Sign Up
   - 🔄 Password Recovery Process
-  - 🔑 OAuth Integration (GitHub, Google, etc.)
-- 📊 **Data Management**
-  - ✏️ Complete CRUD Operations Examples
-  - 📁 File Storage Implementations
-  - ⚡ Realtime Updates
-  - 🔄 Cache Invalidation
-- 👥 **Team Management**
-  - 🏢 Create and Manage Teams
-  - 👥 Invite Team Members
-  - 👑 Role-based Permissions (Owner, Admin, Member)
-  - 🚪 Join/Leave Teams
+  - � Team-based access control
+  - 🏢 Multi-user collaboration
+- � **Website Analysis**
+  - 📸 Automated screenshot capture
+  - 🏗️ Semantic structure analysis
+  - 🖼️ Image alt text verification
+  - � Link accessibility checking
+  - � Form accessibility validation
+  - � Color contrast evaluation recommendations
   - 🔒 Team-specific Content Access
 - 👤 **User Management**
   - 👨‍💻 Profile Editing & Customization

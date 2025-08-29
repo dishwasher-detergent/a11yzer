@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createUserData } from "@/lib/auth";
-import { COOKIE_KEY } from "@/lib/constants";
+import { UserData } from "@/interfaces/user.interface";
+import { COOKIE_KEY, DATABASE_ID, USER_COLLECTION_ID } from "@/lib/constants";
 import { createAdminClient } from "@/lib/server/appwrite";
+import { Permission, Role } from "node-appwrite";
 
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("userId");
@@ -12,8 +13,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect("/signin");
   }
 
-  const { account } = await createAdminClient();
+  const { account, database, users } = await createAdminClient();
   const session = await account.createSession(userId, secret);
+  const sessionUserId = session.userId;
 
   // Set the cookie in the response headers
   const response = NextResponse.redirect(`${request.nextUrl.origin}/app`);
@@ -25,7 +27,29 @@ export async function GET(request: NextRequest) {
     secure: true,
   });
 
-  await createUserData(session.userId);
+  const user = await users.get(sessionUserId);
+
+  try {
+    await database.getDocument<UserData>(
+      DATABASE_ID,
+      USER_COLLECTION_ID,
+      sessionUserId
+    );
+  } catch {
+    await database.createDocument<UserData>(
+      DATABASE_ID,
+      USER_COLLECTION_ID,
+      sessionUserId,
+      {
+        name: user.name,
+      },
+      [
+        Permission.read(Role.user(sessionUserId)),
+        Permission.write(Role.user(sessionUserId)),
+        Permission.read(Role.users()),
+      ]
+    );
+  }
 
   return response;
 }

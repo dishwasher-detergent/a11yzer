@@ -9,7 +9,6 @@ import { AuthResponse, Response, Result } from "@/interfaces/result.interface";
 import { User, UserData } from "@/interfaces/user.interface";
 import { COOKIE_KEY, DATABASE_ID, USER_COLLECTION_ID } from "@/lib/constants";
 import { createAdminClient, createSessionClient } from "@/lib/server/appwrite";
-import { deleteAvatarImage, uploadAvatarImage } from "@/lib/storage";
 import {
   ResetPasswordFormData,
   SignInFormData,
@@ -139,39 +138,8 @@ export async function updateProfile({
     const { account, database } = await createSessionClient();
 
     try {
-      const userData = await database.getDocument<UserData>(
-        DATABASE_ID,
-        USER_COLLECTION_ID,
-        user.$id
-      );
-
-      if (data.image instanceof File) {
-        if (userData.avatar) {
-          await deleteAvatarImage(userData.avatar);
-        }
-
-        const image = await uploadAvatarImage({
-          data: data.image,
-        });
-
-        if (!image.success) {
-          throw new Error(image.message);
-        }
-
-        data.image = image.data?.$id;
-      } else if (data.image === null && userData.avatar) {
-        const image = await deleteAvatarImage(userData.avatar);
-
-        if (!image.success) {
-          throw new Error(image.message);
-        }
-
-        data.image = null;
-      }
-
       await account.updateName(data.name);
       await database.updateDocument(DATABASE_ID, USER_COLLECTION_ID, id, {
-        avatar: data.image,
         about: data.about,
       });
 
@@ -445,7 +413,6 @@ export async function createUserData(
         userId,
         {
           name: user.name,
-          avatar: null,
         },
         [
           Permission.read(Role.user(userId)),
