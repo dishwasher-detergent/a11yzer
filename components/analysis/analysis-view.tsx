@@ -3,33 +3,28 @@
 import { AnalysisIssues } from "@/components/analysis/analysis-issues";
 import { AnalysisScreenshot } from "@/components/analysis/analysis-screenshot";
 import { TechnicalDetails } from "@/components/analysis/technical-details";
-import { useAnalysisById } from "@/hooks/useAnalysis";
+import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
 import { AnalysisOverview } from "./analysis-overview";
 
 interface AnalysisViewProps {
-  analysisId: string;
+  data?: AnalysisDb<AnalysisResult>;
 }
 
-export function AnalysisView({ analysisId }: AnalysisViewProps) {
-  const { loading, analysis } = useAnalysisById(analysisId);
-
+export function AnalysisView({ data }: AnalysisViewProps) {
   return (
     <div>
-      {loading && <p>Loading...</p>}
-      {analysis && (
+      {data && (
         <>
-          <AnalysisOverview summary={analysis.data.analysis.summary} />
+          <AnalysisOverview summary={data.data.analysis.summary} />
           <AnalysisScreenshot
-            screenshotUrl={analysis.data.screenshotUrl}
-            problematicElements={analysis.data.problematicElements}
+            screenshotUrl={data.data.screenshotUrl}
+            problematicElements={data.data.problematicElements}
           />
           <AnalysisIssues
-            issues={analysis.data.analysis.issues}
-            overallScore={analysis.data.analysis.overallScore}
+            issues={data.data.analysis.issues}
+            overallScore={data.data.analysis.overallScore}
           />
-          <TechnicalDetails
-            accessibilityData={analysis.data.accessibilityData}
-          />
+          <TechnicalDetails accessibilityData={data.data.accessibilityData} />
         </>
       )}
     </div>

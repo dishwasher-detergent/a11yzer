@@ -20,6 +20,7 @@ import { useTeamData } from "@/hooks/useTeamData";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { CreateTeam } from "./create-team";
 
@@ -29,7 +30,13 @@ export function TeamSwitcher() {
     teamId: string;
   }>();
 
-  const { teams, loading } = useTeamData();
+  const { teams, loading, refetchTeams } = useTeamData();
+
+  useEffect(() => {
+    if (teams.findIndex((team) => team.$id === teamId) === -1) {
+      refetchTeams();
+    }
+  }, [teamId]);
 
   if (loading) {
     return <Skeleton className="h-6 w-32" />;

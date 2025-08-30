@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
 import { AnalysisCreate } from "@/components/analysis/analysis-create";
-import { setLastVisitedTeam } from "@/lib/auth";
 import { getTeamById } from "@/lib/team";
 
 export default async function TeamPage({
@@ -15,8 +14,6 @@ export default async function TeamPage({
   if (!success || !data) {
     redirect("/app");
   }
-
-  await setLastVisitedTeam(teamId);
 
   return <AnalysisCreate teamId={teamId} />;
 }

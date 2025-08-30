@@ -1,6 +1,8 @@
 // Analysis interfaces for the accessibility checker
 
 import { Models } from "node-appwrite";
+import { TeamData } from "./team.interface";
+import { UserData } from "./user.interface";
 
 export interface ElementInfo {
   selector: string;
@@ -141,7 +143,9 @@ export interface AnalysisResult {
 
 export interface AnalysisDb<T> extends Models.Document {
   userId: string;
+  user?: UserData;
   teamId: string;
+  team?: TeamData;
   data: T;
   url: string;
 }

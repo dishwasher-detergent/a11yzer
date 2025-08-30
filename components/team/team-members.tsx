@@ -1,8 +1,9 @@
 import {
+  LucideCrown,
   LucideEllipsisVertical,
   LucideMailWarning,
-  LucideStar,
 } from "lucide-react";
+import Link from "next/link";
 
 import { DemoteMemberAdmin } from "@/components/team/demote-admin";
 import { PromoteMemberAdmin } from "@/components/team/promote-admin";
@@ -23,7 +24,6 @@ import {
 } from "@/components/ui/table";
 import { ADMIN_ROLE, OWNER_ROLE } from "@/constants/team.constants";
 import { UserMemberData } from "@/interfaces/user.interface";
-import Link from "next/link";
 
 interface TeamMembersProps {
   members: UserMemberData[];
@@ -40,33 +40,30 @@ export function TeamMembers({
 }: TeamMembersProps) {
   return (
     <section>
-      <h3 className="font-semibold text-lg mb-2">Members</h3>
+      <h3 className="font-semibold text-base mb-2">Members</h3>
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead />
               <TableHead className="w-full">User</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Joined</TableHead>
-              <TableHead>Actions</TableHead>
+              {isAdmin && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {members?.map((member) => (
               <TableRow key={member.$id}>
-                <TableCell>
+                <TableCell className="flex flex-row gap-2 items-center">
                   <div className="flex flex-row gap-2 items-center">
                     {member.roles.includes(ADMIN_ROLE) && (
-                      <LucideStar className="size-3.5 text-amber-600" />
+                      <LucideCrown className="size-3.5 text-amber-600" />
                     )}
                     {!member.confirmed && (
                       <LucideMailWarning className="size-3.5" />
                     )}
                   </div>
-                </TableCell>
-                <TableCell>
-                  <Button variant="link" asChild>
+                  <Button variant="link" asChild className="px-0">
                     <Link href={`/app/users/${member.$id}`}>{member.name}</Link>
                   </Button>
                 </TableCell>
@@ -76,15 +73,17 @@ export function TeamMembers({
                     ? new Date(member.joinedAt).toLocaleDateString()
                     : "N/A"}
                 </TableCell>
-                <TableCell>
-                  {!member.roles.includes(OWNER_ROLE) && isAdmin && (
-                    <MemberActions
-                      member={member}
-                      teamId={teamId}
-                      isOwner={isOwner}
-                    />
-                  )}
-                </TableCell>
+                {isAdmin && (
+                  <TableCell>
+                    {!member.roles.includes(OWNER_ROLE) && (
+                      <MemberActions
+                        member={member}
+                        teamId={teamId}
+                        isOwner={isOwner}
+                      />
+                    )}
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { LucideDot } from "lucide-react";
 import { AspectRatio } from "../ui/aspect-ratio";
 
 export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
@@ -21,7 +22,7 @@ export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
           {analysis.data.screenshotUrl ? (
             <img
               src={analysis.data.screenshotUrl}
-              alt={analysis.data.analysis.summary.slice(0, 50)}
+              alt={analysis.data.analysis.summary.slice(0, 25)}
               className="object-cover object-left-top bg-primary"
             />
           ) : (
@@ -42,13 +43,18 @@ export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
               <Link
                 href={`/app/teams/${analysis.teamId}/analysis/${analysis.$id}`}
               >
-                {analysis.data.analysis.summary.slice(0, 50)}...
+                {analysis.data.analysis.summary.slice(0, 25)}...
               </Link>
             </Button>
           </CardTitle>
           <CardDescription className="text-primary-foreground text-xs">
             {new Date(analysis.$createdAt).toLocaleDateString("en-US")}
           </CardDescription>
+          <p className="flex flex-row text-primary-foreground text-xs items-center">
+            <span>{analysis.team?.name}</span>
+            <LucideDot />
+            <span>{analysis.user?.name}</span>
+          </p>
         </CardHeader>
       </CardContent>
     </Card>

@@ -24,7 +24,6 @@ export const editTeamSchema = z.object({
   about: z
     .string()
     .max(TEAM_ABOUT_MAX_LENGTH, "About must be less than 256 characters"),
-  image: z.union([z.string(), z.instanceof(File), z.null()]).optional(),
 });
 
 export type EditTeamFormData = z.infer<typeof editTeamSchema>;

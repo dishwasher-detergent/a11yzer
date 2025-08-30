@@ -11,7 +11,7 @@ import {
 import { Result } from "@/interfaces/result.interface";
 import { TeamData } from "@/interfaces/team.interface";
 import { UserData, UserMemberData } from "@/interfaces/user.interface";
-import { createUserData, withAuth } from "@/lib/auth";
+import { createUserData, setLastVisitedTeam, withAuth } from "@/lib/auth";
 import {
   DATABASE_ID,
   HOSTNAME,
@@ -290,6 +290,7 @@ export async function deleteTeam(id: string): Promise<Result<TeamData>> {
       await checkUserRole(id, user.$id, [OWNER_ROLE]);
       await team.delete(id);
       await database.deleteDocument(DATABASE_ID, TEAM_COLLECTION_ID, id);
+      await setLastVisitedTeam(null);
 
       revalidateTag("teams");
 

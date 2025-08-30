@@ -11,6 +11,7 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { LucideSparkles } from "lucide-react";
 
 export function NavAnalysis({
   analysis,
@@ -20,7 +21,7 @@ export function NavAnalysis({
   loading: boolean;
 }) {
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup>
       <SidebarGroupLabel>Recent</SidebarGroupLabel>
       <SidebarMenu>
         {loading &&
@@ -31,9 +32,13 @@ export function NavAnalysis({
           ))}
         {analysis?.map((item) => (
           <SidebarMenuItem key={item.$id}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              tooltip={item.data.analysis.summary.slice(0, 25)}
+            >
               <Link href={`/app/teams/${item.teamId}/analysis/${item.$id}`}>
-                <span>{item.data.analysis.summary.slice(0, 50)}</span>
+                <LucideSparkles />
+                <span>{item.data.analysis.summary.slice(0, 25)}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

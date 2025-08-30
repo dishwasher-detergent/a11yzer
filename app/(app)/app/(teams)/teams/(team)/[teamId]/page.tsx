@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+import { Query } from "node-appwrite";
 
 import { AnalysisHistory } from "@/components/analysis/analysis-history";
 import { setLastVisitedTeam } from "@/lib/auth";
+import { listAnalysis } from "@/lib/db";
 import { getTeamById } from "@/lib/team";
 
 export default async function TeamPage({
@@ -18,5 +20,9 @@ export default async function TeamPage({
 
   await setLastVisitedTeam(teamId);
 
-  return <AnalysisHistory />;
+  const { data: analysisData } = await listAnalysis([
+    Query.equal("teamId", teamId),
+  ]);
+
+  return <AnalysisHistory data={analysisData?.documents} />;
 }

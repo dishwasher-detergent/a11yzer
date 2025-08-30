@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { AnalysisView } from "@/components/analysis/analysis-view";
-import { setLastVisitedTeam } from "@/lib/auth";
+import { getAnalysisById } from "@/lib/db";
 import { getTeamById } from "@/lib/team";
 
 export default async function TeamPage({
@@ -16,7 +16,7 @@ export default async function TeamPage({
     redirect("/app");
   }
 
-  await setLastVisitedTeam(teamId);
+  const { data: analysisData } = await getAnalysisById(analysisId);
 
-  return <AnalysisView analysisId={analysisId} />;
+  return <AnalysisView data={analysisData} />;
 }

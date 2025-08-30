@@ -6,10 +6,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenuItem,
-  DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu";
 import { DyanmicDrawer } from "@/components/ui/dynamic-drawer";
 import {
   Form,
@@ -36,17 +32,16 @@ export function InviteTeam({ team }: { team: TeamData }) {
       open={open}
       setOpen={setOpen}
       button={
-        <DropdownMenuItem
-          onClick={(e) => {
-            e.preventDefault();
+        <Button
+          onClick={() => {
             setOpen(!open);
           }}
+          size="sm"
+          variant="secondary"
         >
-          Invite
-          <DropdownMenuShortcut>
-            <LucideUserRoundPlus className="size-3.5" />
-          </DropdownMenuShortcut>
-        </DropdownMenuItem>
+          Invite Member
+          <LucideUserRoundPlus className="size-3.5" />
+        </Button>
       }
     >
       <InviteForm setOpen={setOpen} team={team} />

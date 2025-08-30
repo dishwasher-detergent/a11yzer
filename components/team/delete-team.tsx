@@ -9,10 +9,6 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenuItem,
-  DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu";
 import { DyanmicDrawer } from "@/components/ui/dynamic-drawer";
 import {
   Form,
@@ -40,17 +36,16 @@ export function DeleteTeam({ team }: { team: TeamData }) {
       open={open}
       setOpen={setOpen}
       button={
-        <DropdownMenuItem
-          onClick={(e) => {
-            e.preventDefault();
+        <Button
+          onClick={() => {
             setOpen(!open);
           }}
+          size="sm"
+          variant="secondary"
         >
-          Delete
-          <DropdownMenuShortcut>
-            <LucideTrash2 className="size-3.5" />
-          </DropdownMenuShortcut>
-        </DropdownMenuItem>
+          Delete Team
+          <LucideTrash2 className="size-3.5" />
+        </Button>
       }
     >
       <DeleteForm setOpen={setOpen} team={team} />
@@ -91,7 +86,7 @@ function DeleteForm({ className, setOpen, team }: FormProps) {
 
     if (data.success) {
       toast.success(data.message);
-      router.push("/app/teams");
+      router.push("/app");
       setOpen(false);
     } else {
       toast.error(data.message);

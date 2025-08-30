@@ -67,7 +67,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href={`/app/users/${user?.$id}`}>
+                <Link href="/app/profile">
                   Profile
                   <DropdownMenuShortcut>
                     <LucideUser className="size-3" />

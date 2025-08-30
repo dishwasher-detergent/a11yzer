@@ -1,37 +1,31 @@
-import { LucideEllipsisVertical } from "lucide-react";
-
-import { DeleteTeam } from "@/components/team/delete-team";
-import { EditTeam } from "@/components/team/edit-team";
-import { InviteTeam } from "@/components/team/invite-team";
-import { LeaveTeam } from "@/components/team/leave-team";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { TeamData } from "@/interfaces/team.interface";
+import { DeleteTeam } from "./delete-team";
+import { EditTeam } from "./edit-team";
+import { InviteTeam } from "./invite-team";
+import { LeaveTeam } from "./leave-team";
 
 interface TeamActionsProps {
-  team: TeamData;
+  data: TeamData;
   isOwner: boolean;
   isAdmin: boolean;
+  isMember: boolean;
 }
 
-export function TeamActions({ team, isOwner, isAdmin }: TeamActionsProps) {
+export function TeamActions({
+  data,
+  isOwner,
+  isAdmin,
+  isMember,
+}: TeamActionsProps) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="icon" variant="outline" className="size-8">
-          <LucideEllipsisVertical className="size-3" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {!isOwner && <LeaveTeam team={team} />}
-        <InviteTeam team={team} />
-        {(isOwner || isAdmin) && <EditTeam team={team} />}
-        {isOwner && <DeleteTeam team={team} />}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div>
+      <h3 className="font-semibold text-base mb-2">Actions</h3>
+      <div className="flex flex-row gap-1">
+        {!isOwner && <LeaveTeam team={data} />}
+        {isMember && <InviteTeam team={data} />}
+        {(isOwner || isAdmin) && <EditTeam team={data} />}
+        {isOwner && <DeleteTeam team={data} />}
+      </div>
+    </div>
   );
 }
