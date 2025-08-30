@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 import { Page } from "puppeteer";
 
 import { ElementInfo, LimitedData } from "@/interfaces/analysis.interface";
-import { ANALYSIS_LIMITS } from "./constants";
+import { ANALYSIS_LIMITS } from "@/lib/constants";
 
 export async function extractProblematicElements(
   page: Page,

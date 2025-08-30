@@ -12,7 +12,7 @@ import {
   LinkData,
   SemanticStructure,
 } from "@/interfaces/analysis.interface";
-import { ANALYSIS_LIMITS } from "./constants";
+import { ANALYSIS_LIMITS } from "@/lib/constants";
 
 // Main function to extract all accessibility data
 export async function extractAccessibilityData(

@@ -24,3 +24,13 @@ export const COOKIE_KEY = `a_session_${PROJECT_ID}`;
 // Additional
 export const MAX_TEAM_LIMIT =
   Number(process.env.NEXT_PUBLIC_MAX_TEAM_LIMIT) || 3;
+
+export const ANALYSIS_LIMITS = {
+  MAX_HEADINGS: 20,
+  MAX_IMAGES: 30,
+  MAX_LINKS: 25,
+  MAX_FORM_INPUTS: 15,
+  MAX_ARIA_ELEMENTS: 20,
+  MAX_PROBLEMATIC_ELEMENTS: 30,
+  MAX_TEXT_LENGTH: 200,
+} as const;
