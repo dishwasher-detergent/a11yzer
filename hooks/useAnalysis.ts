@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { Models } from "node-appwrite";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { useLimitNotifications } from "@/hooks/useLimitNotifications";
-import { AnalysisResult } from "@/interfaces/analysis.interface";
+import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { getAnalysisById, listAnalysis } from "@/lib/db";
 
 export function useAnalysis(teamId: string) {
   const [url, setUrl] = useState("");
@@ -63,5 +66,93 @@ export function useAnalysis(teamId: string) {
     analyzeWebsite,
     clearAnalysis,
     clearError,
+  };
+}
+
+/**
+ * Hook for fetching a list of analysis from the database
+ * @param queries - Optional queries to filter the analysis
+ * @returns Object with analysisList, loading state, and refetch function
+ */
+export function useAnalysisList(queries: string[] = []) {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [analysisList, setAnalysisList] = useState<Models.DocumentList<
+    AnalysisDb<AnalysisResult>
+  > | null>(null);
+
+  async function fetchAnalysisList() {
+    setLoading(true);
+
+    const data = await listAnalysis(queries);
+
+    if (!data.success) {
+      toast.error(data.message);
+    }
+
+    if (data?.data) {
+      setAnalysisList(data.data);
+    }
+    setLoading(false);
+  }
+
+  const refetchAnalysisList = () => {
+    fetchAnalysisList();
+  };
+
+  useEffect(() => {
+    fetchAnalysisList();
+  }, [JSON.stringify(queries)]);
+
+  return {
+    analysisList,
+    loading,
+    refetchAnalysisList,
+  };
+}
+
+/**
+ * Hook for fetching a single analysis by ID from the database
+ * @param analysisId - The ID of the analysis to fetch
+ * @param queries - Optional queries to modify the fetch
+ * @returns Object with analysis, loading state, and refetch function
+ */
+export function useAnalysisById(analysisId: string, queries: string[] = []) {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [analysis, setAnalysis] = useState<AnalysisDb<AnalysisResult> | null>(
+    null
+  );
+
+  async function fetchAnalysis() {
+    if (!analysisId) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    const data = await getAnalysisById(analysisId, queries);
+
+    if (!data.success) {
+      toast.error(data.message);
+    }
+
+    if (data?.data) {
+      setAnalysis(data.data);
+    }
+    setLoading(false);
+  }
+
+  const refetchAnalysis = () => {
+    fetchAnalysis();
+  };
+
+  useEffect(() => {
+    fetchAnalysis();
+  }, [analysisId, JSON.stringify(queries)]);
+
+  return {
+    analysis,
+    loading,
+    refetchAnalysis,
   };
 }
