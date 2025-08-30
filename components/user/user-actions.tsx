@@ -1,11 +1,3 @@
-import { LucideEllipsisVertical } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { EditProfile } from "@/components/user/edit-profile";
 import { UserData } from "@/interfaces/user.interface";
 
@@ -15,15 +7,11 @@ interface UserActionsProps {
 
 export function UserActions({ user }: UserActionsProps) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="icon" variant="outline" className="size-8">
-          <LucideEllipsisVertical className="size-3" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+    <div>
+      <h3 className="font-semibold text-base mb-2">Actions</h3>
+      <div className="flex flex-row gap-1">
         <EditProfile user={user} />
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </div>
+    </div>
   );
 }

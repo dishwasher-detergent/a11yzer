@@ -24,5 +24,9 @@ export default async function TeamPage({
     Query.equal("teamId", teamId),
   ]);
 
-  return <AnalysisHistory data={analysisData?.documents} />;
+  return (
+    <main className="p-4">
+      <AnalysisHistory data={analysisData?.documents} />
+    </main>
+  );
 }

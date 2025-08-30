@@ -25,12 +25,10 @@ export default async function ProfilePage() {
   ]);
 
   return (
-    <article className="space-y-6">
-      <main className="px-4 space-y-6">
-        <UserDescription user={data} />
-        <UserActions user={data} />
-        <AnalysisHistory data={analysisData?.documents} />
-      </main>
-    </article>
+    <main className="p-4 space-y-6">
+      <UserDescription user={data} />
+      <UserActions user={data} />
+      <AnalysisHistory data={analysisData?.documents} />
+    </main>
   );
 }

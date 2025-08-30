@@ -35,24 +35,22 @@ export default async function TeamPage({
   }
 
   return (
-    <article className="space-y-6 p-4">
-      <main className="px-4 space-y-6">
-        <TeamDescription team={data} />
-        {isMember && (
-          <TeamActions
-            data={data}
-            isOwner={isOwner}
-            isAdmin={isAdmin}
-            isMember={isMember}
-          />
-        )}
-        <TeamMembers
-          members={data.members ?? []}
-          teamId={data.$id}
+    <main className="space-y-6 p-4">
+      <TeamDescription team={data} />
+      {isMember && (
+        <TeamActions
+          data={data}
           isOwner={isOwner}
           isAdmin={isAdmin}
+          isMember={isMember}
         />
-      </main>
-    </article>
+      )}
+      <TeamMembers
+        members={data.members ?? []}
+        teamId={data.$id}
+        isOwner={isOwner}
+        isAdmin={isAdmin}
+      />
+    </main>
   );
 }
