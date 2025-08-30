@@ -38,9 +38,12 @@ export function CreateTeam({ className }: { className?: string }) {
       open={open}
       setOpen={setOpen}
       button={
-        <Button className={className}>
+        <Button
+          className={cn(className, "justify-start px-2!")}
+          variant="ghost"
+        >
+          <LucidePlus className="size-6 text-muted-foreground border p-1 rounded-md" />
           Create Team
-          <LucidePlus className="ml-2 size-3.5" />
         </Button>
       }
     >

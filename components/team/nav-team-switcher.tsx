@@ -63,13 +63,16 @@ export function TeamSwitcher() {
             >
               {activeTeam ? (
                 <>
-                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <p>{activeTeam?.name[0]}</p>
+                  <div className="border flex aspect-square size-8 items-center justify-center rounded-lg">
+                    <p className="font-semibold uppercase text-muted-foreground">
+                      {activeTeam?.name[0]}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 flex-1 text-left text-sm leading-tight">
+                  <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">
-                      {activeTeam?.name}
+                      {activeTeam.name}
                     </span>
+                    <span className="truncate text-xs">{activeTeam.about}</span>
                   </div>
                 </>
               ) : (
@@ -97,12 +100,12 @@ export function TeamSwitcher() {
               >
                 <Link href={`/app/teams/${teamItem.$id}`}>
                   <div className="flex flex-row gap-2 items-center">
-                    <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-6 items-center justify-center rounded-lg">
-                      <p>{teamItem?.name[0]}</p>
+                    <div className="flex size-6 items-center justify-center rounded-md border">
+                      <p className="font-semibold uppercase text-muted-foreground">
+                        {teamItem?.name[0]}
+                      </p>
                     </div>
-                    <span className="truncate font-semibold">
-                      {teamItem.name}
-                    </span>
+                    <span className="truncate">{teamItem.name}</span>
                   </div>
                   <Check
                     className={cn(
