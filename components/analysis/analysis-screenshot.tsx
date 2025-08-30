@@ -14,37 +14,34 @@ export function AnalysisScreenshot({
   problematicElements,
 }: AnalysisScreenshotProps) {
   return (
-    <div className="flex flex-row gap-2 border-b">
-      <div className="max-h-96 overflow-y-auto">
-        <img
-          src={screenshotUrl}
-          alt="Website screenshot with accessibility highlights"
-          className="w-full max-w-2xl mx-auto"
-        />
+    <div>
+      <div className="p-4">
+        <h2 className="font-semibold text-lg pb-2">Problematic Elements</h2>
+        <p className="text-muted-foreground text-sm">
+          {problematicElements?.items.length} elements found with issues.
+        </p>
       </div>
-      {problematicElements && problematicElements.items.length > 0 && (
-        <div className="p-2 max-h-96 overflow-y-auto">
-          <h4 className="font-semibold mb-2">
-            {problematicElements.items.length} issues highlighted
-            {problematicElements.limited && (
-              <span className="text-orange-600 ml-1">
-                (showing {problematicElements.items.length} of{" "}
-                {problematicElements.totalCount})
-              </span>
-            )}
-          </h4>
-          <div className="space-y-2">
+      <div className="flex flex-row gap-2 border-b">
+        <div className="max-h-96 overflow-y-auto">
+          <img
+            src={screenshotUrl}
+            alt="Website screenshot with accessibility highlights"
+            className="w-full max-w-2xl mx-auto"
+          />
+        </div>
+        {problematicElements && problematicElements.items.length > 0 && (
+          <ul className="p-2 max-h-96 overflow-y-auto space-y-1">
             {problematicElements.items.map((element, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm">
+              <li key={index} className="flex items-center gap-2 text-sm">
                 <Badge variant={element.priority}>{element.issue}</Badge>
                 <span className="text-muted-foreground truncate">
                   {element.text || element.selector}
                 </span>
-              </div>
+              </li>
             ))}
-          </div>
-        </div>
-      )}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

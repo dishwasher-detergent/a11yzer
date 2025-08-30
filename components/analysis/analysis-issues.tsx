@@ -1,6 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { AnalysisIssue } from "@/interfaces/analysis.interface";
-import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  LucideSparkles,
+  XCircle,
+} from "lucide-react";
 
 interface AnalysisIssuesProps {
   issues: AnalysisIssue[];
@@ -36,7 +41,13 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
     <div className="p-4 border-b">
       <div className="flex justify-between items-center pb-4">
         <div>
-          <h2 className="font-semibold text-base pb-2">Analysis Result</h2>
+          <h2 className="font-semibold text-lg pb-2">
+            Analysis Result
+            <Badge variant="outline" className="ml-2">
+              <LucideSparkles />
+              AI Generated
+            </Badge>
+          </h2>
           <p className="text-muted-foreground text-sm">
             {issues.length} issues found across accessibility, UX, and UI
           </p>

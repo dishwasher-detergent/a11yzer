@@ -7,7 +7,7 @@ interface TechnicalDetailsProps {
 export function TechnicalDetails({ accessibilityData }: TechnicalDetailsProps) {
   return (
     <div className="p-4">
-      <h2 className="font-semibold text-base pb-2">Analysis Result</h2>
+      <h2 className="font-semibold text-lg pb-2">Technical Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h4 className="font-semibold mb-2">Semantic Structure</h4>

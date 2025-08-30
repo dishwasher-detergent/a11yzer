@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -53,7 +54,7 @@ export function TeamSwitcher() {
   const activeTeam = teams.find((x) => x.$id === teamId);
 
   return (
-    <SidebarMenu className="bg-background border rounded-lg">
+    <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -107,12 +108,14 @@ export function TeamSwitcher() {
                     </div>
                     <span className="truncate">{teamItem.name}</span>
                   </div>
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4 flex-none",
-                      teamId === teamItem.$id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <DropdownMenuShortcut>
+                    <Check
+                      className={cn(
+                        "size-3",
+                        teamId === teamItem.$id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                  </DropdownMenuShortcut>
                 </Link>
               </DropdownMenuItem>
             ))}
