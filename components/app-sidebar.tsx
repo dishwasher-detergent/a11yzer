@@ -1,6 +1,5 @@
 "use client";
 
-import { LucideHistory, LucideSparkles } from "lucide-react";
 import { Query } from "node-appwrite";
 import * as React from "react";
 
@@ -18,19 +17,7 @@ import {
 import { NavUser } from "@/components/user/nav-user";
 import { useAnalysisList } from "@/hooks/useAnalysis";
 import { useParams } from "next/navigation";
-
-const data = [
-  {
-    title: "Analysis",
-    url: "analysis",
-    icon: LucideSparkles,
-  },
-  {
-    title: "History",
-    url: "",
-    icon: LucideHistory,
-  },
-];
+import { ModeToggle } from "./theme-toggle";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { teamId } = useParams<{
@@ -47,9 +34,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data} />
-        <NavAnalysis analysis={analysisList?.documents} loading={loading} />
+        <NavMain />
         {teamId && <NavTeam teamId={teamId} />}
+        <NavAnalysis analysis={analysisList?.documents} loading={loading} />
+        <div className="mt-auto p-2">
+          <ModeToggle />
+        </div>
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

@@ -11,7 +11,6 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
-import { LucideSparkles } from "lucide-react";
 
 export function NavAnalysis({
   analysis,
@@ -30,15 +29,18 @@ export function NavAnalysis({
               <SidebarMenuSkeleton />
             </SidebarMenuItem>
           ))}
-        {analysis?.map((item) => (
+        {analysis?.map((item, index) => (
           <SidebarMenuItem key={item.$id}>
             <SidebarMenuButton
               asChild
               tooltip={item.data.analysis.summary.slice(0, 25)}
+              className="truncate"
             >
               <Link href={`/app/teams/${item.teamId}/analysis/${item.$id}`}>
-                <LucideSparkles />
-                <span>{item.data.analysis.summary.slice(0, 25)}</span>
+                <div className="grid place-items-center border rounded-md bg-background size-6 flex-none group-data-[state=collapsed]:border-none group-data-[state=collapsed]:size-4 group-data-[state=collapsed]:bg-transparent">
+                  <p className="text-xs font-semibold">{index + 1}</p>
+                </div>
+                <span>{item.data.analysis.summary.slice(0, 25)}...</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

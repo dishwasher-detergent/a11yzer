@@ -60,11 +60,11 @@ export function TeamSwitcher() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground bg-muted border group-data-[state=collapsed]:border-none"
             >
               {activeTeam ? (
                 <>
-                  <div className="border flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <div className="border flex aspect-square size-8 items-center justify-center rounded-lg bg-background">
                     <p className="font-semibold uppercase text-muted-foreground">
                       {activeTeam?.name[0]}
                     </p>

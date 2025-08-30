@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideSettings } from "lucide-react";
+import { LucideHistory, LucideSettings } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -20,6 +20,14 @@ export function NavTeam({ teamId }: NavTeamProps) {
     <SidebarGroup>
       <SidebarGroupLabel>Team</SidebarGroupLabel>
       <SidebarMenu>
+        <SidebarMenuItem key="history">
+          <SidebarMenuButton asChild tooltip="Team History">
+            <Link href={`/app/teams/${teamId}`}>
+              <LucideHistory />
+              <span>History</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
         <SidebarMenuItem key="settings">
           <SidebarMenuButton asChild tooltip="Team Settings">
             <Link href={`/app/teams/${teamId}/settings`}>
