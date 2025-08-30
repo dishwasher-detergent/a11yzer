@@ -1,6 +1,7 @@
+import { useState } from "react";
+
 import { useLimitNotifications } from "@/hooks/useLimitNotifications";
 import { AnalysisResult } from "@/interfaces/analysis.interface";
-import { useState } from "react";
 
 export function useAnalysis() {
   const [url, setUrl] = useState("");
@@ -30,7 +31,8 @@ export function useAnalysis() {
       }
 
       const data = await response.json();
-      setAnalysis(data);
+
+      setAnalysis(data.data);
 
       // Show limit notifications if any data was limited
       showLimitNotifications(data.limits);

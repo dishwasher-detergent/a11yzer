@@ -6,9 +6,9 @@ export default async function AppLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="flex w-full grow flex-col">
+    <main className="flex w-full grow flex-col bg-muted">
       <Nav />
-      <section className="mx-auto max-w-6xl w-full p-4 md:px-8">
+      <section className="mx-auto max-w-6xl w-full border-x flex-1 bg-background">
         {children}
       </section>
     </main>

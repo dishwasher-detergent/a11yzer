@@ -12,8 +12,8 @@ const karla = Karla({
 });
 
 export const metadata: Metadata = {
-  title: "NextJS with Appwrite",
-  description: "A NextJS starter with Appwrite, TypeScript, and TailwindCSS",
+  title: "Accessibility Analyzer",
+  description: "Analyze the accessibility of your web pages.",
 };
 
 export default function RootLayout({

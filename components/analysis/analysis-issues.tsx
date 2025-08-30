@@ -1,11 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { AnalysisIssue } from "@/interfaces/analysis.interface";
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 
@@ -28,64 +21,56 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
-    return "text-red-600";
+  const getBadgeVariant = (score: number) => {
+    if (score >= 80) return "low";
+    if (score >= 60) return "medium";
+    return "high";
   };
 
-  const getScoreBgColor = (score: number) => {
-    if (score >= 80) return "bg-green-100";
-    if (score >= 60) return "bg-yellow-100";
-    return "bg-red-100";
-  };
+  const sortedIssues = [...issues].sort((a, b) => {
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Analysis Results</CardTitle>
-            <CardDescription>
-              {issues.length} issues found across accessibility, UX, and UI
-            </CardDescription>
-          </div>
-          <div
-            className={`text-2xl font-bold ${getScoreColor(
-              overallScore
-            )} ${getScoreBgColor(overallScore)} px-3 py-1 rounded-lg`}
-          >
-            {overallScore}/100
-          </div>
+    <div className="p-4 border-b">
+      <div className="flex justify-between items-center pb-4">
+        <div>
+          <h2 className="font-semibold text-base pb-2">Analysis Result</h2>
+          <p className="text-muted-foreground text-sm">
+            {issues.length} issues found across accessibility, UX, and UI
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {issues.map((issue, index) => (
-            <div key={index} className="border rounded-lg p-4 space-y-2">
-              <div className="flex items-center gap-2">
+        <Badge className="text-xl" variant={getBadgeVariant(overallScore)}>
+          {overallScore}/100
+        </Badge>
+      </div>
+      <div className="space-y-4">
+        {sortedIssues.map((issue, index) => (
+          <div key={index} className="space-y-2 border-t border-dashed pt-2">
+            <h3 className="font-semibold">{issue.title}</h3>
+            <div className="flex items-center gap-2">
+              <Badge variant={issue.priority}>
                 {getTypeIcon(issue.type)}
-                <Badge variant={issue.priority}>{issue.priority}</Badge>
-                <span className="font-semibold">{issue.title}</span>
-                {issue.wcagCriterion && (
-                  <Badge variant="outline" className="text-xs">
-                    {issue.wcagCriterion}
-                  </Badge>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {issue.description}
-              </p>
-              <div className="bg-blue-50 p-3 rounded-md">
-                <h4 className="text-sm font-semibold text-blue-900 mb-1">
-                  Recommendation:
-                </h4>
-                <p className="text-sm text-blue-800">{issue.recommendation}</p>
-              </div>
+                {issue.priority}
+              </Badge>
+              <Badge>{issue.type}</Badge>
+              {issue.wcagCriterion && (
+                <Badge variant="outline" className="text-xs">
+                  {issue.wcagCriterion}
+                </Badge>
+              )}
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            <p className="text-sm text-muted-foreground">{issue.description}</p>
+            <div className="bg-blue-50 p-3 rounded-md">
+              <h4 className="text-sm font-semibold text-blue-900 mb-1">
+                Recommendation:
+              </h4>
+              <p className="text-sm text-blue-800">{issue.recommendation}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

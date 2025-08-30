@@ -1,49 +1,6 @@
 // Analysis interfaces for the accessibility checker
 
-export interface SemanticStructure {
-  hasMain: boolean;
-  hasNav: boolean;
-  hasHeader: boolean;
-  hasFooter: boolean;
-}
-
-export interface Heading {
-  level: string;
-  text: string;
-  hasId: boolean;
-}
-
-export interface Image {
-  src: string;
-  alt: string;
-  hasAlt: boolean;
-}
-
-export interface Link {
-  href: string;
-  text: string;
-  hasTitle: boolean;
-}
-
-export interface FormInput {
-  type: string;
-  hasLabel: boolean;
-  hasId: boolean;
-}
-
-export interface Form {
-  inputs: FormInput[];
-  hasFieldset: boolean;
-}
-
-export interface AriaElement {
-  tag: string;
-  ariaLabel?: string;
-  ariaLabelledby?: string;
-  role?: string;
-}
-
-export interface ProblematicElement {
+export interface ElementInfo {
   selector: string;
   text: string;
   issue: string;
@@ -61,6 +18,73 @@ export interface LimitedData<T> {
   totalCount: number;
   limited: boolean;
 }
+
+export interface SemanticStructure {
+  hasMain: boolean;
+  hasNav: boolean;
+  hasHeader: boolean;
+  hasFooter: boolean;
+  hasAside: boolean;
+  hasSection: boolean;
+  hasArticle: boolean;
+  skipLinks: number;
+}
+
+export interface KeyboardNavigation {
+  focusableElements: number;
+  tabIndexElements: number;
+  negativeTabIndex: number;
+}
+
+export interface Heading {
+  level: string;
+  text: string;
+  hasId: boolean;
+}
+
+// Alias for compatibility
+export interface HeadingData extends Heading {}
+
+export interface Image {
+  src: string;
+  alt: string | undefined;
+  hasAlt: boolean;
+}
+
+// Alias for compatibility
+export interface ImageData extends Image {}
+
+export interface Link {
+  href: string;
+  text: string;
+  hasTitle: boolean;
+}
+
+// Alias for compatibility
+export interface LinkData extends Link {}
+
+export interface FormInput {
+  type: string;
+  hasLabel: boolean;
+  hasId: boolean;
+}
+
+export interface Form {
+  inputs: FormInput[];
+  hasFieldset: boolean;
+}
+
+// Alias for compatibility
+export interface FormData extends Form {}
+
+export interface AriaElement {
+  tag: string;
+  ariaLabel?: string;
+  ariaLabelledby?: string;
+  role?: string;
+}
+
+export interface ProblematicElement extends ElementInfo {}
 
 export interface LimitInfo {
   limited: boolean;
@@ -92,21 +116,23 @@ export interface Analysis {
   summary: string;
 }
 
-export interface RawData {
-  semanticStructure: SemanticStructure;
+export interface AccessibilityData {
+  title: string;
   headings: LimitedData<Heading>;
   images: LimitedData<Image>;
   links: LimitedData<Link>;
-  forms?: LimitedData<Form>;
-  ariaLabels?: LimitedData<AriaElement>;
+  forms: LimitedData<Form>;
+  ariaLabels: LimitedData<AriaElement>;
+  semanticStructure: SemanticStructure;
+  keyboardNavigation: KeyboardNavigation;
 }
 
 export interface AnalysisResult {
   url: string;
-  screenshot: string;
+  screenshotUrl: string;
   originalScreenshot?: string;
   analysis: Analysis;
-  rawData: RawData;
+  accessibilityData: AccessibilityData;
   problematicElements?: LimitedData<ProblematicElement>;
   limits?: AnalysisLimits;
 }

@@ -23,8 +23,8 @@ export function UrlInput({
   };
 
   return (
-    <div className="space-y-4">
-      <form onSubmit={handleSubmit} className="flex gap-2">
+    <div className="border-b">
+      <form onSubmit={handleSubmit} className="flex">
         <div className="flex-1">
           <Input
             type="url"
@@ -32,11 +32,17 @@ export function UrlInput({
             value={url}
             onChange={(e) => onUrlChange(e.target.value)}
             disabled={loading}
-            className={error ? "border-red-500" : ""}
+            className={`border-none rounded-none px-4 h-16 ${
+              error ? "border-red-500" : ""
+            }`}
           />
           {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
         </div>
-        <Button type="submit" disabled={loading || !url}>
+        <Button
+          type="submit"
+          disabled={loading || !url}
+          className="rounded-none h-16"
+        >
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (

@@ -1,9 +1,6 @@
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { LucideSparkles } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
 
 interface AnalysisOverviewProps {
   summary: string;
@@ -11,11 +8,15 @@ interface AnalysisOverviewProps {
 
 export function AnalysisOverview({ summary }: AnalysisOverviewProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Analysis Overview</CardTitle>
-        <CardDescription>{summary}</CardDescription>
-      </CardHeader>
-    </Card>
+    <div className="border-b p-4">
+      <h2 className="font-semibold text-base pb-2">
+        Detailed Analysis Overview
+        <Badge variant="outline" className="ml-2">
+          <LucideSparkles />
+          AI Generated
+        </Badge>
+      </h2>
+      <p className="text-muted-foreground text-sm">{summary}</p>
+    </div>
   );
 }
