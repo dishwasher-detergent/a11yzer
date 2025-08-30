@@ -1,4 +1,5 @@
-import { Nav } from "@/components/ui/nav";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default async function AppLayout({
   children,
@@ -6,11 +7,9 @@ export default async function AppLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="flex w-full grow flex-col bg-muted">
-      <Nav />
-      <section className="mx-auto max-w-6xl w-full border-x flex-1 bg-background">
-        {children}
-      </section>
-    </main>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>{children}</SidebarInset>
+    </SidebarProvider>
   );
 }

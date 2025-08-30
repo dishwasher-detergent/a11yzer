@@ -3,7 +3,7 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { ID, Models, Permission, Query, Role } from "node-appwrite";
 
-import { AnalysisDb } from "@/interfaces/analysis.interface";
+import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
 import { Result } from "@/interfaces/result.interface";
 import { TeamData } from "@/interfaces/team.interface";
 import { UserData } from "@/interfaces/user.interface";
@@ -23,7 +23,7 @@ import { createSessionClient } from "@/lib/server/appwrite";
  */
 export async function listAnalysis(
   queries: string[] = []
-): Promise<Result<Models.DocumentList<AnalysisDb>>> {
+): Promise<Result<Models.DocumentList<AnalysisDb<AnalysisResult>>>> {
   return withAuth(async (user) => {
     const { database } = await createSessionClient();
 
@@ -31,7 +31,7 @@ export async function listAnalysis(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       async (queries, userId) => {
         try {
-          const analysis = await database.listDocuments<AnalysisDb>(
+          const analysis = await database.listDocuments<AnalysisDb<string>>(
             DATABASE_ID,
             ANALYSIS_COLLECTION_ID,
             queries
@@ -81,19 +81,23 @@ export async function listAnalysis(
             {}
           );
 
-          const newAnalysis = analysis.documents.map((analysis) => ({
-            ...analysis,
-            data: JSON.parse(analysis.data),
-            user: userMap[analysis.userId],
-            team: teamMap[analysis.teamId],
-          }));
+          const newAnalysis: AnalysisDb<AnalysisResult>[] =
+            analysis.documents.map((analysis) => ({
+              ...analysis,
+              data: JSON.parse(analysis.data) as AnalysisResult,
+              user: userMap[analysis.userId],
+              team: teamMap[analysis.teamId],
+            }));
 
-          analysis.documents = newAnalysis;
+          const newDocuments = {
+            ...analysis,
+            documents: newAnalysis,
+          };
 
           return {
             success: true,
             message: "Analysis successfully retrieved.",
-            data: analysis,
+            data: newDocuments,
           };
         } catch (err) {
           const error = err as Error;
@@ -126,14 +130,14 @@ export async function listAnalysis(
 export async function getAnalysisById(
   analysisId: string,
   queries: string[] = []
-): Promise<Result<AnalysisDb>> {
+): Promise<Result<AnalysisDb<AnalysisResult>>> {
   return withAuth(async () => {
     const { database } = await createSessionClient();
 
     return unstable_cache(
       async () => {
         try {
-          const analysis = await database.getDocument<AnalysisDb>(
+          const analysis = await database.getDocument<AnalysisDb<string>>(
             DATABASE_ID,
             ANALYSIS_COLLECTION_ID,
             analysisId,
@@ -159,7 +163,7 @@ export async function getAnalysisById(
             message: "Analysis successfully retrieved.",
             data: {
               ...analysis,
-              data: JSON.parse(analysis.data),
+              data: JSON.parse(analysis.data) as AnalysisResult,
               user: userRes,
               team: teamRes,
             },
@@ -199,9 +203,10 @@ export async function createAnalysis({
   data: {
     teamId: string;
     data: string;
+    url: string;
   };
   permissions?: string[];
-}): Promise<Result<AnalysisDb>> {
+}): Promise<Result<AnalysisDb<string>>> {
   return withAuth(async (user) => {
     const { database } = await createSessionClient();
 
@@ -213,12 +218,13 @@ export async function createAnalysis({
     ];
 
     try {
-      const analysis = await database.createDocument<AnalysisDb>(
+      const analysis = await database.createDocument<AnalysisDb<string>>(
         DATABASE_ID,
         ANALYSIS_COLLECTION_ID,
         id,
         {
           ...data,
+          url: data.url,
           userId: user.$id,
         },
         permissions
