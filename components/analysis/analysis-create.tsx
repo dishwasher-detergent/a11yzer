@@ -7,11 +7,11 @@ import { UrlInput } from "@/components/analysis/url-input";
 import { useAnalysis } from "@/hooks/useAnalysis";
 import { AnalysisOverview } from "./analysis-overview";
 
-interface AnalysisDashboardProps {
+interface AnalysisCreateProps {
   teamId: string;
 }
 
-export function AnalysisDashboard({ teamId }: AnalysisDashboardProps) {
+export function AnalysisCreate({ teamId }: AnalysisCreateProps) {
   const { url, setUrl, loading, analysis, error, analyzeWebsite } =
     useAnalysis(teamId);
 

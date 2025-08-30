@@ -139,8 +139,9 @@ export interface AnalysisResult {
   limits?: AnalysisLimits;
 }
 
-export interface AnalysisDb extends Models.Document {
+export interface AnalysisDb<T> extends Models.Document {
   userId: string;
   teamId: string;
-  data: string;
+  data: T;
+  url: string;
 }

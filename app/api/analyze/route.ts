@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
     const analysisResult = await createAnalysis({
       data: {
         data: JSON.stringify(data),
+        url: url,
         teamId: teamId,
       },
     });

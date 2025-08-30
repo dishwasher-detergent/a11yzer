@@ -14,7 +14,7 @@ export function AnalysisScreenshot({
   problematicElements,
 }: AnalysisScreenshotProps) {
   return (
-    <div className="flex flex-row gap-2">
+    <div className="flex flex-row gap-2 border-b">
       <div className="max-h-96 overflow-y-auto">
         <img
           src={screenshotUrl}
