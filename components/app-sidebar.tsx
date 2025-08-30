@@ -7,7 +7,7 @@ import * as React from "react";
 import { NavAnalysis } from "@/components/analysis/nav-analysis";
 import { NavMain } from "@/components/nav-main";
 import { NavTeam } from "@/components/team/nav-team";
-import { TeamSwitcher } from "@/components/team/team-switcher";
+import { TeamSwitcher } from "@/components/team/nav-team-switcher";
 import {
   Sidebar,
   SidebarContent,

@@ -32,7 +32,7 @@ export function NavUser() {
   }
 
   return (
-    <SidebarMenu>
+    <SidebarMenu className="bg-background border rounded-lg">
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

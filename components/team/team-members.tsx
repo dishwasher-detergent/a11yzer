@@ -3,7 +3,6 @@ import {
   LucideEllipsisVertical,
   LucideMailWarning,
 } from "lucide-react";
-import Link from "next/link";
 
 import { DemoteMemberAdmin } from "@/components/team/demote-admin";
 import { PromoteMemberAdmin } from "@/components/team/promote-admin";
@@ -46,7 +45,7 @@ export function TeamMembers({
           <TableHeader>
             <TableRow>
               <TableHead className="w-full">User</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead>Role(s)</TableHead>
               <TableHead>Joined</TableHead>
               {isAdmin && <TableHead>Actions</TableHead>}
             </TableRow>
@@ -63,9 +62,7 @@ export function TeamMembers({
                       <LucideMailWarning className="size-3.5" />
                     )}
                   </div>
-                  <Button variant="link" asChild className="px-0">
-                    <Link href={`/app/users/${member.$id}`}>{member.name}</Link>
-                  </Button>
+                  {member.name}
                 </TableCell>
                 <TableCell>{member.roles.join(", ")}</TableCell>
                 <TableCell>

@@ -53,7 +53,7 @@ export function TeamSwitcher() {
   const activeTeam = teams.find((x) => x.$id === teamId);
 
   return (
-    <SidebarMenu>
+    <SidebarMenu className="bg-background border rounded-lg">
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
