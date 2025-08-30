@@ -7,11 +7,11 @@ export default async function TeamsPage() {
 
   return (
     <>
-      <header className="flex flex-row justify-between items-center pb-4 w-full">
+      <header className="flex flex-row justify-between items-center w-full p-4">
         <h2 className="font-bold">Your Teams</h2>
         <CreateTeam />
       </header>
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
         {data?.map((team) => (
           <TeamCard key={team.$id} {...team} />
         ))}

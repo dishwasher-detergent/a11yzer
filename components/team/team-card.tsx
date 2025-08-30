@@ -14,19 +14,15 @@ import { TeamData } from "@/interfaces/team.interface";
 
 export function TeamCard(team: TeamData) {
   return (
-    <Card className="break-inside-avoid-column rounded-lg overflow-hidden py-0 gap-0 ">
+    <Card className="rounded-lg overflow-hidden py-0 gap-0">
       <CardContent className="p-0 relative">
-        <CardHeader className="flex flex-col justify-end bottom-0 absolute w-full p-4 h-full bg-linear-to-t from-primary to-primary/20">
-          <CardTitle className="text-primary-foreground">
-            <Button
-              className="truncate p-0! text-primary-foreground text-xl"
-              variant="link"
-              asChild
-            >
+        <CardHeader className="flex flex-col justify-end w-full p-4 h-full">
+          <CardTitle>
+            <Button className="truncate p-0! text-lg" variant="link" asChild>
               <Link href={`/app/teams/${team.$id}`}>{team.name}</Link>
             </Button>
           </CardTitle>
-          <CardDescription className="text-primary-foreground line-clamp-3">
+          <CardDescription className="line-clamp-3">
             {team?.description ?? "No description provided."}
           </CardDescription>
         </CardHeader>

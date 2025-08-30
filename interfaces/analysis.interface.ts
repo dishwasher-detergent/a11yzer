@@ -1,5 +1,7 @@
 // Analysis interfaces for the accessibility checker
 
+import { Models } from "node-appwrite";
+
 export interface ElementInfo {
   selector: string;
   text: string;
@@ -135,4 +137,10 @@ export interface AnalysisResult {
   accessibilityData: AccessibilityData;
   problematicElements?: LimitedData<ProblematicElement>;
   limits?: AnalysisLimits;
+}
+
+export interface AnalysisDb extends Models.Document {
+  userId: string;
+  teamId: string;
+  data: string;
 }

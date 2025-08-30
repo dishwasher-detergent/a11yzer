@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useLimitNotifications } from "@/hooks/useLimitNotifications";
 import { AnalysisResult } from "@/interfaces/analysis.interface";
 
-export function useAnalysis() {
+export function useAnalysis(teamId: string) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -23,7 +23,7 @@ export function useAnalysis() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, teamId }),
       });
 
       if (!response.ok) {

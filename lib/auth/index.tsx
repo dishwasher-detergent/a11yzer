@@ -22,7 +22,9 @@ import {
  * @returns {Promise<Models.User<Models.Preferences> | null>} A promise that resolves to the account information
  * of the logged-in user, or null if no user is logged in.
  */
-export async function getLoggedInUser(): Promise<Models.User<Models.Preferences> | null> {
+export async function getLoggedInUser(): Promise<Models.User<{
+  lastVisitedTeam: string | null;
+}> | null> {
   try {
     const { account } = await createSessionClient();
 
@@ -425,6 +427,40 @@ export async function createUserData(
       return {
         success: true,
         message: "User data successfully created.",
+      };
+    }
+  });
+}
+
+/**
+ * Set the last visited team for the user
+ * @param teamId The team ID to set as last visited
+ * @returns {Promise<Result<void>>} Result of the operation
+ */
+export async function setLastVisitedTeam(
+  teamId: string | null
+): Promise<Result<void>> {
+  return withAuth(async () => {
+    const { account } = await createSessionClient();
+
+    try {
+      await account.updatePrefs({
+        lastVisitedTeam: teamId,
+      });
+
+      return {
+        success: true,
+        message: "Last visited team set successfully.",
+      };
+    } catch (err) {
+      const error = err as Error;
+
+      // Logging to Vercel
+      console.error(error);
+
+      return {
+        success: false,
+        message: error.message,
       };
     }
   });

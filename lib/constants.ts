@@ -11,6 +11,8 @@ export const USER_COLLECTION_ID = process.env
   .NEXT_PUBLIC_USER_COLLECTION_ID as string;
 export const TEAM_COLLECTION_ID = process.env
   .NEXT_PUBLIC_TEAM_COLLECTION_ID as string;
+export const ANALYSIS_COLLECTION_ID = process.env
+  .NEXT_PUBLIC_ANALYSIS_COLLECTION_ID as string;
 
 // Buckets
 export const SCREENSHOT_BUCKET_ID = process.env

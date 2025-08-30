@@ -14,6 +14,7 @@ import {
 import { addHighlightsToScreenshot } from "@/lib/analysis/screenshot-highlights";
 import { getLoggedInUser } from "@/lib/auth";
 import { ENDPOINT, PROJECT_ID, SCREENSHOT_BUCKET_ID } from "@/lib/constants";
+import { createAnalysis } from "@/lib/db";
 import { uploadScreenshotImage } from "@/lib/storage";
 
 export async function POST(request: NextRequest) {
@@ -24,10 +25,14 @@ export async function POST(request: NextRequest) {
       return createValidationErrorResponse("User is not logged in");
     }
 
-    const { url } = await request.json();
+    const { url, teamId } = await request.json();
 
     if (!url) {
       return createValidationErrorResponse("URL is required");
+    }
+
+    if (!teamId) {
+      return createValidationErrorResponse("Team ID is required");
     }
 
     const browser = await puppeteer.launch({
@@ -67,22 +72,35 @@ export async function POST(request: NextRequest) {
     });
 
     if (!uploadResult.success) {
-      return createErrorResponse("Failed to upload screenshot");
+      throw new Error("Failed to upload screenshot");
     }
 
     const analysis = await analyzeWithAI(accessibilityData);
     const limitsInfo = createLimitsInfo(accessibilityData);
 
-    return createSuccessResponse(
-      url,
-      accessibilityData,
-      problematicElements,
-      analysis,
-      `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
+    const data = {
+      url: url,
+      accessibilityData: accessibilityData,
+      problematicElements: problematicElements,
+      analysis: analysis,
+      screenshotUrl: `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
         uploadResult.data!.$id
       }/view?project=${PROJECT_ID}`,
-      limitsInfo
-    );
+      limitsInfo: limitsInfo,
+    };
+
+    const analysisResult = await createAnalysis({
+      data: {
+        data: JSON.stringify(data),
+        teamId: teamId,
+      },
+    });
+
+    if (!analysisResult.success) {
+      throw new Error("Failed to create analysis");
+    }
+
+    return createSuccessResponse(data);
   } catch (error) {
     console.error("Analysis error:", error);
     return createErrorResponse("Failed to analyze webpage");

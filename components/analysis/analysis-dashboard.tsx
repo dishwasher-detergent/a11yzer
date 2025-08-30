@@ -1,3 +1,5 @@
+"use client";
+
 import { AnalysisIssues } from "@/components/analysis/analysis-issues";
 import { AnalysisScreenshot } from "@/components/analysis/analysis-screenshot";
 import { TechnicalDetails } from "@/components/analysis/technical-details";
@@ -5,9 +7,13 @@ import { UrlInput } from "@/components/analysis/url-input";
 import { useAnalysis } from "@/hooks/useAnalysis";
 import { AnalysisOverview } from "./analysis-overview";
 
-export function AnalysisDashboard() {
+interface AnalysisDashboardProps {
+  teamId: string;
+}
+
+export function AnalysisDashboard({ teamId }: AnalysisDashboardProps) {
   const { url, setUrl, loading, analysis, error, analyzeWebsite } =
-    useAnalysis();
+    useAnalysis(teamId);
 
   return (
     <div>

@@ -20,14 +20,23 @@ export interface AnalysisResponse {
   error?: string;
 }
 
-export function createSuccessResponse(
-  url: string,
-  accessibilityData: AccessibilityData,
-  problematicElements: LimitedData<ElementInfo>,
-  analysis: AIAnalysisResult,
-  screenshotUrl: string,
-  limitsInfo: LimitsInfo
-): NextResponse<AnalysisResponse> {
+export function createSuccessResponse(data: {
+  url: string;
+  accessibilityData: AccessibilityData;
+  problematicElements: LimitedData<ElementInfo>;
+  analysis: AIAnalysisResult;
+  screenshotUrl: string;
+  limitsInfo: LimitsInfo;
+}): NextResponse<AnalysisResponse> {
+  const {
+    url,
+    accessibilityData,
+    problematicElements,
+    analysis,
+    screenshotUrl,
+    limitsInfo,
+  } = data;
+
   return NextResponse.json({
     success: true,
     data: {
