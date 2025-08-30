@@ -19,69 +19,64 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  TEAM_ABOUT_MAX_LENGTH,
-  TEAM_NAME_MAX_LENGTH,
-} from "@/constants/team.constants";
+import { TEAM_NAME_MAX_LENGTH } from "@/constants/team.constants";
 import { createTeam } from "@/lib/team";
 import { AddTeamFormData, addTeamSchema } from "@/lib/team/schemas";
 import { cn } from "@/lib/utils";
 
-export function CreateTeam() {
+export function CreateTeam({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
     <DyanmicDrawer
-      title="Team"
-      description="Create a new Team"
+      title="Team Creation"
+      description="Create a new Team to house your projects!"
       open={open}
       setOpen={setOpen}
       button={
-        <Button size="sm">
+        <Button className={className}>
           Create Team
           <LucidePlus className="ml-2 size-3.5" />
         </Button>
       }
     >
-      <CreateForm setOpen={setOpen} />
+      <CreateForm />
     </DyanmicDrawer>
   );
 }
 
-interface FormProps extends React.ComponentProps<"form"> {
-  setOpen: (e: boolean) => void;
-}
-
-function CreateForm({ className, setOpen }: FormProps) {
+function CreateForm({ className }: React.ComponentProps<"form">) {
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
 
   const form = useForm<AddTeamFormData>({
+    mode: "onChange",
     resolver: zodResolver(addTeamSchema),
     defaultValues: {
       name: "",
-      about: "",
     },
   });
 
   async function onSubmit(values: AddTeamFormData) {
-    setLoading(true);
+    toast.promise(
+      createTeam({
+        data: values,
+      }),
+      {
+        loading: "Creating team...",
+        success: (data) => {
+          if (data.success) {
+            router.push(`/app/teams/${data.data!.$id}`);
+          } else {
+            throw new Error(data.message);
+          }
 
-    const data = await createTeam({
-      data: values,
-    });
-
-    if (data.success) {
-      toast.success(data.message);
-      router.push(`/app/teams/${data.data!.$id}`);
-      setOpen(false);
-    } else {
-      toast.error(data.message);
-    }
-
-    setLoading(false);
-    setOpen(false);
+          return data.message;
+        },
+        error: (err) => {
+          return err.message;
+        },
+      }
+    );
   }
 
   return (
@@ -89,7 +84,7 @@ function CreateForm({ className, setOpen }: FormProps) {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
-          "h-full flex flex-col gap-4 overflow-hidden p-4 md:p-0",
+          "flex h-full flex-col gap-4 overflow-hidden p-4 md:p-0",
           className
         )}
       >
@@ -99,7 +94,7 @@ function CreateForm({ className, setOpen }: FormProps) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Team</FormLabel>
+                <FormLabel>Team Name</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
@@ -109,36 +104,10 @@ function CreateForm({ className, setOpen }: FormProps) {
                       maxLength={TEAM_NAME_MAX_LENGTH}
                     />
                     <Badge
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2"
+                      className="absolute top-1/2 right-1.5 -translate-y-1/2"
                       variant="secondary"
                     >
-                      {field?.value?.length}/{TEAM_NAME_MAX_LENGTH}
-                    </Badge>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="about"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>About</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Textarea
-                      {...field}
-                      placeholder="Describe your team."
-                      className="pb-8"
-                      maxLength={TEAM_ABOUT_MAX_LENGTH}
-                    />
-                    <Badge
-                      className="absolute bottom-2 left-2"
-                      variant="secondary"
-                    >
-                      {field?.value?.length ?? 0}/{TEAM_ABOUT_MAX_LENGTH}
+                      {field?.value?.length || 0}/{TEAM_NAME_MAX_LENGTH}
                     </Badge>
                   </div>
                 </FormControl>
@@ -150,13 +119,17 @@ function CreateForm({ className, setOpen }: FormProps) {
         <Button
           className="sticky bottom-0"
           type="submit"
-          disabled={loading || !form.formState.isValid}
+          disabled={
+            form.formState.isSubmitting ||
+            !form.formState.isValid ||
+            !form.formState.isDirty
+          }
         >
-          Create
-          {loading ? (
-            <LucideLoader2 className="mr-2 size-3.5 animate-spin" />
+          Create Team
+          {form.formState.isSubmitting ? (
+            <LucideLoader2 className="size-3.5 animate-spin" />
           ) : (
-            <LucidePlus className="mr-2 size-3.5" />
+            <LucidePlus className="size-3.5" />
           )}
         </Button>
       </form>

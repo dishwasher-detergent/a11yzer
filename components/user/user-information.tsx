@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideLogOut, LucideUser, LucideUsers } from "lucide-react";
+import { LucideLogOut, LucideUser } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -26,14 +26,6 @@ export function UserInformation({ user }: { user: User }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem asChild>
-          <Link href="/app/teams">
-            Teams
-            <DropdownMenuShortcut>
-              <LucideUsers className="size-3" />
-            </DropdownMenuShortcut>
-          </Link>
-        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={`/app/users/${user.$id}`}>
             Profile
