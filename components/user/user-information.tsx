@@ -2,7 +2,6 @@
 
 import { LucideLogOut, LucideUser, LucideUsers } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,13 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User } from "@/interfaces/user.interface";
 import { logOut } from "@/lib/auth";
-import { getInitials } from "@/lib/utils";
 
 export function UserInformation({ user }: { user: User }) {
-  const initals = useMemo(() => {
-    return getInitials(user.name);
-  }, [user.name]);
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

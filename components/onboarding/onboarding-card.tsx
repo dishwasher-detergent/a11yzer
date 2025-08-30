@@ -19,8 +19,9 @@ export function OnboardingCard() {
           </div>
           <CardTitle>Welcome to AI Accessibility Checker</CardTitle>
           <CardDescription>
-            To get started, you'll need to create or join a team. Teams help
-            organize your accessibility analyses and collaborate with others.
+            To get started, you&apos;ll need to create or join a team. Teams
+            help organize your accessibility analyses and collaborate with
+            others.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

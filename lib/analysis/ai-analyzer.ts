@@ -1,6 +1,14 @@
 import OpenAI from "openai";
 
-import { AccessibilityData } from "@/interfaces/analysis.interface";
+import {
+  AccessibilityData,
+  AriaElement,
+  Form,
+  Heading,
+  Image,
+  LimitedData,
+  Link,
+} from "@/interfaces/analysis.interface";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -23,7 +31,10 @@ export interface AIAnalysisResult {
 export async function analyzeWithAI(
   accessibilityData: AccessibilityData
 ): Promise<AIAnalysisResult> {
-  const createDataSummary = (data: any, label: string) => {
+  const createDataSummary = <T>(
+    data: LimitedData<T>,
+    label: string
+  ): string => {
     if (data.limited) {
       return `${label} (showing first ${data.items.length} of ${data.totalCount} total - data limited to prevent prompt overflow)`;
     }
@@ -35,31 +46,29 @@ Analyze this webpage for accessibility issues and UI/UX improvements. Here's the
 
 Title: ${accessibilityData.title}
 
-${createDataSummary(accessibilityData.headings, "Headings")}: ${JSON.stringify(
-    accessibilityData.headings.items,
-    null,
-    2
-  )}
+${createDataSummary<Heading>(
+  accessibilityData.headings,
+  "Headings"
+)}: ${JSON.stringify(accessibilityData.headings.items, null, 2)}
 
-${createDataSummary(accessibilityData.images, "Images")}: ${JSON.stringify(
-    accessibilityData.images.items,
-    null,
-    2
-  )}
+${createDataSummary<Image>(
+  accessibilityData.images,
+  "Images"
+)}: ${JSON.stringify(accessibilityData.images.items, null, 2)}
 
-${createDataSummary(accessibilityData.links, "Links")}: ${JSON.stringify(
+${createDataSummary<Link>(accessibilityData.links, "Links")}: ${JSON.stringify(
     accessibilityData.links.items,
     null,
     2
   )}
 
-${createDataSummary(accessibilityData.forms, "Forms")}: ${JSON.stringify(
+${createDataSummary<Form>(accessibilityData.forms, "Forms")}: ${JSON.stringify(
     accessibilityData.forms.items,
     null,
     2
   )}
 
-${createDataSummary(
+${createDataSummary<AriaElement>(
   accessibilityData.ariaLabels,
   "ARIA Labels"
 )}: ${JSON.stringify(accessibilityData.ariaLabels.items, null, 2)}
@@ -120,7 +129,7 @@ Format your response as JSON with the following structure:
 
   try {
     return JSON.parse(aiResponse || "{}");
-  } catch (e) {
+  } catch {
     return {
       overallScore: 50,
       issues: [],

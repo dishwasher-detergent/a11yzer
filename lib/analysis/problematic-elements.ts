@@ -36,8 +36,8 @@ export async function extractProblematicElements(
           };
         }
       }
-    } catch (e) {
-      // If we can't get bounding box, return a default
+    } catch {
+      console.error("Error getting bounding box");
     }
     return { x: 0, y: 0, width: 0, height: 0 };
   };

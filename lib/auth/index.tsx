@@ -135,7 +135,7 @@ export async function updateProfile({
   id: string;
   data: UpdateProfileFormData;
 }): Promise<Response> {
-  return withAuth(async (user) => {
+  return withAuth(async () => {
     const { account, database } = await createSessionClient();
 
     try {

@@ -65,11 +65,13 @@ export function createLimitsInfo(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isDataLimited(dataset: LimitedData<any>): boolean {
   return dataset.limited;
 }
 
 export function getDataSummary(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dataset: LimitedData<any>,
   categoryName: string
 ): string {
