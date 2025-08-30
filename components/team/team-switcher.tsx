@@ -20,7 +20,6 @@ import { useTeamData } from "@/hooks/useTeamData";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { CreateTeam } from "./create-team";
 
@@ -30,7 +29,6 @@ export function TeamSwitcher() {
     teamId: string;
   }>();
 
-  const [_, setOpen] = useState(false);
   const { teams, loading } = useTeamData();
 
   if (loading) {
@@ -87,9 +85,6 @@ export function TeamSwitcher() {
             {teams.map((teamItem) => (
               <DropdownMenuItem
                 key={teamItem.$id}
-                onSelect={() => {
-                  setOpen(false);
-                }}
                 className="cursor-pointer text-sm flex justify-between items-center"
                 asChild
               >
