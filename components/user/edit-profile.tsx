@@ -40,7 +40,7 @@ export function EditProfile({ user }: { user: UserData }) {
       setOpen={setOpen}
       button={
         <Button
-          onClick={(e) => {
+          onClick={() => {
             setOpen(!open);
           }}
           variant="secondary"

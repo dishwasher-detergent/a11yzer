@@ -15,7 +15,8 @@ export function AnalysisHistory({ data }: AnalysisHistoryProps) {
         ))}
         {(!data || data?.length === 0) && (
           <p className="font-semibold text-muted-foreground text-sm">
-            You haven't created any analysis yet. Get started by creating one!
+            You haven&apos;t created any analysis yet. Get started by creating
+            one!
           </p>
         )}
       </div>
