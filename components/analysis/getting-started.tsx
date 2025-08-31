@@ -41,9 +41,9 @@ export default function GettingStart() {
         </div>
         <div className="mt-8 p-4 rounded-lg bg-muted/50 border">
           <p className="text-sm text-muted-foreground">
-            <strong>How it works:</strong> Enter any website URL below and we'll
-            analyze it for accessibility issues, provide a compliance score, and
-            give you detailed recommendations for improvements.
+            <strong>How it works:</strong> Enter any website URL below and
+            we&apos;ll analyze it for accessibility issues, provide a compliance
+            score, and give you detailed recommendations for improvements.
           </p>
         </div>
       </div>
