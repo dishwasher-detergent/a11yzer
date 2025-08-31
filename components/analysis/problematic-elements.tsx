@@ -134,14 +134,14 @@ export function AnalysisProblematicElements({
               List of problematic elements
             </h4>
             <ul
-              className="space-y-1"
+              className="space-y-1 divide-y"
               role="list"
               aria-label={`${elementCount} problematic elements found`}
             >
               {problematicElements.items.map((element, index) => (
                 <li
                   key={index}
-                  className="not-last:border-b border-dashed flex items-start gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded p-2 transition-colors focus-within:bg-muted/50"
+                  className="border-dashed flex items-start gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded p-2 transition-colors focus-within:bg-muted/50"
                   role="listitem"
                   aria-describedby={`element-description-${index}`}
                   onClick={() => handleElementClick(element)}
