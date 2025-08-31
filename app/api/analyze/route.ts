@@ -2,13 +2,12 @@ import * as cheerio from "cheerio";
 import { NextRequest } from "next/server";
 import puppeteer from "puppeteer";
 
-import { analyzeWithAI } from "@/lib/analysis/ai-analyzer";
+import { analyzeWithAIStreaming } from "@/lib/analysis/ai-analyzer";
 import { extractAccessibilityData } from "@/lib/analysis/extractors";
 import { createLimitsInfo } from "@/lib/analysis/limits-info";
 import { extractProblematicElements } from "@/lib/analysis/problematic-elements";
 import {
   createErrorResponse,
-  createSuccessResponse,
   createValidationErrorResponse,
 } from "@/lib/analysis/response-utils";
 import { addHighlightsToScreenshot } from "@/lib/analysis/screenshot-highlights";
@@ -45,74 +44,208 @@ export async function POST(request: NextRequest) {
       return createValidationErrorResponse("Daily analysis limit reached");
     }
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "status",
+                message: "Starting analysis...",
+                step: 1,
+                totalSteps: 6,
+              })}\n\n`
+            )
+          );
 
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 800 });
-    await page.goto(url, { waitUntil: "networkidle2" });
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "status",
+                message: "Launching browser and navigating to URL...",
+                step: 2,
+                totalSteps: 6,
+              })}\n\n`
+            )
+          );
 
-    const html = await page.content();
-    const $ = cheerio.load(html);
+          const browser = await puppeteer.launch({
+            headless: true,
+            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+          });
 
-    const accessibilityData = await extractAccessibilityData(page);
-    const problematicElements = await extractProblematicElements(page, $);
+          const page = await browser.newPage();
+          await page.setViewport({ width: 1280, height: 800 });
+          await page.goto(url, { waitUntil: "networkidle2" });
 
-    const screenshot = await page.screenshot({
-      encoding: "base64",
-      fullPage: true,
-    });
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "status",
+                message: "Extracting accessibility data...",
+                step: 3,
+                totalSteps: 6,
+              })}\n\n`
+            )
+          );
 
-    await browser.close();
+          const html = await page.content();
+          const $ = cheerio.load(html);
 
-    const highlightedScreenshot = await addHighlightsToScreenshot(
-      screenshot as string,
-      problematicElements.items
-    );
+          const accessibilityData = await extractAccessibilityData(page);
+          const problematicElements = await extractProblematicElements(page, $);
 
-    const screenshotBuffer = Buffer.from(highlightedScreenshot, "base64");
-    const screenshotFile = new File([screenshotBuffer], "screenshot.png", {
-      type: "image/png",
-    });
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "status",
+                message: "Taking screenshot and processing...",
+                step: 4,
+                totalSteps: 6,
+              })}\n\n`
+            )
+          );
 
-    const uploadResult = await uploadScreenshotImage({
-      data: screenshotFile,
-    });
+          const screenshot = await page.screenshot({
+            encoding: "base64",
+            fullPage: true,
+          });
 
-    if (!uploadResult.success) {
-      throw new Error("Failed to upload screenshot");
-    }
+          await browser.close();
 
-    const analysis = await analyzeWithAI(accessibilityData);
-    const limitsInfo = createLimitsInfo(accessibilityData);
+          const highlightedScreenshot = await addHighlightsToScreenshot(
+            screenshot as string,
+            problematicElements.items
+          );
 
-    const data = {
-      url: url,
-      accessibilityData: accessibilityData,
-      problematicElements: problematicElements,
-      analysis: analysis,
-      screenshotUrl: `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
-        uploadResult.data!.$id
-      }/view?project=${PROJECT_ID}`,
-      limitsInfo: limitsInfo,
-      count: (userData?.count || 0) + 1,
-    };
+          const screenshotBuffer = Buffer.from(highlightedScreenshot, "base64");
+          const screenshotFile = new File(
+            [screenshotBuffer],
+            "screenshot.png",
+            {
+              type: "image/png",
+            }
+          );
 
-    const analysisResult = await createAnalysis({
-      data: {
-        data: JSON.stringify(data),
-        url: url,
-        teamId: teamId,
+          const uploadResult = await uploadScreenshotImage({
+            data: screenshotFile,
+          });
+
+          if (!uploadResult.success) {
+            throw new Error("Failed to upload screenshot");
+          }
+
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "status",
+                message: "Starting AI analysis...",
+                step: 5,
+                totalSteps: 6,
+              })}\n\n`
+            )
+          );
+
+          let analysis = null;
+          let aiResponseBuffer = "";
+
+          for await (const chunk of analyzeWithAIStreaming(accessibilityData)) {
+            aiResponseBuffer += chunk;
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  type: "ai_chunk",
+                  content: chunk,
+                })}\n\n`
+              )
+            );
+          }
+
+          try {
+            analysis = JSON.parse(aiResponseBuffer);
+          } catch {
+            analysis = {
+              overallScore: 50,
+              issues: [],
+              summary: "Failed to parse AI response",
+            };
+          }
+
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "status",
+                message: "Saving results...",
+                step: 6,
+                totalSteps: 6,
+              })}\n\n`
+            )
+          );
+
+          const limitsInfo = createLimitsInfo(accessibilityData);
+
+          const data = {
+            url: url,
+            accessibilityData: accessibilityData,
+            problematicElements: problematicElements,
+            analysis: analysis,
+            screenshotUrl: `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
+              uploadResult.data!.$id
+            }/view?project=${PROJECT_ID}`,
+            limitsInfo: limitsInfo,
+            count: (userData?.count || 0) + 1,
+          };
+
+          const analysisResult = await createAnalysis({
+            data: {
+              data: JSON.stringify(data),
+              url: url,
+              teamId: teamId,
+            },
+          });
+
+          if (!analysisResult.success) {
+            throw new Error("Failed to create analysis");
+          }
+
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "complete",
+                data: data,
+                analysisId: analysisResult.data?.$id,
+              })}\n\n`
+            )
+          );
+
+          controller.close();
+        } catch (error) {
+          console.error("Analysis error:", error);
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "error",
+                message: "Failed to analyze webpage",
+                error: error instanceof Error ? error.message : "Unknown error",
+              })}\n\n`
+            )
+          );
+          controller.close();
+        }
       },
     });
 
-    if (!analysisResult.success) {
-      throw new Error("Failed to create analysis");
-    }
-
-    return createSuccessResponse(data);
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
   } catch (error) {
     console.error("Analysis error:", error);
     return createErrorResponse("Failed to analyze webpage");

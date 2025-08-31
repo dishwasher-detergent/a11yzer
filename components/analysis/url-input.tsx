@@ -6,6 +6,7 @@ import {
   LucideArrowUp,
   LucideLoader2,
   LucideTriangleAlert,
+  LucideX,
 } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
@@ -37,6 +38,7 @@ interface UrlInputProps {
   url: string;
   onUrlChange: (url: string) => void;
   onAnalyze: () => void;
+  onCancel?: () => void;
   loading: boolean;
   error?: string;
   count: number;
@@ -46,6 +48,7 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
   url,
   onUrlChange,
   onAnalyze,
+  onCancel,
   loading,
   error,
   count,
@@ -68,14 +71,12 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
 
   const watchedUrl = watch("url");
 
-  // Sync the form value with the parent component's URL
   useEffect(() => {
     if (watchedUrl !== url) {
       onUrlChange(watchedUrl || "");
     }
   }, [watchedUrl, onUrlChange]);
 
-  // Sync parent URL changes to form
   useEffect(() => {
     if (url !== watchedUrl) {
       setValue("url", url);
@@ -83,10 +84,20 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
   }, [url, setValue]);
 
   const onSubmit = useCallback(() => {
-    if (!isMaxedOut) {
+    if (!isMaxedOut && !loading) {
       onAnalyze();
     }
-  }, [onAnalyze, isMaxedOut]);
+  }, [onAnalyze, isMaxedOut, loading]);
+
+  const handleFormSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!loading) {
+        handleSubmit(onSubmit)(e);
+      }
+    },
+    [handleSubmit, onSubmit, loading]
+  );
 
   const isSubmitDisabled = loading || !watchedUrl || !!errors.url || isMaxedOut;
 
@@ -119,7 +130,7 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
           </p>
         </div>
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleFormSubmit}
           className="flex border rounded-md overflow-hidden h-12 bg-background"
           role="search"
           aria-label="Website URL analysis form"
@@ -143,26 +154,40 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
             </div>
           </div>
           <div className="h-full flex items-center pr-1.5">
-            <Button
-              type="submit"
-              disabled={isSubmitDisabled}
-              size="icon"
-              variant="secondary"
-              aria-label={
-                loading
-                  ? "Analyzing website..."
-                  : "Analyze website accessibility"
-              }
-            >
-              {loading ? (
-                <LucideLoader2
-                  className="w-4 h-4 animate-spin"
-                  aria-hidden="true"
-                />
-              ) : (
-                <LucideArrowUp className="w-4 h-4" aria-hidden="true" />
-              )}
-            </Button>
+            {loading && onCancel ? (
+              <Button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onCancel();
+                }}
+                size="icon"
+                variant="destructive"
+                aria-label="Cancel analysis"
+              >
+                <LucideX className="w-4 h-4" aria-hidden="true" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                disabled={isSubmitDisabled}
+                size="icon"
+                variant="secondary"
+                aria-label={
+                  loading ? "Analyzing website..." : "Analyze website"
+                }
+              >
+                {loading ? (
+                  <LucideLoader2
+                    className="w-4 h-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <LucideArrowUp className="w-4 h-4" aria-hidden="true" />
+                )}
+              </Button>
+            )}
           </div>
         </form>
       </div>

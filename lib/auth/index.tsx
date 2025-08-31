@@ -222,45 +222,6 @@ export async function updateProfile({
 }
 
 /**
- * Get a list of logs
- * @returns {Promise<Result<Models.LogList>>} The list of logs
- */
-export async function getUserLogs(): Promise<Result<Models.LogList>> {
-  return withAuth(async () => {
-    const { account } = await createSessionClient();
-
-    return unstable_cache(
-      async () => {
-        try {
-          const logs = await account.listLogs();
-
-          return {
-            success: true,
-            message: "Products successfully retrieved.",
-            data: logs,
-          };
-        } catch (err) {
-          const error = err as Error;
-
-          // This is where you would look to something like Splunk.
-          console.error(error);
-
-          return {
-            success: false,
-            message: error.message,
-          };
-        }
-      },
-      ["user-logs"],
-      {
-        tags: ["user-logs"],
-        revalidate: 600,
-      }
-    )();
-  });
-}
-
-/**
  * Logs out the currently logged-in user.
  * @returns {Promise<boolean>} A promise that resolves to true if the user is logged in, false otherwise.
  */

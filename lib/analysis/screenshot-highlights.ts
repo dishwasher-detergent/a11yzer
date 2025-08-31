@@ -1,7 +1,6 @@
 import { createCanvas, loadImage } from "canvas";
-import { Page } from "puppeteer";
 
-import { ElementInfo, LimitedData } from "@/interfaces/analysis.interface";
+import { ElementInfo } from "@/interfaces/analysis.interface";
 
 export async function addHighlightsToScreenshot(
   screenshotBase64: string,
@@ -82,19 +81,4 @@ export async function addHighlightsToScreenshot(
     console.error("Error adding highlights to screenshot:", error);
     return screenshotBase64;
   }
-}
-
-export async function highlightProblematicElements(
-  page: Page,
-  problematicElements: LimitedData<ElementInfo>
-): Promise<string> {
-  // Take screenshot
-  const screenshotBuffer = await page.screenshot({
-    type: "png",
-    fullPage: false,
-  });
-  const screenshotBase64 = Buffer.from(screenshotBuffer).toString("base64");
-
-  // Add highlights to screenshot
-  return addHighlightsToScreenshot(screenshotBase64, problematicElements.items);
 }

@@ -69,14 +69,3 @@ export function createLimitsInfo(
 export function isDataLimited(dataset: LimitedData<any>): boolean {
   return dataset.limited;
 }
-
-export function getDataSummary(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dataset: LimitedData<any>,
-  categoryName: string
-): string {
-  if (dataset.limited) {
-    return `${categoryName}: Showing ${dataset.items.length} of ${dataset.totalCount} (limited)`;
-  }
-  return `${categoryName}: ${dataset.items.length} items`;
-}

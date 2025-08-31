@@ -8,5 +8,3 @@ export interface TeamData extends Models.Document {
   members?: UserMemberData[];
   description?: string;
 }
-
-export interface Team extends Models.Team<Models.Preferences>, TeamData {}

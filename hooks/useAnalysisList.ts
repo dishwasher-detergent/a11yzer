@@ -237,33 +237,3 @@ export function useAnalysisList({
     refetchAnalysisList,
   };
 }
-
-/**
- * Backward compatibility hook for the old API
- * @param queries - Optional queries to filter the analysis
- * @param teamId - Optional team ID to filter by and enable realtime updates
- * @param userId - Optional user ID to filter by and enable realtime updates
- * @returns Object with analysisList (in old format), loading state, and refetch function
- */
-export function useAnalysisListOld(
-  queries: string[] = [],
-  teamId?: string,
-  userId?: string
-) {
-  const { analysisList, loading, refetchAnalysisList } = useAnalysisList({
-    teamId,
-    userId,
-    limit: 5,
-  });
-
-  const analysisListOldFormat = {
-    documents: analysisList,
-    total: analysisList.length,
-  };
-
-  return {
-    analysisList: analysisListOldFormat,
-    loading,
-    refetchAnalysisList,
-  };
-}
