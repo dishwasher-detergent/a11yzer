@@ -105,7 +105,7 @@ export function AnalysisProblematicElements({
 
         <div
           ref={imageContainerRef}
-          className="max-h-96 overflow-y-auto w-full lg:w-3/5 flex-none border-b lg:border-b-none lg:border-r"
+          className="max-h-96 overflow-y-auto w-full lg:w-3/5 flex-none border-b lg:border-b-0 lg:border-r"
           role="img"
           aria-labelledby="screenshot-description"
         >

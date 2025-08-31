@@ -105,13 +105,19 @@ export interface AnalysisLimits {
   problematicElements: LimitInfo;
 }
 
+export interface WcagCriterion {
+  id: string;
+  name: string;
+  link: string;
+}
+
 export interface AnalysisIssue {
   type: "accessibility" | "ux" | "ui";
   priority: "high" | "medium" | "low";
   title: string;
   description: string;
   recommendation: string;
-  wcagCriterion?: string;
+  wcagCriterion?: WcagCriterion;
 }
 
 export interface Analysis {

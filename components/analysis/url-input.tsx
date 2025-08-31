@@ -109,14 +109,11 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
       <h2 id="url-analysis-heading" className="sr-only">
         Website Accessibility Analysis
       </h2>
-
       <div className="p-0.5 border bg-secondary rounded-md space-y-1">
-        {/* Error messages with live region for dynamic updates */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">
           {error && `Error: ${error}`}
           {errors.url && `Validation error: ${errors.url.message}`}
         </div>
-
         {error && (
           <div
             className="px-2 py-1 bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2"
@@ -148,8 +145,6 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
             </p>
           </div>
         )}
-
-        {/* Usage counter with live region for screen readers */}
         <div className="px-2 py-1">
           <div aria-live="polite" aria-atomic="true">
             <p
@@ -171,7 +166,6 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
             </p>
           </div>
         </div>
-
         <form
           onSubmit={handleFormSubmit}
           className="flex border rounded-md overflow-hidden h-12 bg-background"
@@ -206,7 +200,6 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
               URL must start with http:// or https://
             </div>
           </div>
-
           <div className="h-full flex items-center pr-1.5">
             {loading && onCancel ? (
               <Button
@@ -260,7 +253,6 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
                 )}
               </Button>
             )}
-
             {isSubmitDisabled && !loading && (
               <div id="button-disabled-reason" className="sr-only">
                 {isMaxedOut

@@ -9,7 +9,7 @@ interface AnalysisOverviewProps {
 export function AnalysisOverview({ summary }: AnalysisOverviewProps) {
   return (
     <section
-      className="p-4 rounded-md"
+      className="p-4 col-start-1 lg:col-start-auto"
       aria-labelledby="overview-heading"
       role="region"
     >

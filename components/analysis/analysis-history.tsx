@@ -39,7 +39,7 @@ export function AnalysisHistory({
   return (
     <div>
       <h3 className="font-semibold text-base mb-2">Analysis History</h3>
-      <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 grid-cols-2 gap-4">
         {analysisList?.map((item) => (
           <AnalysisCard key={item.$id} {...item} />
         ))}
@@ -51,7 +51,7 @@ export function AnalysisHistory({
         )}
       </div>
       {analysisList.length > 0 && (
-        <div className="flex flex-col items-center space-y-2 pt-2">
+        <div className="flex flex-col items-center space-y-2 py-8">
           <p className="text-muted-foreground text-sm">
             Showing {analysisList.length} of {totalAnalysis} analysis.
           </p>
@@ -60,6 +60,7 @@ export function AnalysisHistory({
               variant="secondary"
               onClick={handleLoadMore}
               disabled={loading || !nextCursor}
+              size="sm"
             >
               Show More
               {loading ? (

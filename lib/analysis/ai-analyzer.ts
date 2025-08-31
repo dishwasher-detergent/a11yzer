@@ -152,7 +152,11 @@ export async function* analyzeWithAIStreaming(
   };
 
   const prompt = `
-Analyze this webpage for accessibility issues and UI/UX improvements, group these issues into these categories: accessibility, ui, ux. Here's the data:
+You are an experienced accessibility specialist and product designer. Evaluate the provided page data for WCAG 2.1 AA compliance and high-leverage UI/UX improvements.
+
+---
+# Inputs (page snapshot)
+Use ONLY the data below—do not invent details that aren't present. If something is missing, treat it as "Unknown" and proceed.
 
 Title: ${accessibilityData.title}
 
@@ -205,21 +209,37 @@ Keyboard Navigation:
 - Tab Index Elements: ${accessibilityData.keyboardNavigation.tabIndexElements}
 - Negative Tab Index: ${accessibilityData.keyboardNavigation.negativeTabIndex}
 
-Please respond with a JSON object containing:
-- overallScore: number (0-100)
-- issues: array of objects with type, priority (lowercase), title, description, recommendation, and wcagCriterion with reference
-- summary: string (brief overview of the analysis)
+---
+# Output format (JSON only)
+Return one JSON object with exactly these top-level fields:
+- overallScore (number, 0-100)
+- issues (array of objects)
+- summary (string, one paragraph, ≤ 300 chars)
 
-Focus on:
-1. WCAG 2.1 AA compliance
-2. User experience improvements
-3. UI best practices
-4. Semantic HTML usage
-5. Keyboard navigation
-6. Screen reader compatibility
+Each issue must include:
+- type: "accessibility" | "ui" | "ux"
+- priority: "critical" | "high" | "medium" | "low"
+- title
+- description
+- recommendation
+- wcagCriterion: { id: string, name: string, link: string }
 
-Make your analysis thorough but concise.
-`;
+Output only the JSON — no commentary, no markdown.
+
+---
+# Scoring rubric
+Start at 100, subtract:
+- Critical: -12
+- High: -7
+- Medium: -3
+- Low: -1
+Bound score to [0, 100].
+
+---
+# High-signal checks to prioritize
+Accessibility: landmarks, heading hierarchy, labels, link purpose, keyboard order, forms, images, live regions.
+UI: hit target sizes, spacing rhythm, affordances, visual hierarchy.
+UX: navigation clarity, form UX, task clarity, reducing cognitive load.`;
 
   const stream = await openai.chat.completions.create({
     model: "gpt-5-mini",
@@ -227,7 +247,7 @@ Make your analysis thorough but concise.
       {
         role: "system",
         content:
-          "You are an expert accessibility auditor and UX consultant. Analyze webpages for WCAG compliance and provide actionable improvement suggestions.",
+          "You are an experienced accessibility specialist and product designer. Evaluate the provided page data for WCAG 2.1 AA compliance and high-leverage UI/UX improvements.",
       },
       {
         role: "user",
