@@ -51,7 +51,7 @@ export function AnalysisHistory({
         )}
       </div>
       {analysisList.length > 0 && (
-        <div className="flex flex-col items-center space-y-2 pt-2">
+        <div className="flex flex-col items-center space-y-2 py-8">
           <p className="text-muted-foreground text-sm">
             Showing {analysisList.length} of {totalAnalysis} analysis.
           </p>
@@ -60,6 +60,7 @@ export function AnalysisHistory({
               variant="secondary"
               onClick={handleLoadMore}
               disabled={loading || !nextCursor}
+              size="sm"
             >
               Show More
               {loading ? (

@@ -13,7 +13,10 @@ export function TechnicalDetails({ accessibilityData }: TechnicalDetailsProps) {
   });
 
   return (
-    <section className="p-4" aria-labelledby="technical-details-heading">
+    <section
+      className="p-4 col-start-1 lg:col-start-auto"
+      aria-labelledby="technical-details-heading"
+    >
       <h2 id="technical-details-heading" className="font-semibold text-lg pb-2">
         Technical Details
       </h2>
