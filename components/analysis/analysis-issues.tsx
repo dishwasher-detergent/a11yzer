@@ -1,7 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnalysisIssue } from "@/interfaces/analysis.interface";
-import { AlertTriangle, LucideSparkles } from "lucide-react";
+import {
+  AlertTriangle,
+  LucideExternalLink,
+  LucideSparkles,
+} from "lucide-react";
 import { useMemo } from "react";
 
 interface AnalysisIssuesProps {
@@ -50,7 +54,7 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
       {filteredIssues.map((issue, index) => (
         <li
           key={index}
-          className="space-y-2 not-last:border-b border-dashed p-4"
+          className="space-y-4 not-last:border-b border-dashed p-4"
           role="listitem"
           aria-labelledby={`issue-title-${index}`}
           aria-describedby={`issue-description-${index} issue-recommendation-${index}`}
@@ -74,16 +78,6 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
             >
               <span className="capitalize">{issue.type}</span>
             </Badge>
-            {issue.wcagCriterion && (
-              <Badge
-                variant="outline"
-                className="text-xs"
-                aria-label={`WCAG criterion: ${issue.wcagCriterion}`}
-                title={`Web Content Accessibility Guidelines criterion: ${issue.wcagCriterion}`}
-              >
-                {issue.wcagCriterion}
-              </Badge>
-            )}
           </header>
           <div className="issue-content">
             <h3 id={`issue-title-${index}`} className="font-medium text-base">
@@ -96,14 +90,8 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
               {issue.description}
             </p>
           </div>
-          <section
-            className="bg-muted p-3 rounded-md border"
-            aria-labelledby={`recommendation-heading-${index}`}
-          >
-            <h4
-              id={`recommendation-heading-${index}`}
-              className="text-sm font-semibold text-muted-foreground mb-1"
-            >
+          <section className="bg-muted p-3 rounded-md border">
+            <h4 className="text-sm font-semibold text-muted-foreground mb-1">
               Recommendation:
             </h4>
             <p
@@ -113,6 +101,21 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
               {issue.recommendation}
             </p>
           </section>
+          {issue.wcagCriterion && (
+            <section>
+              <h4 className="text-sm font-medium">Reference:</h4>
+              <a
+                href={issue.wcagCriterion.link}
+                target="_blank"
+                className="text-sm text-muted-foreground mb-1 flex flex-row items-center gap-2"
+              >
+                <span>
+                  WCAG: {issue.wcagCriterion.name} - {issue.wcagCriterion.id}
+                </span>
+                <LucideExternalLink className="size-3" />
+              </a>
+            </section>
+          )}
         </li>
       ))}
     </ul>
@@ -159,14 +162,13 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
           <span id="overall-score-label" className="sr-only">
             Overall accessibility score:
           </span>
-          <Badge
-            className="text-xl"
-            variant={getBadgeVariant(overallScore)}
+          <div
             aria-label={`Accessibility score: ${overallScore} out of 100`}
             title={`Overall score: ${overallScore}/100`}
           >
-            {overallScore}/100
-          </Badge>
+            <span className="text-4xl font-bold">{overallScore}</span>
+            <span className="text-sm">/100</span>
+          </div>
         </div>
       </header>
 

@@ -12,7 +12,7 @@ interface AnalysisViewProps {
 
 export function AnalysisView({ data }: AnalysisViewProps) {
   return (
-    <div className="relative p-4 grid grid-cols-1 lg:grid-cols-2">
+    <div className="relative p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
       {data && (
         <>
           <AnalysisOverview summary={data.data.analysis.summary} />
