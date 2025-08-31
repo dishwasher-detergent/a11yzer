@@ -16,7 +16,7 @@ import {
   TEAM_COLLECTION_ID,
   USER_COLLECTION_ID,
 } from "@/lib/constants";
-import { createSessionClient } from "@/lib/server/appwrite";
+import { createAdminClient, createSessionClient } from "@/lib/server/appwrite";
 
 /**
  * Get a list of analysis
@@ -38,6 +38,17 @@ export async function listAnalysis(
             ANALYSIS_COLLECTION_ID,
             queries
           );
+
+          if (analysis.documents.length === 0) {
+            return {
+              success: true,
+              message: "No analysis found.",
+              data: {
+                ...analysis,
+                documents: [],
+              },
+            };
+          }
 
           const userIds = analysis.documents.map((a) => a.userId);
           const uniqueUserIds = Array.from(new Set(userIds));
@@ -97,6 +108,8 @@ export async function listAnalysis(
           };
         } catch (err) {
           const error = err as Error;
+
+          console.error(error);
 
           return {
             success: false,
@@ -167,6 +180,9 @@ export async function getAnalysisById(
         } catch (err) {
           const error = err as Error;
 
+          // This is where you would look to something like Splunk.
+          console.error(error);
+
           return {
             success: false,
             message: error.message,
@@ -205,6 +221,7 @@ export async function createAnalysis({
 }): Promise<Result<AnalysisDb<string>>> {
   return withAuth(async (user) => {
     const { database } = await createSessionClient();
+    const { database: adminDatabase } = await createAdminClient();
 
     permissions = [
       ...permissions,
@@ -253,7 +270,7 @@ export async function createAnalysis({
       );
 
       if (userStats.documents.length === 0) {
-        await database.createDocument<AnalysisUserStats>(
+        await adminDatabase.createDocument<AnalysisUserStats>(
           DATABASE_ID,
           ANALYSIS_USER_STATS_COLLECTION_ID,
           id,
@@ -264,7 +281,7 @@ export async function createAnalysis({
           [Permission.read(Role.user(user.$id))]
         );
       } else {
-        await database.incrementDocumentAttribute(
+        await adminDatabase.incrementDocumentAttribute(
           DATABASE_ID,
           ANALYSIS_USER_STATS_COLLECTION_ID,
           userStats.documents[0].$id,

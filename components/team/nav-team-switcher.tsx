@@ -44,11 +44,7 @@ export function TeamSwitcher() {
   }
 
   if (teams.length == 0) {
-    return (
-      <div className="flex w-32">
-        <CreateTeam />
-      </div>
-    );
+    return <CreateTeam className="w-full" />;
   }
 
   const activeTeam = teams.find((x) => x.$id === teamId);

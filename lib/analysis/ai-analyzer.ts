@@ -152,7 +152,7 @@ export async function* analyzeWithAIStreaming(
   };
 
   const prompt = `
-Analyze this webpage for accessibility issues and UI/UX improvements. Here's the data:
+Analyze this webpage for accessibility issues and UI/UX improvements, group these issues into these categories: accessibility, ui, ux. Here's the data:
 
 Title: ${accessibilityData.title}
 
@@ -207,7 +207,7 @@ Keyboard Navigation:
 
 Please respond with a JSON object containing:
 - overallScore: number (0-100)
-- issues: array of objects with type, priority, title, description, recommendation, and optional wcagCriterion
+- issues: array of objects with type, priority (lowercase), title, description, recommendation, and optional wcagCriterion
 - summary: string (brief overview of the analysis)
 
 Focus on:

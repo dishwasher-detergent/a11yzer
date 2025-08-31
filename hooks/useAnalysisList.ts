@@ -76,7 +76,6 @@ export function useAnalysisList({
       try {
         const queries = [Query.orderDesc("$createdAt")];
 
-        // Add team or user filter
         if (teamId) {
           queries.push(Query.equal("teamId", teamId));
         }

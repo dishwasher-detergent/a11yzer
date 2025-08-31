@@ -55,6 +55,15 @@ export function NavAnalysis() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
+        {analysisList?.length === 0 && (
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">No analysis found</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        )}
       </SidebarMenu>
     </SidebarGroup>
   );

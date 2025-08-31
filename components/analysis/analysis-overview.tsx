@@ -8,7 +8,7 @@ interface AnalysisOverviewProps {
 
 export function AnalysisOverview({ summary }: AnalysisOverviewProps) {
   return (
-    <div className="border-b p-4 border rounded-md">
+    <div className="p-4 rounded-md">
       <h2 className="font-semibold text-lg pb-2">
         Detailed Analysis Overview
         <Badge variant="outline" className="ml-2">

@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnalysisIssue } from "@/interfaces/analysis.interface";
-import { AlertTriangle, LucideSparkles, Tag } from "lucide-react";
+import { AlertTriangle, LucideSparkles } from "lucide-react";
 import { useMemo } from "react";
 
 interface AnalysisIssuesProps {
@@ -10,7 +10,6 @@ interface AnalysisIssuesProps {
 }
 
 export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
-  // Dynamically get unique issue types from the data
   const issueTypes = useMemo(() => {
     const types = [...new Set(issues.map((issue) => issue.type))];
     return types.map((type) => ({
@@ -19,11 +18,6 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
       count: issues.filter((issue) => issue.type === type).length,
     }));
   }, [issues]);
-
-  // Generic icon for all types since we don't know what types will exist
-  const getTypeIcon = () => {
-    return <Tag className="w-4 h-4" />;
-  };
 
   const getBadgeVariant = (score: number) => {
     if (score >= 80) return "low";
@@ -36,7 +30,6 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
     return priorityOrder[a.priority] - priorityOrder[b.priority];
   });
 
-  // Group issues by type dynamically
   const issuesByType = useMemo(() => {
     const grouped: Record<string, AnalysisIssue[]> = {};
     sortedIssues.forEach((issue) => {
@@ -79,7 +72,6 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
     </ul>
   );
 
-  // Generate category names dynamically for the description
   const categoryNames =
     issueTypes.length > 0
       ? issueTypes.map((type) => type.label).join(", ")
@@ -109,10 +101,7 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
           <TabsTrigger value="all">All ({issues.length})</TabsTrigger>
           {issueTypes.map((type) => (
             <TabsTrigger key={type.key} value={type.key}>
-              {getTypeIcon()}
-              <span className="ml-1">
-                {type.label} ({type.count})
-              </span>
+              {type.label} ({type.count})
             </TabsTrigger>
           ))}
         </TabsList>
