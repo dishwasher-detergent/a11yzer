@@ -9,10 +9,6 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenuItem,
-  DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu";
 import { DyanmicDrawer } from "@/components/ui/dynamic-drawer";
 import {
   Form,
@@ -43,17 +39,16 @@ export function EditTeam({ team }: { team: TeamData }) {
       open={open}
       setOpen={setOpen}
       button={
-        <DropdownMenuItem
-          onClick={(e) => {
-            e.preventDefault();
+        <Button
+          onClick={() => {
             setOpen(!open);
           }}
+          size="sm"
+          variant="secondary"
         >
-          Edit
-          <DropdownMenuShortcut>
-            <LucidePencil className="size-3.5" />
-          </DropdownMenuShortcut>
-        </DropdownMenuItem>
+          Edit Team
+          <LucidePencil className="size-3.5" />
+        </Button>
       }
     >
       <EditForm setOpen={setOpen} team={team} />

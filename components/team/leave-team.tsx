@@ -8,10 +8,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenuItem,
-  DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu";
 import { DyanmicDrawer } from "@/components/ui/dynamic-drawer";
 import {
   Form,
@@ -38,17 +34,10 @@ export function LeaveTeam({ team }: { team: TeamData }) {
       open={open}
       setOpen={setOpen}
       button={
-        <DropdownMenuItem
-          onClick={(e) => {
-            e.preventDefault();
-            setOpen(!open);
-          }}
-        >
-          Leave
-          <DropdownMenuShortcut>
-            <LucideDoorOpen className="size-3.5" />
-          </DropdownMenuShortcut>
-        </DropdownMenuItem>
+        <Button onClick={() => setOpen(true)} size="sm" variant="secondary">
+          Leave Team
+          <LucideDoorOpen className="size-3.5" />
+        </Button>
       }
     >
       <LeaveForm setOpen={setOpen} team={team} />

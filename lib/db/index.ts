@@ -6,15 +6,17 @@ import { ID, Models, Permission, Query, Role } from "node-appwrite";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
 import { Result } from "@/interfaces/result.interface";
 import { TeamData } from "@/interfaces/team.interface";
-import { UserData } from "@/interfaces/user.interface";
+import { AnalysisUserStats, UserData } from "@/interfaces/user.interface";
 import { withAuth } from "@/lib/auth";
 import {
   ANALYSIS_COLLECTION_ID,
+  ANALYSIS_USER_STATS_COLLECTION_ID,
   DATABASE_ID,
+  MAX_ANALYSIS_LIMIT,
   TEAM_COLLECTION_ID,
   USER_COLLECTION_ID,
 } from "@/lib/constants";
-import { createSessionClient } from "@/lib/server/appwrite";
+import { createAdminClient, createSessionClient } from "@/lib/server/appwrite";
 
 /**
  * Get a list of analysis
@@ -37,6 +39,17 @@ export async function listAnalysis(
             queries
           );
 
+          if (analysis.documents.length === 0) {
+            return {
+              success: true,
+              message: "No analysis found.",
+              data: {
+                ...analysis,
+                documents: [],
+              },
+            };
+          }
+
           const userIds = analysis.documents.map((a) => a.userId);
           const uniqueUserIds = Array.from(new Set(userIds));
 
@@ -46,19 +59,13 @@ export async function listAnalysis(
           const users = await database.listDocuments<UserData>(
             DATABASE_ID,
             USER_COLLECTION_ID,
-            [
-              Query.equal("$id", uniqueUserIds),
-              Query.select(["$id", "name", "avatar"]),
-            ]
+            [Query.equal("$id", uniqueUserIds), Query.select(["$id", "name"])]
           );
 
           const teams = await database.listDocuments<TeamData>(
             DATABASE_ID,
             TEAM_COLLECTION_ID,
-            [
-              Query.equal("$id", uniqueTeamIds),
-              Query.select(["$id", "name", "avatar"]),
-            ]
+            [Query.equal("$id", uniqueTeamIds), Query.select(["$id", "name"])]
           );
 
           const userMap = users.documents.reduce<Record<string, UserData>>(
@@ -101,6 +108,8 @@ export async function listAnalysis(
           };
         } catch (err) {
           const error = err as Error;
+
+          console.error(error);
 
           return {
             success: false,
@@ -171,6 +180,9 @@ export async function getAnalysisById(
         } catch (err) {
           const error = err as Error;
 
+          // This is where you would look to something like Splunk.
+          console.error(error);
+
           return {
             success: false,
             message: error.message,
@@ -209,6 +221,7 @@ export async function createAnalysis({
 }): Promise<Result<AnalysisDb<string>>> {
   return withAuth(async (user) => {
     const { database } = await createSessionClient();
+    const { database: adminDatabase } = await createAdminClient();
 
     permissions = [
       ...permissions,
@@ -217,7 +230,33 @@ export async function createAnalysis({
       Permission.read(Role.team(data.teamId)),
     ];
 
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
     try {
+      const userStats = await database.listDocuments<AnalysisUserStats>(
+        DATABASE_ID,
+        ANALYSIS_USER_STATS_COLLECTION_ID,
+        [
+          Query.equal("userId", user.$id),
+          Query.limit(1),
+          Query.between(
+            "$createdAt",
+            startOfDay.toISOString(),
+            endOfDay.toISOString()
+          ),
+        ]
+      );
+
+      if (userStats.documents[0]?.count >= MAX_ANALYSIS_LIMIT) {
+        return {
+          success: false,
+          message: "Daily analysis limit reached.",
+        };
+      }
+
       const analysis = await database.createDocument<AnalysisDb<string>>(
         DATABASE_ID,
         ANALYSIS_COLLECTION_ID,
@@ -230,21 +269,44 @@ export async function createAnalysis({
         permissions
       );
 
+      if (userStats.documents.length === 0) {
+        await adminDatabase.createDocument<AnalysisUserStats>(
+          DATABASE_ID,
+          ANALYSIS_USER_STATS_COLLECTION_ID,
+          id,
+          {
+            userId: user.$id,
+            count: 1,
+          },
+          [Permission.read(Role.user(user.$id))]
+        );
+      } else {
+        await adminDatabase.incrementDocumentAttribute(
+          DATABASE_ID,
+          ANALYSIS_USER_STATS_COLLECTION_ID,
+          userStats.documents[0].$id,
+          "count",
+          1
+        );
+      }
+
       const userRes = await database.getDocument<UserData>(
         DATABASE_ID,
         USER_COLLECTION_ID,
         analysis.userId,
-        [Query.select(["$id", "name", "avatar"])]
+        [Query.select(["$id", "name"])]
       );
 
       const teamRes = await database.getDocument<TeamData>(
         DATABASE_ID,
         TEAM_COLLECTION_ID,
         analysis.teamId,
-        [Query.select(["$id", "name", "avatar"])]
+        [Query.select(["$id", "name"])]
       );
 
-      revalidateTag("analysis");
+      revalidateTag(`analysis:user-${user.$id}`);
+      revalidateTag(`analysis:team-${analysis.teamId}`);
+      revalidateTag(`user:${user.$id}`);
 
       return {
         success: true,

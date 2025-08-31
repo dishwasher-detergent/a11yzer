@@ -170,12 +170,3 @@ export async function extractProblematicElements(
     limited,
   };
 }
-
-// Alias for compatibility
-export async function findProblematicElements(
-  page: Page
-): Promise<LimitedData<ElementInfo>> {
-  const html = await page.content();
-  const $ = cheerio.load(html);
-  return extractProblematicElements(page, $);
-}

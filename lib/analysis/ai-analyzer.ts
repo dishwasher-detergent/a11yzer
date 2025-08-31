@@ -137,3 +137,123 @@ Format your response as JSON with the following structure:
     };
   }
 }
+
+export async function* analyzeWithAIStreaming(
+  accessibilityData: AccessibilityData
+): AsyncGenerator<string, AIAnalysisResult, unknown> {
+  const createDataSummary = <T>(
+    data: LimitedData<T>,
+    label: string
+  ): string => {
+    if (data.limited) {
+      return `${label} (showing first ${data.items.length} of ${data.totalCount} total - data limited to prevent prompt overflow)`;
+    }
+    return label;
+  };
+
+  const prompt = `
+Analyze this webpage for accessibility issues and UI/UX improvements, group these issues into these categories: accessibility, ui, ux. Here's the data:
+
+Title: ${accessibilityData.title}
+
+${createDataSummary<Heading>(accessibilityData.headings, "Headings")}:
+${accessibilityData.headings.items
+  .map((h) => `${h.level}: ${h.text}`)
+  .join("\n")}
+
+${createDataSummary<Image>(accessibilityData.images, "Images")}:
+${accessibilityData.images.items
+  .map((img) => `Alt: "${img.alt}", Src: ${img.src}`)
+  .join("\n")}
+
+${createDataSummary<Link>(accessibilityData.links, "Links")}:
+${accessibilityData.links.items
+  .map((link) => `Text: "${link.text}", Href: ${link.href}`)
+  .join("\n")}
+
+${createDataSummary<Form>(accessibilityData.forms, "Forms")}:
+${accessibilityData.forms.items
+  .map(
+    (form) =>
+      `Inputs: ${form.inputs
+        .map((input) => `${input.type} (hasLabel: ${input.hasLabel})`)
+        .join(", ")}, HasFieldset: ${form.hasFieldset}`
+  )
+  .join("\n")}
+
+${createDataSummary<AriaElement>(
+  accessibilityData.ariaLabels,
+  "ARIA Elements"
+)}:
+${accessibilityData.ariaLabels.items
+  .map(
+    (aria) =>
+      `Tag: ${aria.tag}, Role: ${aria.role || "none"}, Label: ${
+        aria.ariaLabel || "none"
+      }`
+  )
+  .join("\n")}
+
+Semantic Structure:
+- Main: ${accessibilityData.semanticStructure.hasMain ? "Yes" : "No"}
+- Nav: ${accessibilityData.semanticStructure.hasNav ? "Yes" : "No"}
+- Header: ${accessibilityData.semanticStructure.hasHeader ? "Yes" : "No"}
+- Footer: ${accessibilityData.semanticStructure.hasFooter ? "Yes" : "No"}
+
+Keyboard Navigation:
+- Focusable Elements: ${accessibilityData.keyboardNavigation.focusableElements}
+- Tab Index Elements: ${accessibilityData.keyboardNavigation.tabIndexElements}
+- Negative Tab Index: ${accessibilityData.keyboardNavigation.negativeTabIndex}
+
+Please respond with a JSON object containing:
+- overallScore: number (0-100)
+- issues: array of objects with type, priority (lowercase), title, description, recommendation, and wcagCriterion with reference
+- summary: string (brief overview of the analysis)
+
+Focus on:
+1. WCAG 2.1 AA compliance
+2. User experience improvements
+3. UI best practices
+4. Semantic HTML usage
+5. Keyboard navigation
+6. Screen reader compatibility
+
+Make your analysis thorough but concise.
+`;
+
+  const stream = await openai.chat.completions.create({
+    model: "gpt-5-mini",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are an expert accessibility auditor and UX consultant. Analyze webpages for WCAG compliance and provide actionable improvement suggestions.",
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    stream: true,
+  });
+
+  let fullResponse = "";
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content || "";
+    if (content) {
+      fullResponse += content;
+      yield content;
+    }
+  }
+
+  try {
+    return JSON.parse(fullResponse);
+  } catch {
+    return {
+      overallScore: 50,
+      issues: [],
+      summary: "Failed to parse AI response",
+    };
+  }
+}

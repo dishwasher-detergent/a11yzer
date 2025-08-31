@@ -19,7 +19,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { TEAM_NAME_MAX_LENGTH } from "@/constants/team.constants";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  TEAM_ABOUT_MAX_LENGTH,
+  TEAM_NAME_MAX_LENGTH,
+} from "@/constants/team.constants";
 import { createTeam } from "@/lib/team";
 import { AddTeamFormData, addTeamSchema } from "@/lib/team/schemas";
 import { cn } from "@/lib/utils";
@@ -34,18 +38,24 @@ export function CreateTeam({ className }: { className?: string }) {
       open={open}
       setOpen={setOpen}
       button={
-        <Button className={className}>
+        <Button
+          className={cn(className, "justify-start px-2!")}
+          variant="ghost"
+        >
+          <LucidePlus className="size-6 text-muted-foreground border p-1 rounded-md" />
           Create Team
-          <LucidePlus className="ml-2 size-3.5" />
         </Button>
       }
     >
-      <CreateForm />
+      <CreateForm setOpen={setOpen} />
     </DyanmicDrawer>
   );
 }
 
-function CreateForm({ className }: React.ComponentProps<"form">) {
+function CreateForm({
+  className,
+  setOpen,
+}: React.ComponentProps<"form"> & { setOpen: (open: boolean) => void }) {
   const router = useRouter();
 
   const form = useForm<AddTeamFormData>({
@@ -53,6 +63,7 @@ function CreateForm({ className }: React.ComponentProps<"form">) {
     resolver: zodResolver(addTeamSchema),
     defaultValues: {
       name: "",
+      about: "",
     },
   });
 
@@ -65,6 +76,7 @@ function CreateForm({ className }: React.ComponentProps<"form">) {
         loading: "Creating team...",
         success: (data) => {
           if (data.success) {
+            setOpen(false);
             router.push(`/app/teams/${data.data!.$id}`);
           } else {
             throw new Error(data.message);
@@ -104,10 +116,36 @@ function CreateForm({ className }: React.ComponentProps<"form">) {
                       maxLength={TEAM_NAME_MAX_LENGTH}
                     />
                     <Badge
-                      className="absolute top-1/2 right-1.5 -translate-y-1/2"
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2"
                       variant="secondary"
                     >
-                      {field?.value?.length || 0}/{TEAM_NAME_MAX_LENGTH}
+                      {field?.value?.length}/{TEAM_NAME_MAX_LENGTH}
+                    </Badge>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="about"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>About</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Textarea
+                      {...field}
+                      placeholder="Describe your team."
+                      className="pb-8"
+                      maxLength={TEAM_ABOUT_MAX_LENGTH}
+                    />
+                    <Badge
+                      className="absolute bottom-2 left-2"
+                      variant="secondary"
+                    >
+                      {field?.value?.length ?? 0}/{TEAM_ABOUT_MAX_LENGTH}
                     </Badge>
                   </div>
                 </FormControl>

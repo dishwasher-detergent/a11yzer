@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -20,6 +21,7 @@ import { useTeamData } from "@/hooks/useTeamData";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { CreateTeam } from "./create-team";
 
@@ -29,18 +31,20 @@ export function TeamSwitcher() {
     teamId: string;
   }>();
 
-  const { teams, loading } = useTeamData();
+  const { teams, loading, refetchTeams } = useTeamData();
+
+  useEffect(() => {
+    if (teams.findIndex((team) => team.$id === teamId) === -1) {
+      refetchTeams();
+    }
+  }, [teamId]);
 
   if (loading) {
-    return <Skeleton className="h-6 w-32" />;
+    return <Skeleton className="h-12 w-full" />;
   }
 
   if (teams.length == 0) {
-    return (
-      <div className="flex w-32">
-        <CreateTeam />
-      </div>
-    );
+    return <CreateTeam className="w-full" />;
   }
 
   const activeTeam = teams.find((x) => x.$id === teamId);
@@ -52,17 +56,20 @@ export function TeamSwitcher() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground bg-muted border group-data-[state=collapsed]:border-none"
             >
               {activeTeam ? (
                 <>
-                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <p>{activeTeam?.name[0]}</p>
+                  <div className="border flex aspect-square size-8 items-center justify-center rounded-lg bg-background">
+                    <p className="font-semibold uppercase text-muted-foreground">
+                      {activeTeam?.name[0]}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 flex-1 text-left text-sm leading-tight">
+                  <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">
-                      {activeTeam?.name}
+                      {activeTeam.name}
                     </span>
+                    <span className="truncate text-xs">{activeTeam.about}</span>
                   </div>
                 </>
               ) : (
@@ -90,19 +97,21 @@ export function TeamSwitcher() {
               >
                 <Link href={`/app/teams/${teamItem.$id}`}>
                   <div className="flex flex-row gap-2 items-center">
-                    <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-6 items-center justify-center rounded-lg">
-                      <p>{teamItem?.name[0]}</p>
+                    <div className="flex size-6 items-center justify-center rounded-md border">
+                      <p className="font-semibold uppercase text-muted-foreground">
+                        {teamItem?.name[0]}
+                      </p>
                     </div>
-                    <span className="truncate font-semibold">
-                      {teamItem.name}
-                    </span>
+                    <span className="truncate">{teamItem.name}</span>
                   </div>
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4 flex-none",
-                      teamId === teamItem.$id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <DropdownMenuShortcut>
+                    <Check
+                      className={cn(
+                        "size-3",
+                        teamId === teamItem.$id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                  </DropdownMenuShortcut>
                 </Link>
               </DropdownMenuItem>
             ))}

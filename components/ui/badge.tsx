@@ -10,16 +10,17 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90 border-1 border-[color-mix(in_srgb,var(--color-primary)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-primary)_80%,white)]",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90 border-1 border-[color-mix(in_srgb,var(--color-secondary)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-secondary)_80%,white)]",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 border-1 border-[color-mix(in_srgb,var(--color-destructive)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-destructive)_80%,white)]",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        high: "border-transparent bg-rose-600 text-white",
-        medium: "border-transparent bg-amber-600 text-white",
-        low: "border-transparent bg-emerald-600 text-white",
+        high: "bg-rose-600/10 text-rose-700 border-1 border-rose-600 dark:text-rose-300 dark:border-rose-300",
+        medium:
+          "bg-amber-600/10 text-amber-700 border-1 border-amber-600 dark:text-amber-300 dark:border-amber-300",
+        low: "bg-emerald-600/10 text-emerald-700 border-1 border-emerald-600 dark:text-emerald-300 dark:border-emerald-300",
       },
     },
     defaultVariants: {

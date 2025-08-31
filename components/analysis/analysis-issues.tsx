@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnalysisIssue } from "@/interfaces/analysis.interface";
-import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { AlertTriangle, LucideSparkles } from "lucide-react";
+import { useMemo } from "react";
 
 interface AnalysisIssuesProps {
   issues: AnalysisIssue[];
@@ -8,18 +10,14 @@ interface AnalysisIssuesProps {
 }
 
 export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "accessibility":
-        return <AlertTriangle className="w-4 h-4" />;
-      case "ux":
-        return <CheckCircle className="w-4 h-4" />;
-      case "ui":
-        return <XCircle className="w-4 h-4" />;
-      default:
-        return <AlertTriangle className="w-4 h-4" />;
-    }
-  };
+  const issueTypes = useMemo(() => {
+    const types = [...new Set(issues.map((issue) => issue.type))];
+    return types.map((type) => ({
+      key: type,
+      label: type.charAt(0).toUpperCase() + type.slice(1), // Capitalize first letter
+      count: issues.filter((issue) => issue.type === type).length,
+    }));
+  }, [issues]);
 
   const getBadgeVariant = (score: number) => {
     if (score >= 80) return "low";
@@ -32,45 +30,208 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
     return priorityOrder[a.priority] - priorityOrder[b.priority];
   });
 
+  const issuesByType = useMemo(() => {
+    const grouped: Record<string, AnalysisIssue[]> = {};
+    sortedIssues.forEach((issue) => {
+      if (!grouped[issue.type]) {
+        grouped[issue.type] = [];
+      }
+      grouped[issue.type].push(issue);
+    });
+    return grouped;
+  }, [sortedIssues]);
+
+  const renderIssuesList = (filteredIssues: AnalysisIssue[]) => (
+    <ul
+      className="grid grid-cols-1 gap-4"
+      role="list"
+      aria-label={`List of ${filteredIssues.length} accessibility issues`}
+    >
+      {filteredIssues.map((issue, index) => (
+        <li
+          key={index}
+          className="space-y-2 border rounded-md p-2"
+          role="listitem"
+          aria-labelledby={`issue-title-${index}`}
+          aria-describedby={`issue-description-${index} issue-recommendation-${index}`}
+        >
+          <header
+            className="flex items-center gap-2 flex-wrap"
+            role="group"
+            aria-label="Issue metadata"
+          >
+            <Badge
+              variant={issue.priority}
+              aria-label={`Priority level: ${issue.priority}`}
+              title={`Priority: ${issue.priority}`}
+            >
+              <AlertTriangle className="w-4 h-4 mr-1" aria-hidden="true" />
+              <span className="capitalize">{issue.priority}</span>
+            </Badge>
+            <Badge
+              aria-label={`Issue type: ${issue.type}`}
+              title={`Category: ${issue.type}`}
+            >
+              <span className="capitalize">{issue.type}</span>
+            </Badge>
+            {issue.wcagCriterion && (
+              <Badge
+                variant="outline"
+                className="text-xs"
+                aria-label={`WCAG criterion: ${issue.wcagCriterion}`}
+                title={`Web Content Accessibility Guidelines criterion: ${issue.wcagCriterion}`}
+              >
+                {issue.wcagCriterion}
+              </Badge>
+            )}
+          </header>
+
+          <div className="issue-content">
+            <h3 id={`issue-title-${index}`} className="font-medium text-base">
+              {issue.title}
+            </h3>
+            <p
+              id={`issue-description-${index}`}
+              className="text-sm text-muted-foreground"
+            >
+              {issue.description}
+            </p>
+          </div>
+
+          <section
+            className="bg-muted p-3 rounded-md border"
+            aria-labelledby={`recommendation-heading-${index}`}
+          >
+            <h4
+              id={`recommendation-heading-${index}`}
+              className="text-sm font-semibold text-muted-foreground mb-1"
+            >
+              Recommendation:
+            </h4>
+            <p
+              id={`issue-recommendation-${index}`}
+              className="text-sm text-muted-foreground"
+            >
+              {issue.recommendation}
+            </p>
+          </section>
+        </li>
+      ))}
+    </ul>
+  );
+
+  const categoryNames =
+    issueTypes.length > 0
+      ? issueTypes.map((type) => type.label).join(", ")
+      : "various categories";
+
   return (
-    <div className="p-4 border-b">
-      <div className="flex justify-between items-center pb-4">
+    <section
+      className="col-span-2 col-start-1"
+      aria-labelledby="analysis-result-heading"
+      role="region"
+    >
+      <header className="flex justify-between items-center p-4">
         <div>
-          <h2 className="font-semibold text-base pb-2">Analysis Result</h2>
-          <p className="text-muted-foreground text-sm">
-            {issues.length} issues found across accessibility, UX, and UI
+          <h2
+            id="analysis-result-heading"
+            className="font-semibold text-lg pb-2"
+          >
+            Analysis Result
+            <Badge
+              variant="outline"
+              className="ml-2"
+              aria-label="Content generated by artificial intelligence"
+              title="This analysis was generated using AI"
+            >
+              <LucideSparkles className="w-3 h-3 mr-1" aria-hidden="true" />
+              <span>AI Generated</span>
+            </Badge>
+          </h2>
+          <p
+            className="text-muted-foreground text-sm"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {issues.length} {issues.length === 1 ? "issue" : "issues"} found
+            across {categoryNames}
           </p>
         </div>
-        <Badge className="text-xl" variant={getBadgeVariant(overallScore)}>
-          {overallScore}/100
-        </Badge>
-      </div>
-      <div className="space-y-4">
-        {sortedIssues.map((issue, index) => (
-          <div key={index} className="space-y-2 border-t border-dashed pt-2">
-            <h3 className="font-semibold">{issue.title}</h3>
-            <div className="flex items-center gap-2">
-              <Badge variant={issue.priority}>
-                {getTypeIcon(issue.type)}
-                {issue.priority}
-              </Badge>
-              <Badge>{issue.type}</Badge>
-              {issue.wcagCriterion && (
-                <Badge variant="outline" className="text-xs">
-                  {issue.wcagCriterion}
-                </Badge>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground">{issue.description}</p>
-            <div className="bg-blue-50 p-3 rounded-md">
-              <h4 className="text-sm font-semibold text-blue-900 mb-1">
-                Recommendation:
-              </h4>
-              <p className="text-sm text-blue-800">{issue.recommendation}</p>
-            </div>
-          </div>
+        <div className="score-display" aria-labelledby="overall-score-label">
+          <span id="overall-score-label" className="sr-only">
+            Overall accessibility score:
+          </span>
+          <Badge
+            className="text-xl"
+            variant={getBadgeVariant(overallScore)}
+            aria-label={`Accessibility score: ${overallScore} out of 100`}
+            title={`Overall score: ${overallScore}/100`}
+          >
+            {overallScore}/100
+          </Badge>
+        </div>
+      </header>
+
+      <Tabs
+        defaultValue="all"
+        className="w-full"
+        aria-label="Filter accessibility issues by category"
+      >
+        <TabsList aria-label="Issue categories">
+          <TabsTrigger
+            value="all"
+            aria-label={`View all ${issues.length} issues`}
+          >
+            All ({issues.length})
+          </TabsTrigger>
+          {issueTypes.map((type) => (
+            <TabsTrigger
+              key={type.key}
+              value={type.key}
+              aria-label={`View ${
+                type.count
+              } ${type.label.toLowerCase()} issues`}
+            >
+              {type.label} ({type.count})
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <TabsContent
+          value="all"
+          className="mt-4"
+          aria-labelledby="all-issues-heading"
+        >
+          <h3 id="all-issues-heading" className="sr-only">
+            All accessibility issues
+          </h3>
+          {renderIssuesList(sortedIssues)}
+        </TabsContent>
+
+        {issueTypes.map((type) => (
+          <TabsContent
+            key={type.key}
+            value={type.key}
+            className="mt-4"
+            aria-labelledby={`${type.key}-issues-heading`}
+          >
+            <h3 id={`${type.key}-issues-heading`} className="sr-only">
+              {type.label} accessibility issues
+            </h3>
+            {issuesByType[type.key]?.length > 0 ? (
+              renderIssuesList(issuesByType[type.key])
+            ) : (
+              <div
+                className="text-muted-foreground text-center py-8"
+                role="status"
+                aria-live="polite"
+              >
+                <p>No {type.label.toLowerCase()} issues found</p>
+              </div>
+            )}
+          </TabsContent>
         ))}
-      </div>
-    </div>
+      </Tabs>
+    </section>
   );
 }

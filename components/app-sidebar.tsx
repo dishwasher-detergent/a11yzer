@@ -2,9 +2,10 @@
 
 import * as React from "react";
 
-import { NavAnalysis } from "@/components/nav-analysis";
+import { NavAnalysis } from "@/components/analysis/nav-analysis";
 import { NavMain } from "@/components/nav-main";
-import { TeamSwitcher } from "@/components/team/team-switcher";
+import { NavTeam } from "@/components/team/nav-team";
+import { TeamSwitcher } from "@/components/team/nav-team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -13,25 +14,13 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/user/nav-user";
-import { useAnalysisList } from "@/hooks/useAnalysis";
-import { Query } from "node-appwrite";
-
-const data = [
-  {
-    title: "Analysis",
-    url: "analysis",
-  },
-  {
-    title: "History",
-    url: "",
-  },
-];
+import { useParams } from "next/navigation";
+import { ModeToggle } from "./theme-toggle";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { analysisList, loading } = useAnalysisList([
-    Query.orderDesc("$createdAt"),
-    Query.limit(5),
-  ]);
+  const { teamId } = useParams<{
+    teamId: string;
+  }>();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -39,9 +28,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data} />
-        <NavAnalysis analysis={analysisList?.documents} loading={loading} />
-        {/* <NavSettings /> */}
+        <NavMain />
+        {teamId && <NavTeam teamId={teamId} />}
+        <NavAnalysis />
+        <div className="mt-auto p-2">
+          <ModeToggle />
+        </div>
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

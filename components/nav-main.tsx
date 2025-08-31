@@ -1,5 +1,9 @@
 "use client";
 
+import { LucideSparkles } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -7,17 +11,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
-import { useParams } from "next/navigation";
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-  }[];
-}) {
+export function NavMain() {
   const { teamId } = useParams<{
     teamId: string;
   }>();
@@ -28,15 +23,14 @@ export function NavMain({
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
-        {items?.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild>
-              <Link href={`/app/teams/${teamId}/${item.url}`}>
-                {item.title}
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
+        <SidebarMenuItem key="analysis">
+          <SidebarMenuButton asChild tooltip="Analysis">
+            <Link href={`/app/teams/${teamId}/analysis`}>
+              <LucideSparkles />
+              <span>Analysis</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   );

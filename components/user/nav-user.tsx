@@ -28,7 +28,7 @@ export function NavUser() {
   const { user, loading } = useUserData();
 
   if (loading) {
-    return <Skeleton className="h-6 w-32" />;
+    return <Skeleton className="h-12 w-full" />;
   }
 
   return (
@@ -38,10 +38,12 @@ export function NavUser() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground bg-muted border group-data-[state=collapsed]:border-none"
             >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <p>{user?.name[0]}</p>
+              <div className="border flex aspect-square size-8 items-center justify-center rounded-lg bg-background">
+                <p className="font-semibold uppercase text-muted-foreground">
+                  {user?.name[0]}
+                </p>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user?.name}</span>
@@ -67,7 +69,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href={`/app/users/${user?.$id}`}>
+                <Link href="/app/profile">
                   Profile
                   <DropdownMenuShortcut>
                     <LucideUser className="size-3" />
