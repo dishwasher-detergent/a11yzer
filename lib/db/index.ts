@@ -304,7 +304,8 @@ export async function createAnalysis({
         [Query.select(["$id", "name"])]
       );
 
-      revalidateTag("analysis");
+      revalidateTag(`analysis:user-${user.$id}`);
+      revalidateTag(`analysis:team-${analysis.teamId}`);
       revalidateTag(`user:${user.$id}`);
 
       return {

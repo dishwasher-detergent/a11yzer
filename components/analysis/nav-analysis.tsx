@@ -19,7 +19,7 @@ export function NavAnalysis() {
   });
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Recent</SidebarGroupLabel>
       <SidebarMenu>
         {loading &&
@@ -37,12 +37,7 @@ export function NavAnalysis() {
               className="truncate"
             >
               <Link href={`/app/teams/${item.teamId}/analysis/${item.$id}`}>
-                <Badge
-                  className="group-data-[state=collapsed]:border-none group-data-[state=collapsed]:size-4 group-data-[state=collapsed]:bg-transparent"
-                  variant="secondary"
-                >
-                  {index + 1}
-                </Badge>
+                <Badge variant="secondary">{index + 1}</Badge>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
                     {item.data.analysis.summary.slice(0, 25)}...
@@ -55,7 +50,7 @@ export function NavAnalysis() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
-        {analysisList?.length === 0 && (
+        {!loading && analysisList?.length === 0 && (
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <div className="grid flex-1 text-left text-sm leading-tight">

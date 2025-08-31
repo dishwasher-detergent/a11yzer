@@ -49,8 +49,8 @@ export function useAnalysisList({
     initialAnalysis?.total ?? 0
   );
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-  const [initialLoad, setInitialLoad] = useState<boolean>(
-    !!initialAnalysis && !cursor && !searchTerm
+  const [shouldFetch, setShouldFetch] = useState<boolean>(
+    !initialAnalysis || !!cursor || !!searchTerm
   );
 
   const { client, loading: sessionLoading } = useSession();
@@ -60,18 +60,22 @@ export function useAnalysisList({
   }, [sessionLoading]);
 
   useEffect(() => {
-    if (initialLoad) {
-      if (initialAnalysis && initialAnalysis.documents.length > 0) {
-        const lastDocument =
-          initialAnalysis.documents[initialAnalysis.documents.length - 1];
-        setNextCursor(lastDocument?.$id);
-        setHasMore(initialAnalysis.documents.length === limit);
-      }
+    if (initialAnalysis && !cursor && !searchTerm) {
+      const lastDocument =
+        initialAnalysis.documents[initialAnalysis.documents.length - 1];
+      setNextCursor(lastDocument?.$id);
+      setHasMore(initialAnalysis.documents.length === limit);
+      return;
+    }
+
+    if (!shouldFetch) {
       return;
     }
 
     const fetchAnalysisList = async () => {
       setLoading(true);
+
+      console.log("test");
 
       try {
         const queries = [Query.orderDesc("$createdAt")];
@@ -94,6 +98,8 @@ export function useAnalysisList({
         }
 
         const result = await listAnalysis(queries);
+
+        console.log(result);
 
         if (result.success && result.data) {
           if (cursor) {
@@ -132,16 +138,16 @@ export function useAnalysisList({
     };
 
     fetchAnalysisList();
-  }, [teamId, userId, searchTerm, limit, cursor, initialLoad]);
+  }, [teamId, userId, searchTerm, limit, cursor, shouldFetch]);
 
   useEffect(() => {
     if (searchTerm || cursor) {
-      setInitialLoad(false);
+      setShouldFetch(true);
     }
   }, [searchTerm, cursor]);
 
   const refetchAnalysisList = () => {
-    setInitialLoad(false);
+    setShouldFetch(true);
     setNextCursor(undefined);
   };
 
