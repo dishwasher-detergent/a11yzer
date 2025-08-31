@@ -1,7 +1,9 @@
 "use client";
 
+import { LucideDot } from "lucide-react";
 import Link from "next/link";
 
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,8 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
-import { LucideDot } from "lucide-react";
-import { AspectRatio } from "../ui/aspect-ratio";
 
 export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
   return (

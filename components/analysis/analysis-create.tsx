@@ -30,10 +30,11 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
 
   return (
     <div className="h-dvh overflow-hidden flex flex-col flex-nowrap">
-      <div className="flex-1 overflow-y-auto px-12 py-6">
+      <div className="flex-1 overflow-y-auto px-12 py-6 grid grid-cols-1 lg:grid-cols-2">
         {analysis && (
           <>
             <AnalysisOverview summary={analysis.analysis.summary} />
+            <TechnicalDetails accessibilityData={analysis.accessibilityData} />
             <AnalysisProblematicElements
               screenshotUrl={analysis.screenshotUrl}
               problematicElements={analysis.problematicElements}
@@ -42,7 +43,6 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
               issues={analysis.analysis.issues}
               overallScore={analysis.analysis.overallScore}
             />
-            <TechnicalDetails accessibilityData={analysis.accessibilityData} />
           </>
         )}
       </div>

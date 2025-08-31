@@ -16,6 +16,7 @@ export function AnalysisView({ data }: AnalysisViewProps) {
       {data && (
         <>
           <AnalysisOverview summary={data.data.analysis.summary} />
+          <TechnicalDetails accessibilityData={data.data.accessibilityData} />
           <AnalysisProblematicElements
             screenshotUrl={data.data.screenshotUrl}
             problematicElements={data.data.problematicElements}
@@ -24,7 +25,6 @@ export function AnalysisView({ data }: AnalysisViewProps) {
             issues={data.data.analysis.issues}
             overallScore={data.data.analysis.overallScore}
           />
-          <TechnicalDetails accessibilityData={data.data.accessibilityData} />
         </>
       )}
     </div>
