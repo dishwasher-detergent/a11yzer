@@ -23,7 +23,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
-import { CreateTeam } from "./create-team";
+import { CreateTeam } from "./create";
 
 export function TeamSwitcher() {
   const { isMobile } = useSidebar();

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { AnalysisCreate } from "@/components/analysis/analysis-create";
+import { AnalysisCreate } from "@/components/analysis/create";
 import { getUserData } from "@/lib/auth";
 import { getTeamById } from "@/lib/team";
 

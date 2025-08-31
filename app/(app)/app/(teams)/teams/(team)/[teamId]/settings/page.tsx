@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
-import { TeamActions } from "@/components/team/team-actions";
-import { TeamDescription } from "@/components/team/team-description";
-import { TeamMembers } from "@/components/team/team-members";
+import { TeamActions } from "@/components/team/actions";
+import { TeamDescription } from "@/components/team/description";
+import { TeamMembers } from "@/components/team/members";
 import {
   ADMIN_ROLE,
   MEMBER_ROLE,

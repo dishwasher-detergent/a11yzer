@@ -1,11 +1,11 @@
 "use client";
 
-import { AnalysisIssues } from "@/components/analysis/analysis-issues";
-import { AnalysisProblematicElements } from "@/components/analysis/analysis-problematic-elements";
+import { AnalysisIssues } from "@/components/analysis/issues";
+import { AnalysisProblematicElements } from "@/components/analysis/problematic-elements";
 import { TechnicalDetails } from "@/components/analysis/technical-details";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
 import { Input } from "../ui/input";
-import { AnalysisOverview } from "./analysis-overview";
+import { AnalysisOverview } from "./overview";
 
 interface AnalysisViewProps {
   data?: AnalysisDb<AnalysisResult>;
