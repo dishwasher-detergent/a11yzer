@@ -43,14 +43,14 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
 
   const renderIssuesList = (filteredIssues: AnalysisIssue[]) => (
     <ul
-      className="grid grid-cols-1 gap-4"
+      className="grid grid-cols-1 border rounded-md"
       role="list"
       aria-label={`List of ${filteredIssues.length} accessibility issues`}
     >
       {filteredIssues.map((issue, index) => (
         <li
           key={index}
-          className="space-y-2 border rounded-md p-2"
+          className="space-y-2 not-last:border-b border-dashed p-4"
           role="listitem"
           aria-labelledby={`issue-title-${index}`}
           aria-describedby={`issue-description-${index} issue-recommendation-${index}`}
@@ -85,7 +85,6 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
               </Badge>
             )}
           </header>
-
           <div className="issue-content">
             <h3 id={`issue-title-${index}`} className="font-medium text-base">
               {issue.title}
@@ -97,7 +96,6 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
               {issue.description}
             </p>
           </div>
-
           <section
             className="bg-muted p-3 rounded-md border"
             aria-labelledby={`recommendation-heading-${index}`}
