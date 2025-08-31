@@ -9,7 +9,7 @@ export default async function AppLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset className="overflow-hidden h-dvh">{children}</SidebarInset>
     </SidebarProvider>
   );
 }

@@ -13,10 +13,10 @@ interface AnalysisViewProps {
 
 export function AnalysisView({ data }: AnalysisViewProps) {
   return (
-    <div className="h-dvh overflow-hidden flex flex-col flex-nowrap">
+    <div className="overflow-hidden flex flex-col flex-nowrap">
       {data && (
         <>
-          <div className="flex-1 overflow-y-auto px-12 py-6 grid grid-cols-1 lg:grid-cols-2">
+          <div className="flex-1 overflow-y-auto px-12 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2">
             <AnalysisOverview summary={data.data.analysis.summary} />
             <TechnicalDetails accessibilityData={data.data.accessibilityData} />
             <AnalysisProblematicElements
