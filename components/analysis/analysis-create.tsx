@@ -22,9 +22,6 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
     analysis,
     error,
     status,
-    isStreaming,
-    partialAnalysis,
-    streamingUI,
     analyzeWebsite,
     cancelAnalysis,
   } = useAnalysisStreaming(teamId);

@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnalysisIssue } from "@/interfaces/analysis.interface";
-import { AlertTriangle, Eye, LucideSparkles, Palette } from "lucide-react";
+import { AlertTriangle, LucideSparkles, Tag } from "lucide-react";
+import { useMemo } from "react";
 
 interface AnalysisIssuesProps {
   issues: AnalysisIssue[];
@@ -9,17 +10,19 @@ interface AnalysisIssuesProps {
 }
 
 export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "accessibility":
-        return <AlertTriangle className="w-4 h-4" />;
-      case "ux":
-        return <Eye className="w-4 h-4" />;
-      case "ui":
-        return <Palette className="w-4 h-4" />;
-      default:
-        return <AlertTriangle className="w-4 h-4" />;
-    }
+  // Dynamically get unique issue types from the data
+  const issueTypes = useMemo(() => {
+    const types = [...new Set(issues.map((issue) => issue.type))];
+    return types.map((type) => ({
+      key: type,
+      label: type.charAt(0).toUpperCase() + type.slice(1), // Capitalize first letter
+      count: issues.filter((issue) => issue.type === type).length,
+    }));
+  }, [issues]);
+
+  // Generic icon for all types since we don't know what types will exist
+  const getTypeIcon = () => {
+    return <Tag className="w-4 h-4" />;
   };
 
   const getBadgeVariant = (score: number) => {
@@ -33,11 +36,17 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
     return priorityOrder[a.priority] - priorityOrder[b.priority];
   });
 
-  const accessibilityIssues = sortedIssues.filter(
-    (issue) => issue.type === "accessibility"
-  );
-  const uxIssues = sortedIssues.filter((issue) => issue.type === "ux");
-  const uiIssues = sortedIssues.filter((issue) => issue.type === "ui");
+  // Group issues by type dynamically
+  const issuesByType = useMemo(() => {
+    const grouped: Record<string, AnalysisIssue[]> = {};
+    sortedIssues.forEach((issue) => {
+      if (!grouped[issue.type]) {
+        grouped[issue.type] = [];
+      }
+      grouped[issue.type].push(issue);
+    });
+    return grouped;
+  }, [sortedIssues]);
 
   const renderIssuesList = (filteredIssues: AnalysisIssue[]) => (
     <ul className="grid grid-cols-1 gap-4">
@@ -45,7 +54,7 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
         <li key={index} className="space-y-2 border rounded-md p-2">
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant={issue.priority}>
-              {getTypeIcon(issue.type)}
+              <AlertTriangle className="w-4 h-4 mr-1" />
               {issue.priority}
             </Badge>
             <Badge>{issue.type}</Badge>
@@ -70,6 +79,12 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
     </ul>
   );
 
+  // Generate category names dynamically for the description
+  const categoryNames =
+    issueTypes.length > 0
+      ? issueTypes.map((type) => type.label).join(", ")
+      : "various categories";
+
   return (
     <div className="col-span-2 col-start-1">
       <div className="flex justify-between items-center p-4">
@@ -82,7 +97,7 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
             </Badge>
           </h2>
           <p className="text-muted-foreground text-sm">
-            {issues.length} issues found across accessibility, UX, and UI
+            {issues.length} issues found across {categoryNames}
           </p>
         </div>
         <Badge className="text-xl" variant={getBadgeVariant(overallScore)}>
@@ -92,50 +107,31 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
       <Tabs defaultValue="all" className="w-full">
         <TabsList>
           <TabsTrigger value="all">All ({issues.length})</TabsTrigger>
-          <TabsTrigger value="accessibility">
-            <AlertTriangle className="w-4 h-4 mr-1" />
-            Accessibility ({accessibilityIssues.length})
-          </TabsTrigger>
-          <TabsTrigger value="ux">
-            <Eye className="w-4 h-4 mr-1" />
-            UX ({uxIssues.length})
-          </TabsTrigger>
-          <TabsTrigger value="ui">
-            <Palette className="w-4 h-4 mr-1" />
-            UI ({uiIssues.length})
-          </TabsTrigger>
+          {issueTypes.map((type) => (
+            <TabsTrigger key={type.key} value={type.key}>
+              {getTypeIcon()}
+              <span className="ml-1">
+                {type.label} ({type.count})
+              </span>
+            </TabsTrigger>
+          ))}
         </TabsList>
+
         <TabsContent value="all" className="mt-4">
           {renderIssuesList(sortedIssues)}
         </TabsContent>
 
-        <TabsContent value="accessibility" className="mt-4">
-          {accessibilityIssues.length > 0 ? (
-            renderIssuesList(accessibilityIssues)
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              No accessibility issues found
-            </p>
-          )}
-        </TabsContent>
-        <TabsContent value="ux" className="mt-4">
-          {uxIssues.length > 0 ? (
-            renderIssuesList(uxIssues)
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              No UX issues found
-            </p>
-          )}
-        </TabsContent>
-        <TabsContent value="ui" className="mt-4">
-          {uiIssues.length > 0 ? (
-            renderIssuesList(uiIssues)
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              No UI issues found
-            </p>
-          )}
-        </TabsContent>
+        {issueTypes.map((type) => (
+          <TabsContent key={type.key} value={type.key} className="mt-4">
+            {issuesByType[type.key]?.length > 0 ? (
+              renderIssuesList(issuesByType[type.key])
+            ) : (
+              <p className="text-muted-foreground text-center py-8">
+                No {type.label.toLowerCase()} issues found
+              </p>
+            )}
+          </TabsContent>
+        ))}
       </Tabs>
     </div>
   );
