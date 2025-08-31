@@ -3,11 +3,23 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { cookies, headers } from "next/headers";
 import { redirect, RedirectType } from "next/navigation";
-import { ID, Models, OAuthProvider, Permission, Role } from "node-appwrite";
+import {
+  ID,
+  Models,
+  OAuthProvider,
+  Permission,
+  Query,
+  Role,
+} from "node-appwrite";
 
 import { AuthResponse, Response, Result } from "@/interfaces/result.interface";
-import { User, UserData } from "@/interfaces/user.interface";
-import { COOKIE_KEY, DATABASE_ID, USER_COLLECTION_ID } from "@/lib/constants";
+import { AnalysisUserStats, User, UserData } from "@/interfaces/user.interface";
+import {
+  ANALYSIS_USER_STATS_COLLECTION_ID,
+  COOKIE_KEY,
+  DATABASE_ID,
+  USER_COLLECTION_ID,
+} from "@/lib/constants";
 import { createAdminClient, createSessionClient } from "@/lib/server/appwrite";
 import {
   ResetPasswordFormData,
@@ -44,11 +56,30 @@ export async function getUserData(): Promise<Result<User>> {
 
     return unstable_cache(
       async (id) => {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
         try {
           const data = await database.getDocument<UserData>(
             DATABASE_ID,
             USER_COLLECTION_ID,
             id
+          );
+
+          const userStats = await database.listDocuments<AnalysisUserStats>(
+            DATABASE_ID,
+            ANALYSIS_USER_STATS_COLLECTION_ID,
+            [
+              Query.equal("userId", id),
+              Query.limit(1),
+              Query.between(
+                "$createdAt",
+                startOfDay.toISOString(),
+                endOfDay.toISOString()
+              ),
+            ]
           );
 
           return {
@@ -57,6 +88,7 @@ export async function getUserData(): Promise<Result<User>> {
             data: {
               ...user,
               ...data,
+              count: userStats.documents[0]?.count || 0,
             },
           };
         } catch (err) {
@@ -91,6 +123,11 @@ export async function getUserById(id: string): Promise<Result<UserData>> {
 
     return unstable_cache(
       async (id) => {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
         try {
           const data = await database.getDocument<UserData>(
             DATABASE_ID,
@@ -98,10 +135,27 @@ export async function getUserById(id: string): Promise<Result<UserData>> {
             id
           );
 
+          const userStats = await database.listDocuments<AnalysisUserStats>(
+            DATABASE_ID,
+            ANALYSIS_USER_STATS_COLLECTION_ID,
+            [
+              Query.equal("userId", id),
+              Query.limit(1),
+              Query.between(
+                "$createdAt",
+                startOfDay.toISOString(),
+                endOfDay.toISOString()
+              ),
+            ]
+          );
+
           return {
             success: true,
-            message: "Products successfully retrieved.",
-            data,
+            message: "User successfully retrieved.",
+            data: {
+              ...data,
+              count: userStats.documents[0]?.count || 0,
+            },
           };
         } catch (err) {
           const error = err as Error;

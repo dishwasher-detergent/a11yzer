@@ -36,7 +36,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain />
         {teamId && <NavTeam teamId={teamId} />}
-        <NavAnalysis analysis={analysisList?.documents} loading={loading} />
+        <NavAnalysis analysis={analysisList} loading={loading} />
         <div className="mt-auto p-2">
           <ModeToggle />
         </div>

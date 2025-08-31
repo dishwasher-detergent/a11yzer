@@ -12,19 +12,18 @@ import {
   createValidationErrorResponse,
 } from "@/lib/analysis/response-utils";
 import { addHighlightsToScreenshot } from "@/lib/analysis/screenshot-highlights";
-import { getLoggedInUser } from "@/lib/auth";
-import { ENDPOINT, PROJECT_ID, SCREENSHOT_BUCKET_ID } from "@/lib/constants";
+import { getLoggedInUser, getUserData } from "@/lib/auth";
+import {
+  ENDPOINT,
+  MAX_ANALYSIS_LIMIT,
+  PROJECT_ID,
+  SCREENSHOT_BUCKET_ID,
+} from "@/lib/constants";
 import { createAnalysis } from "@/lib/db";
 import { uploadScreenshotImage } from "@/lib/storage";
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getLoggedInUser();
-
-    if (!user) {
-      return createValidationErrorResponse("User is not logged in");
-    }
-
     const { url, teamId } = await request.json();
 
     if (!url) {
@@ -33,6 +32,17 @@ export async function POST(request: NextRequest) {
 
     if (!teamId) {
       return createValidationErrorResponse("Team ID is required");
+    }
+
+    const user = await getLoggedInUser();
+    const { data: userData } = await getUserData();
+
+    if (!user || !userData) {
+      return createValidationErrorResponse("User is not logged in");
+    }
+
+    if ((userData?.count || 0) >= MAX_ANALYSIS_LIMIT) {
+      return createValidationErrorResponse("Daily analysis limit reached");
     }
 
     const browser = await puppeteer.launch({
@@ -87,6 +97,7 @@ export async function POST(request: NextRequest) {
         uploadResult.data!.$id
       }/view?project=${PROJECT_ID}`,
       limitsInfo: limitsInfo,
+      count: (userData?.count || 0) + 1,
     };
 
     const analysisResult = await createAnalysis({

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { AnalysisCreate } from "@/components/analysis/analysis-create";
+import { getUserData } from "@/lib/auth";
 import { getTeamById } from "@/lib/team";
 
 export default async function TeamPage({
@@ -10,10 +11,11 @@ export default async function TeamPage({
 }) {
   const { teamId } = await params;
   const { data, success } = await getTeamById(teamId);
+  const { data: user } = await getUserData();
 
-  if (!success || !data) {
+  if (!success || !data || !user) {
     redirect("/app");
   }
 
-  return <AnalysisCreate teamId={teamId} />;
+  return <AnalysisCreate count={user.count!} teamId={teamId} />;
 }

@@ -16,6 +16,7 @@ export interface AnalysisResponse {
     analysis: AIAnalysisResult;
     screenshotUrl: string;
     limitsInfo: LimitsInfo;
+    count: number;
   };
   error?: string;
 }
@@ -27,6 +28,7 @@ export function createSuccessResponse(data: {
   analysis: AIAnalysisResult;
   screenshotUrl: string;
   limitsInfo: LimitsInfo;
+  count: number;
 }): NextResponse<AnalysisResponse> {
   const {
     url,
@@ -35,6 +37,7 @@ export function createSuccessResponse(data: {
     analysis,
     screenshotUrl,
     limitsInfo,
+    count,
   } = data;
 
   return NextResponse.json({
@@ -46,6 +49,7 @@ export function createSuccessResponse(data: {
       analysis,
       screenshotUrl,
       limitsInfo,
+      count,
     },
   });
 }

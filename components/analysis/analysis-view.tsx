@@ -12,7 +12,7 @@ interface AnalysisViewProps {
 
 export function AnalysisView({ data }: AnalysisViewProps) {
   return (
-    <div>
+    <div className="relative">
       {data && (
         <>
           <AnalysisOverview summary={data.data.analysis.summary} />

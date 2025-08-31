@@ -40,7 +40,7 @@ export function TeamSwitcher() {
   }, [teamId]);
 
   if (loading) {
-    return <Skeleton className="h-6 w-32" />;
+    return <Skeleton className="h-12 w-full" />;
   }
 
   if (teams.length == 0) {

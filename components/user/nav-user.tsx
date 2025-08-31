@@ -28,7 +28,7 @@ export function NavUser() {
   const { user, loading } = useUserData();
 
   if (loading) {
-    return <Skeleton className="h-6 w-32" />;
+    return <Skeleton className="h-12 w-full" />;
   }
 
   return (

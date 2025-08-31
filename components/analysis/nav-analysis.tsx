@@ -11,17 +11,26 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { Models } from "node-appwrite";
+import { Badge } from "../ui/badge";
 
 export function NavAnalysis({
   analysis,
   loading,
 }: {
-  analysis?: AnalysisDb<AnalysisResult>[];
+  analysis: Models.DocumentList<AnalysisDb<AnalysisResult>> | null;
   loading: boolean;
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Recent</SidebarGroupLabel>
+      <SidebarGroupLabel>
+        Recent
+        {!loading && (
+          <Badge className="ml-2" variant="outline">
+            {analysis?.total}
+          </Badge>
+        )}
+      </SidebarGroupLabel>
       <SidebarMenu>
         {loading &&
           Array.from({ length: 5 }).map((_, index) => (
@@ -29,7 +38,7 @@ export function NavAnalysis({
               <SidebarMenuSkeleton />
             </SidebarMenuItem>
           ))}
-        {analysis?.map((item, index) => (
+        {analysis?.documents.map((item, index) => (
           <SidebarMenuItem key={item.$id}>
             <SidebarMenuButton
               asChild
@@ -37,9 +46,12 @@ export function NavAnalysis({
               className="truncate"
             >
               <Link href={`/app/teams/${item.teamId}/analysis/${item.$id}`}>
-                <div className="grid place-items-center border rounded-md bg-background size-6 flex-none group-data-[state=collapsed]:border-none group-data-[state=collapsed]:size-4 group-data-[state=collapsed]:bg-transparent">
-                  <p className="text-xs font-semibold">{index + 1}</p>
-                </div>
+                <Badge
+                  className="group-data-[state=collapsed]:border-none group-data-[state=collapsed]:size-4 group-data-[state=collapsed]:bg-transparent"
+                  variant="secondary"
+                >
+                  {index + 1}
+                </Badge>
                 <span>{item.data.analysis.summary.slice(0, 25)}...</span>
               </Link>
             </SidebarMenuButton>

@@ -13,6 +13,8 @@ export const TEAM_COLLECTION_ID = process.env
   .NEXT_PUBLIC_TEAM_COLLECTION_ID as string;
 export const ANALYSIS_COLLECTION_ID = process.env
   .NEXT_PUBLIC_ANALYSIS_COLLECTION_ID as string;
+export const ANALYSIS_USER_STATS_COLLECTION_ID = process.env
+  .NEXT_PUBLIC_ANALYSIS_USER_STATS_COLLECTION_ID as string;
 
 // Buckets
 export const SCREENSHOT_BUCKET_ID = process.env
@@ -24,6 +26,8 @@ export const COOKIE_KEY = `a_session_${PROJECT_ID}`;
 // Additional
 export const MAX_TEAM_LIMIT =
   Number(process.env.NEXT_PUBLIC_MAX_TEAM_LIMIT) || 3;
+export const MAX_ANALYSIS_LIMIT =
+  Number(process.env.NEXT_PUBLIC_MAX_ANALYSIS_LIMIT) || 5;
 
 export const ANALYSIS_LIMITS = {
   MAX_HEADINGS: 20,

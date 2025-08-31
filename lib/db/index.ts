@@ -6,11 +6,13 @@ import { ID, Models, Permission, Query, Role } from "node-appwrite";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
 import { Result } from "@/interfaces/result.interface";
 import { TeamData } from "@/interfaces/team.interface";
-import { UserData } from "@/interfaces/user.interface";
+import { AnalysisUserStats, UserData } from "@/interfaces/user.interface";
 import { withAuth } from "@/lib/auth";
 import {
   ANALYSIS_COLLECTION_ID,
+  ANALYSIS_USER_STATS_COLLECTION_ID,
   DATABASE_ID,
+  MAX_ANALYSIS_LIMIT,
   TEAM_COLLECTION_ID,
   USER_COLLECTION_ID,
 } from "@/lib/constants";
@@ -217,7 +219,33 @@ export async function createAnalysis({
       Permission.read(Role.team(data.teamId)),
     ];
 
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
     try {
+      const userStats = await database.listDocuments<AnalysisUserStats>(
+        DATABASE_ID,
+        ANALYSIS_USER_STATS_COLLECTION_ID,
+        [
+          Query.equal("userId", user.$id),
+          Query.limit(1),
+          Query.between(
+            "$createdAt",
+            startOfDay.toISOString(),
+            endOfDay.toISOString()
+          ),
+        ]
+      );
+
+      if (userStats.documents[0]?.count >= MAX_ANALYSIS_LIMIT) {
+        return {
+          success: false,
+          message: "Daily analysis limit reached.",
+        };
+      }
+
       const analysis = await database.createDocument<AnalysisDb<string>>(
         DATABASE_ID,
         ANALYSIS_COLLECTION_ID,
@@ -229,6 +257,27 @@ export async function createAnalysis({
         },
         permissions
       );
+
+      if (userStats.documents.length === 0) {
+        await database.createDocument<AnalysisUserStats>(
+          DATABASE_ID,
+          ANALYSIS_USER_STATS_COLLECTION_ID,
+          id,
+          {
+            userId: user.$id,
+            count: 1,
+          },
+          permissions
+        );
+      } else {
+        await database.incrementDocumentAttribute(
+          DATABASE_ID,
+          ANALYSIS_USER_STATS_COLLECTION_ID,
+          userStats.documents[0].$id,
+          "count",
+          1
+        );
+      }
 
       const userRes = await database.getDocument<UserData>(
         DATABASE_ID,
@@ -245,6 +294,7 @@ export async function createAnalysis({
       );
 
       revalidateTag("analysis");
+      revalidateTag(`user:${user.$id}`);
 
       return {
         success: true,

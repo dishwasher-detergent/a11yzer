@@ -139,6 +139,7 @@ export interface AnalysisResult {
   accessibilityData: AccessibilityData;
   problematicElements?: LimitedData<ProblematicElement>;
   limits?: AnalysisLimits;
+  count: number;
 }
 
 export interface AnalysisDb<T> extends Models.Document {

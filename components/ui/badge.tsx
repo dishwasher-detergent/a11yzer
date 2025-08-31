@@ -10,16 +10,17 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90 border-1 border-[color-mix(in_srgb,var(--color-primary)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-primary)_80%,white)]",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90 border-1 border-[color-mix(in_srgb,var(--color-secondary)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-secondary)_80%,white)]",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 border-1 border-[color-mix(in_srgb,var(--color-destructive)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-destructive)_80%,white)]",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        high: "border-transparent bg-rose-600 text-white",
-        medium: "border-transparent bg-amber-600 text-white",
-        low: "border-transparent bg-emerald-600 text-white",
+        high: "border-transparent bg-rose-600 text-white border-1 border-[color-mix(in_srgb,var(--color-rose-600)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-rose-600)_80%,white)]",
+        medium:
+          "border-transparent bg-amber-600 text-white border-1 border-[color-mix(in_srgb,var(--color-amber-600)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-amber-600)_80%,white)]",
+        low: "border-transparent bg-emerald-600 text-white border-1 border-[color-mix(in_srgb,var(--color-emerald-600)_80%,black)] dark:border-[color-mix(in_srgb,var(--color-emerald-600)_80%,white)]",
       },
     },
     defaultVariants: {
