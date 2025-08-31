@@ -23,12 +23,6 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
     }));
   }, [issues]);
 
-  const getBadgeVariant = (score: number) => {
-    if (score >= 80) return "low";
-    if (score >= 60) return "medium";
-    return "high";
-  };
-
   const sortedIssues = [...issues].sort((a, b) => {
     const priorityOrder = { high: 0, medium: 1, low: 2 };
     return priorityOrder[a.priority] - priorityOrder[b.priority];
