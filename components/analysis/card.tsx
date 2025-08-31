@@ -6,6 +6,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { Badge } from "../ui/badge";
 
 export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
   return (
@@ -18,23 +19,19 @@ export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
             className="object-cover object-left-top bg-primary"
           />
         </AspectRatio>
-        <p className="z-10 flex flex-row gap-2 text-xs items-center absolute top-2 left-2 w-full">
-          <span className="max-w-1/2 truncate">{analysis.team?.name}</span>/
-          <span className="max-w-1/2 truncate">{analysis.user?.name}</span>
-        </p>
-        <CardHeader className="flex flex-col justify-end bottom-0 absolute w-full p-4 h-full bg-linear-to-t from-background to-background/20">
-          <p className="flex flex-row text-muted-foreground text-xs items-center">
-            {new Date(analysis.$createdAt).toLocaleString(undefined, {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
-          <CardTitle className="text-primary-foreground">
+        <Badge className="absolute top-2 left-2 z-10">
+          {new Date(analysis.$createdAt).toLocaleString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </Badge>
+        <CardHeader className="flex flex-col justify-end bottom-0 absolute w-full p-4 h-full bg-linear-to-t from-background to-background/30">
+          <CardTitle>
             <Button
-              className="p-0! text-primary-foreground text-base text-wrap whitespace-normal h-auto"
+              className="p-0! text-base text-wrap whitespace-normal h-auto text-foreground"
               variant="link"
               asChild
             >
@@ -45,8 +42,12 @@ export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
               </Link>
             </Button>
           </CardTitle>
-          <p className="flex flex-row text-muted-foreground text-xs items-center">
+          <p className="flex flex-row  text-xs items-center">
             {analysis.data.url}
+          </p>
+          <p className="z-10 flex flex-row gap-2 text-xs items-center w-full text-muted-foreground">
+            <span className="max-w-1/2 truncate">{analysis.team?.name}</span>/
+            <span className="max-w-1/2 truncate">{analysis.user?.name}</span>
           </p>
         </CardHeader>
       </CardContent>

@@ -176,11 +176,11 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
         >
           <ShineBorder
             shineColor={[
-              "var(--color-pink-400)",
-              "var(--color-red-400)",
-              "var(--color-yellow-400)",
-              "var(--color-green-400)",
-              "var(--color-blue-400)",
+              "var(--color-pink-300)",
+              "var(--color-red-300)",
+              "var(--color-yellow-300)",
+              "var(--color-green-300)",
+              "var(--color-blue-300)",
             ]}
           />
           <label id="form-label" className="sr-only">
