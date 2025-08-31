@@ -1,11 +1,37 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MAX_ANALYSIS_LIMIT } from "@/lib/constants";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   LucideArrowUp,
   LucideLoader2,
   LucideTriangleAlert,
 } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const urlSchema = z.object({
+  url: z
+    .string()
+    .min(1, "URL is required")
+    .url("Please enter a valid URL")
+    .refine(
+      (url) => {
+        try {
+          const urlObj = new URL(url);
+          return urlObj.protocol === "http:" || urlObj.protocol === "https:";
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: "URL must start with http:// or https://",
+      }
+    ),
+});
+
+type UrlFormData = z.infer<typeof urlSchema>;
 
 interface UrlInputProps {
   url: string;
@@ -16,58 +42,125 @@ interface UrlInputProps {
   count: number;
 }
 
-export function UrlInput({
+export const UrlInput = memo<UrlInputProps>(function UrlInput({
   url,
   onUrlChange,
   onAnalyze,
   loading,
   error,
   count,
-}: UrlInputProps) {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onAnalyze();
-  };
+}) {
+  const isMaxedOut = useMemo(() => count >= MAX_ANALYSIS_LIMIT, [count]);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+  } = useForm<UrlFormData>({
+    resolver: zodResolver(urlSchema),
+    defaultValues: {
+      url: url,
+    },
+    mode: "onChange",
+  });
+
+  const watchedUrl = watch("url");
+
+  // Sync the form value with the parent component's URL
+  useEffect(() => {
+    if (watchedUrl !== url) {
+      onUrlChange(watchedUrl || "");
+    }
+  }, [watchedUrl, onUrlChange]);
+
+  // Sync parent URL changes to form
+  useEffect(() => {
+    if (url !== watchedUrl) {
+      setValue("url", url);
+    }
+  }, [url, setValue]);
+
+  const onSubmit = useCallback(() => {
+    if (!isMaxedOut) {
+      onAnalyze();
+    }
+  }, [onAnalyze, isMaxedOut]);
+
+  const isSubmitDisabled = loading || !watchedUrl || !!errors.url || isMaxedOut;
 
   return (
     <div className="px-8 pb-8 w-full bg-background">
-      <div className="p-0.5 border bg-secondary rounded-md">
+      <div className="p-0.5 border bg-secondary rounded-md space-y-1">
         {error && (
-          <div className="px-2 py-1 bg-destructive rounded-md flex flex-row gap-2 items-center">
-            <LucideTriangleAlert className="size-4 flex-none" />
-            <p className="text-xs text-destructive-foreground mt-1">{error}</p>
+          <div className="px-2 py-1 bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2">
+            <LucideTriangleAlert className="size-3 flex-shrink-0 text-destructive" />
+            <p className="text-xs text-destructive">{error}</p>
+          </div>
+        )}
+        {errors.url && (
+          <div className="px-2 py-1 bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2">
+            <LucideTriangleAlert className="size-3 flex-shrink-0 text-destructive" />
+            <p className="text-xs text-destructive">{errors.url.message}</p>
           </div>
         )}
         <div className="px-2 py-1">
           <p className="text-xs text-muted-foreground">
-            You have used {count}/{MAX_ANALYSIS_LIMIT} analyzations.
+            {isMaxedOut ? (
+              <span className="text-destructive font-medium">
+                Analysis limit reached ({count}/{MAX_ANALYSIS_LIMIT})
+              </span>
+            ) : (
+              <>
+                You have used {count}/{MAX_ANALYSIS_LIMIT} analyses
+              </>
+            )}
           </p>
         </div>
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="flex border rounded-md overflow-hidden h-12 bg-background"
+          role="search"
+          aria-label="Website URL analysis form"
         >
           <div className="flex-1 h-full pr-2">
             <Input
               type="url"
               placeholder="Enter website URL (e.g., https://example.com)"
-              value={url}
-              onChange={(e) => onUrlChange(e.target.value)}
-              disabled={loading}
-              className="border-none rounded-none px-4 h-full"
+              {...register("url")}
+              disabled={loading || isMaxedOut}
+              className={`border-none rounded-none px-4 h-full ${
+                errors.url ? "text-destructive" : ""
+              }`}
+              aria-label="Website URL"
+              aria-describedby="url-input-description"
+              aria-invalid={errors.url ? "true" : "false"}
             />
+            <div id="url-input-description" className="sr-only">
+              Enter a valid website URL starting with http:// or https:// to
+              analyze its accessibility
+            </div>
           </div>
-          <div className="h-full grid place-items-center pr-1.5">
+          <div className="h-full flex items-center pr-1.5">
             <Button
               type="submit"
-              disabled={loading || !url}
+              disabled={isSubmitDisabled}
               size="icon"
               variant="secondary"
+              aria-label={
+                loading
+                  ? "Analyzing website..."
+                  : "Analyze website accessibility"
+              }
             >
               {loading ? (
-                <LucideLoader2 className="w-4 h-4 animate-spin" />
+                <LucideLoader2
+                  className="w-4 h-4 animate-spin"
+                  aria-hidden="true"
+                />
               ) : (
-                <LucideArrowUp className="w-4 h-4" />
+                <LucideArrowUp className="w-4 h-4" aria-hidden="true" />
               )}
             </Button>
           </div>
@@ -75,4 +168,4 @@ export function UrlInput({
       </div>
     </div>
   );
-}
+});

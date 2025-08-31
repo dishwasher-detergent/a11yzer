@@ -1,7 +1,7 @@
 "use client";
 
 import { AnalysisIssues } from "@/components/analysis/analysis-issues";
-import { AnalysisScreenshot } from "@/components/analysis/analysis-screenshot";
+import { AnalysisProblematicElements } from "@/components/analysis/analysis-problematic-elements";
 import { TechnicalDetails } from "@/components/analysis/technical-details";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
 import { AnalysisOverview } from "./analysis-overview";
@@ -12,11 +12,11 @@ interface AnalysisViewProps {
 
 export function AnalysisView({ data }: AnalysisViewProps) {
   return (
-    <div className="relative">
+    <div className="relative p-4 grid grid-cols-1 lg:grid-cols-2">
       {data && (
         <>
           <AnalysisOverview summary={data.data.analysis.summary} />
-          <AnalysisScreenshot
+          <AnalysisProblematicElements
             screenshotUrl={data.data.screenshotUrl}
             problematicElements={data.data.problematicElements}
           />

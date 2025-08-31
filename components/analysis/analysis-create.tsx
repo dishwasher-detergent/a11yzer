@@ -1,7 +1,7 @@
 "use client";
 
 import { AnalysisIssues } from "@/components/analysis/analysis-issues";
-import { AnalysisScreenshot } from "@/components/analysis/analysis-screenshot";
+import { AnalysisProblematicElements } from "@/components/analysis/analysis-problematic-elements";
 import { TechnicalDetails } from "@/components/analysis/technical-details";
 import { UrlInput } from "@/components/analysis/url-input";
 import { useAnalysis } from "@/hooks/useAnalysis";
@@ -20,11 +20,11 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
 
   return (
     <div className="h-dvh overflow-hidden flex flex-col flex-nowrap">
-      <div className="flex-1 overflow-y-auto px-8">
+      <div className="flex-1 overflow-y-auto px-12 py-6">
         {analysis && (
           <>
             <AnalysisOverview summary={analysis.analysis.summary} />
-            <AnalysisScreenshot
+            <AnalysisProblematicElements
               screenshotUrl={analysis.screenshotUrl}
               problematicElements={analysis.problematicElements}
             />

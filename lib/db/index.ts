@@ -48,19 +48,13 @@ export async function listAnalysis(
           const users = await database.listDocuments<UserData>(
             DATABASE_ID,
             USER_COLLECTION_ID,
-            [
-              Query.equal("$id", uniqueUserIds),
-              Query.select(["$id", "name", "avatar"]),
-            ]
+            [Query.equal("$id", uniqueUserIds), Query.select(["$id", "name"])]
           );
 
           const teams = await database.listDocuments<TeamData>(
             DATABASE_ID,
             TEAM_COLLECTION_ID,
-            [
-              Query.equal("$id", uniqueTeamIds),
-              Query.select(["$id", "name", "avatar"]),
-            ]
+            [Query.equal("$id", uniqueTeamIds), Query.select(["$id", "name"])]
           );
 
           const userMap = users.documents.reduce<Record<string, UserData>>(
@@ -267,7 +261,7 @@ export async function createAnalysis({
             userId: user.$id,
             count: 1,
           },
-          permissions
+          [Permission.read(Role.user(user.$id))]
         );
       } else {
         await database.incrementDocumentAttribute(
@@ -283,14 +277,14 @@ export async function createAnalysis({
         DATABASE_ID,
         USER_COLLECTION_ID,
         analysis.userId,
-        [Query.select(["$id", "name", "avatar"])]
+        [Query.select(["$id", "name"])]
       );
 
       const teamRes = await database.getDocument<TeamData>(
         DATABASE_ID,
         TEAM_COLLECTION_ID,
         analysis.teamId,
-        [Query.select(["$id", "name", "avatar"])]
+        [Query.select(["$id", "name"])]
       );
 
       revalidateTag("analysis");

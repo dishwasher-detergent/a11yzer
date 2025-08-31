@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { Badge } from "@/components/ui/badge";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,27 +11,16 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
-import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
-import { Models } from "node-appwrite";
-import { Badge } from "../ui/badge";
+import { useAnalysisList } from "@/hooks/useAnalysisList";
 
-export function NavAnalysis({
-  analysis,
-  loading,
-}: {
-  analysis: Models.DocumentList<AnalysisDb<AnalysisResult>> | null;
-  loading: boolean;
-}) {
+export function NavAnalysis() {
+  const { analysisList, loading } = useAnalysisList({
+    limit: 5,
+  });
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>
-        Recent
-        {!loading && (
-          <Badge className="ml-2" variant="outline">
-            {analysis?.total}
-          </Badge>
-        )}
-      </SidebarGroupLabel>
+      <SidebarGroupLabel>Recent</SidebarGroupLabel>
       <SidebarMenu>
         {loading &&
           Array.from({ length: 5 }).map((_, index) => (
@@ -38,9 +28,10 @@ export function NavAnalysis({
               <SidebarMenuSkeleton />
             </SidebarMenuItem>
           ))}
-        {analysis?.documents.map((item, index) => (
+        {analysisList?.slice(0, 5).map((item, index) => (
           <SidebarMenuItem key={item.$id}>
             <SidebarMenuButton
+              size="lg"
               asChild
               tooltip={item.data.analysis.summary.slice(0, 25)}
               className="truncate"
@@ -52,7 +43,14 @@ export function NavAnalysis({
                 >
                   {index + 1}
                 </Badge>
-                <span>{item.data.analysis.summary.slice(0, 25)}...</span>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">
+                    {item.data.analysis.summary.slice(0, 25)}...
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {item.url}
+                  </span>
+                </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

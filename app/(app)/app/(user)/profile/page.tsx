@@ -22,13 +22,15 @@ export default async function ProfilePage() {
 
   const { data: analysisData } = await listAnalysis([
     Query.equal("userId", user.$id),
+    Query.orderDesc("$createdAt"),
+    Query.limit(5),
   ]);
 
   return (
     <main className="p-4 space-y-6">
       <UserDescription user={data} />
       <UserActions user={data} />
-      <AnalysisHistory data={analysisData?.documents} />
+      <AnalysisHistory initialData={analysisData} userId={user.$id} />
     </main>
   );
 }

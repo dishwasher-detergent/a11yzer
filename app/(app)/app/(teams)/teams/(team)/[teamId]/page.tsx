@@ -22,11 +22,13 @@ export default async function TeamPage({
 
   const { data: analysisData } = await listAnalysis([
     Query.equal("teamId", teamId),
+    Query.orderDesc("$createdAt"),
+    Query.limit(5),
   ]);
 
   return (
     <main className="p-4">
-      <AnalysisHistory data={analysisData?.documents} />
+      <AnalysisHistory initialData={analysisData} teamId={teamId} />
     </main>
   );
 }

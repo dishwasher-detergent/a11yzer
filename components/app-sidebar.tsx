@@ -1,6 +1,5 @@
 "use client";
 
-import { Query } from "node-appwrite";
 import * as React from "react";
 
 import { NavAnalysis } from "@/components/analysis/nav-analysis";
@@ -15,7 +14,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/user/nav-user";
-import { useAnalysisList } from "@/hooks/useAnalysis";
 import { useParams } from "next/navigation";
 import { ModeToggle } from "./theme-toggle";
 
@@ -23,10 +21,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { teamId } = useParams<{
     teamId: string;
   }>();
-  const { analysisList, loading } = useAnalysisList([
-    Query.orderDesc("$createdAt"),
-    Query.limit(5),
-  ]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -36,7 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain />
         {teamId && <NavTeam teamId={teamId} />}
-        <NavAnalysis analysis={analysisList} loading={loading} />
+        <NavAnalysis />
         <div className="mt-auto p-2">
           <ModeToggle />
         </div>

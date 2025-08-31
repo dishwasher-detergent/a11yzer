@@ -38,8 +38,8 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
   });
 
   return (
-    <div className="p-4 border-b">
-      <div className="flex justify-between items-center pb-4">
+    <div className="col-span-2 col-start-1">
+      <div className="flex justify-between items-center p-4">
         <div>
           <h2 className="font-semibold text-lg pb-2">
             Analysis Result
@@ -56,11 +56,10 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
           {overallScore}/100
         </Badge>
       </div>
-      <div className="space-y-4">
+      <ul className="grid grid-cols-1 gap-4">
         {sortedIssues.map((issue, index) => (
-          <div key={index} className="space-y-2 border-t border-dashed pt-2">
-            <h3 className="font-semibold">{issue.title}</h3>
-            <div className="flex items-center gap-2">
+          <li key={index} className="space-y-2 border rounded-md p-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Badge variant={issue.priority}>
                 {getTypeIcon(issue.type)}
                 {issue.priority}
@@ -79,9 +78,9 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
               </h4>
               <p className="text-sm text-blue-800">{issue.recommendation}</p>
             </div>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
