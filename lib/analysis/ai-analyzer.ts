@@ -207,7 +207,7 @@ Keyboard Navigation:
 
 Please respond with a JSON object containing:
 - overallScore: number (0-100)
-- issues: array of objects with type, priority (lowercase), title, description, recommendation, and optional wcagCriterion
+- issues: array of objects with type, priority (lowercase), title, description, recommendation, and wcagCriterion with reference
 - summary: string (brief overview of the analysis)
 
 Focus on:
