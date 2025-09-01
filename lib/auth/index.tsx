@@ -57,9 +57,9 @@ export async function getUserData(): Promise<Result<User>> {
     return unstable_cache(
       async (id) => {
         const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
+        startOfDay.setUTCHours(0, 0, 0, 0);
         const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
+        endOfDay.setUTCHours(23, 59, 59, 999);
 
         try {
           const data = await database.getDocument<UserData>(
@@ -124,9 +124,9 @@ export async function getUserById(id: string): Promise<Result<UserData>> {
     return unstable_cache(
       async (id) => {
         const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
+        startOfDay.setUTCHours(0, 0, 0, 0);
         const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
+        endOfDay.setUTCHours(23, 59, 59, 999);
 
         try {
           const data = await database.getDocument<UserData>(

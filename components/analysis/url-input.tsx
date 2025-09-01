@@ -161,7 +161,7 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
                 </span>
               ) : (
                 <>
-                  You have used {count}/{MAX_ANALYSIS_LIMIT} analyses
+                  You have used {count}/{MAX_ANALYSIS_LIMIT} analyses today.
                 </>
               )}
             </p>
