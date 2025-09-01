@@ -56,7 +56,7 @@ export async function getBrowser() {
       console.warn("Could not set chromium executable permissions:", error);
     }
 
-    // Minimal, reliable launch options for serverless
+    // Enhanced launch options for serverless environments with library issues
     const launchOptions = {
       args: [
         ...chromium.args,
@@ -78,13 +78,24 @@ export async function getBrowser() {
         "--disable-component-update",
         "--disable-sync",
         "--disable-translate",
-        "--disable-features=TranslateUI,VizDisplayCompositor",
+        "--disable-plugins",
+        // Additional flags for NSS/NSPR library compatibility
+        "--disable-web-security",
+        "--disable-features=TranslateUI,VizDisplayCompositor,AudioServiceOutOfProcess",
+        "--disable-ipc-flooding-protection",
+        "--disable-software-rasterizer",
+        "--disable-background-networking",
+        "--metrics-recording-only",
+        "--safebrowsing-disable-auto-update",
+        "--ignore-ssl-errors",
+        "--ignore-certificate-errors",
+        "--ignore-certificate-errors-spki-list",
       ],
       executablePath: executablePath,
       headless: true,
-      timeout: 60000, // Increased timeout for serverless cold starts
+      timeout: 60000,
       ignoreHTTPSErrors: true,
-      dumpio: process.env.DEBUG_CHROMIUM === "true", // Only enable debug output if explicitly requested
+      dumpio: process.env.DEBUG_CHROMIUM === "true",
     };
 
     console.log("Launch options prepared, attempting browser launch...");
