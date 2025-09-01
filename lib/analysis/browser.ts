@@ -1,4 +1,4 @@
-import chromium from "@sparticuz/chromium";
+import chromium from "@sparticuz/chromium-min";
 import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import { tmpdir } from "os";
@@ -7,6 +7,8 @@ import puppeteer from "puppeteer";
 import puppeteerCore from "puppeteer-core";
 
 export const dynamic = "force-dynamic";
+const remoteExecutablePath =
+  "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
 
 export async function getBrowser() {
   if (process.env.NODE_ENV === "development") {
@@ -17,9 +19,7 @@ export async function getBrowser() {
 
     return browser;
   } else {
-    const path = await chromium.executablePath(
-      "/usr/local/server/src/function/node_modules/@sparticuz/chromium/bin"
-    );
+    const executablePath = await chromium.executablePath(remoteExecutablePath);
 
     try {
       const files = await readdir(tmpdir());
@@ -28,17 +28,17 @@ export async function getBrowser() {
       const exists = existsSync(join(tmpdir(), "chromium"));
       console.log("Chromium exists in /tmp:", exists);
 
-      const nextFiles = await readdir("/usr/local/server/src/function");
+      const nextFiles = await readdir("/usr/local/server/src/function/.next");
       console.log("Files in .next:", nextFiles);
     } catch (error) {
       console.error("Error reading /tmp directory:", error);
     }
 
-    console.log("Chromium executable path:", path);
+    console.log("Chromium executable path:", executablePath);
     const browser = await puppeteerCore.launch({
       headless: true,
       args: chromium.args,
-      executablePath: path,
+      executablePath,
     });
 
     return browser;
