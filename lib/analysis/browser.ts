@@ -24,11 +24,16 @@ export async function getBrowser() {
     console.log("Launching browser in production mode");
 
     try {
+      // Set up chromium with proper font support
+      await chromium.font(
+        "https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf"
+      );
+
       // Get the chromium executable path
       const executablePath = await chromium.executablePath();
       console.log("Chromium executable path:", executablePath);
 
-      // Verify the file exists before making it executable
+      // Verify the file exists
       try {
         await access(executablePath, constants.F_OK);
         console.log("Chromium executable exists");
@@ -45,52 +50,105 @@ export async function getBrowser() {
         console.warn("Could not make chromium executable:", error);
       }
 
-      // Verify the file is executable
-      try {
-        await access(executablePath, constants.X_OK);
-        console.log("Chromium executable is accessible");
-      } catch (error) {
-        console.error("Chromium executable is not accessible:", error);
-      }
-
+      // Enhanced launch options for serverless environments
       const launchOptions = {
         args: [
           ...chromium.args,
-          "--no-sandbox",
-          "--headless",
-          "--disable-setuid-sandbox",
+          // Additional serverless-specific args
           "--disable-dev-shm-usage",
-          "--disable-gpu",
+          "--disable-gpu-sandbox",
+          "--disable-software-rasterizer",
+          "--no-first-run",
+          "--no-zygote",
+          "--single-process",
+          "--disable-extensions",
+          "--disable-default-apps",
+          // Memory optimization
+          "--memory-pressure-off",
+          "--max_old_space_size=4096",
+          // Security and stability
+          "--disable-web-security",
+          "--disable-features=VizDisplayCompositor",
+          "--run-all-compositor-stages-before-draw",
+          "--disable-background-networking",
           "--disable-background-timer-throttling",
           "--disable-backgrounding-occluded-windows",
           "--disable-renderer-backgrounding",
-          "--disable-features=TranslateUI",
-          "--disable-ipc-flooding-protection",
-          "--single-process",
-          "--no-zygote", // Important for serverless
-          "--disable-features=VizDisplayCompositor", // Helps with serverless
+          "--disable-component-extensions-with-background-pages",
+          // Font rendering
+          "--disable-component-update",
+          "--disable-domain-reliability",
+          "--disable-sync",
+          "--disable-translate",
+          "--hide-scrollbars",
+          "--mute-audio",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--password-store=basic",
+          "--use-mock-keychain",
         ],
         defaultViewport: chromium.defaultViewport,
-        headless: true,
         executablePath: executablePath,
+        headless: true,
+        ignoreHTTPSErrors: true,
+        // Add timeout and retry logic
         timeout: 30000,
+        dumpio: false, // Disable debug output in production
       };
 
-      console.log("Launch options:", JSON.stringify(launchOptions, null, 2));
+      console.log("Attempting to launch browser with enhanced options...");
 
       const browser = await puppeteerCore.launch(launchOptions);
       console.log("Browser launched successfully");
+
+      // Test the browser by creating a page
+      const page = await browser.newPage();
+      await page.close();
+      console.log("Browser validation successful");
+
       return browser;
     } catch (error) {
       console.error("Failed to launch browser:", error);
 
-      // Log additional system information
+      // Log additional system information for debugging
       console.log("Process platform:", process.platform);
       console.log("Process arch:", process.arch);
       console.log("NODE_ENV:", process.env.NODE_ENV);
       console.log("Current working directory:", process.cwd());
 
-      throw error;
+      // Try a fallback with minimal options
+      try {
+        console.log("Attempting fallback launch with minimal options...");
+
+        const fallbackOptions = {
+          args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+            "--disable-gpu",
+            "--single-process",
+            "--no-zygote",
+            "--headless",
+          ],
+          executablePath: await chromium.executablePath(),
+          headless: true,
+        };
+
+        const browser = await puppeteerCore.launch(fallbackOptions);
+        console.log("Fallback browser launch successful");
+        return browser;
+      } catch (fallbackError) {
+        console.error("Fallback launch also failed:", fallbackError);
+        throw new Error(
+          `Both primary and fallback browser launches failed. Primary error: ${
+            error instanceof Error ? error.message : String(error)
+          }. Fallback error: ${
+            fallbackError instanceof Error
+              ? fallbackError.message
+              : String(fallbackError)
+          }`
+        );
+      }
     }
   }
 }
