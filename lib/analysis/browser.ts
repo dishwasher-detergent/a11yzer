@@ -11,7 +11,11 @@ export async function getBrowser() {
   if (process.env.NODE_ENV === "development") {
     console.log("Launching browser in development mode");
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: "shell",
+      defaultViewport: {
+        width: 1920,
+        height: 1080,
+      },
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
@@ -28,7 +32,7 @@ export async function getBrowser() {
 
     // Use the default path without custom font to avoid issues
     const executablePath = await chromium.executablePath(
-      "https://github.com/Sparticuz/chromium/releases/download/v138.0.2/chromium-v138.0.2-pack.x64.tar"
+      "https://github.com/Sparticuz/chromium/releases/download/v133.0.0/chromium-v133.0.0-pack.tar"
     );
     console.log("Chromium executable path:", executablePath);
 
