@@ -54,7 +54,7 @@ export async function getBrowser() {
         "--use-mock-keychain",
         "--single-process",
       ],
-      executablePath: await chromium.executablePath("../../bin"),
+      executablePath: await chromium.executablePath(),
     });
 
     return browser;
