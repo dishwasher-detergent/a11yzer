@@ -1,5 +1,7 @@
 import * as cheerio from "cheerio";
 import { NextRequest } from "next/server";
+import { Query } from "node-appwrite";
+import { Browser } from "puppeteer";
 
 import { analyzeWithAIStreaming } from "@/lib/analysis/ai-analyzer";
 import { getBrowser } from "@/lib/analysis/browser";
@@ -18,9 +20,8 @@ import {
   PROJECT_ID,
   SCREENSHOT_BUCKET_ID,
 } from "@/lib/constants";
-import { createAnalysis } from "@/lib/db";
+import { createAnalysis, listAnalysis } from "@/lib/db";
 import { uploadScreenshotImage } from "@/lib/storage";
-import { Browser } from "puppeteer";
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,6 +60,41 @@ export async function POST(request: NextRequest) {
               })}\n\n`
             )
           );
+
+          const oneHourAgo = new Date();
+          oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+          const now = new Date();
+
+          const existingAnalysis = await listAnalysis([
+            Query.limit(1),
+            Query.orderDesc("$createdAt"),
+            Query.equal("url", url),
+            Query.equal("teamId", teamId),
+            Query.between(
+              "$createdAt",
+              oneHourAgo.toISOString(),
+              now.toISOString()
+            ),
+          ]);
+
+          if (
+            existingAnalysis.data &&
+            existingAnalysis.data?.documents.length > 0
+          ) {
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  type: "complete",
+                  data: existingAnalysis.data?.documents[0].data,
+                  analysisId: existingAnalysis.data?.documents[0]?.$id,
+                  cached: true,
+                })}\n\n`
+              )
+            );
+
+            controller.close();
+            return;
+          }
 
           controller.enqueue(
             encoder.encode(
@@ -212,6 +248,7 @@ export async function POST(request: NextRequest) {
                 type: "complete",
                 data: data,
                 analysisId: analysisResult.data?.$id,
+                cached: false,
               })}\n\n`
             )
           );
