@@ -6,9 +6,6 @@ import puppeteerCore from "puppeteer-core";
 
 export const dynamic = "force-dynamic";
 
-const remoteExecutablePath =
-  "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
-
 export async function getBrowser() {
   if (process.env.NODE_ENV === "development") {
     const browser = await puppeteer.launch({
@@ -24,18 +21,15 @@ export async function getBrowser() {
     } catch (error) {
       console.error("Error reading /tmp directory:", error);
     }
+    const path = await chromium.executablePath(
+      "/usr/local/server/src/function/node_modules/@sparticuz/chromium/bin"
+    );
 
+    console.log("Chromium executable path:", path);
     const browser = await puppeteerCore.launch({
       headless: true,
-      args: [
-        ...chromium.args,
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--single-process",
-        "--disable-gpu",
-      ],
-      executablePath: await chromium.executablePath(remoteExecutablePath),
+      args: chromium.args,
+      executablePath: path,
     });
 
     return browser;
