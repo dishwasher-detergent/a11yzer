@@ -1,35 +1,11 @@
 import chromium from "@sparticuz/chromium-min";
-import { execSync } from "child_process";
-import { existsSync } from "fs";
+import { chmod } from "fs/promises";
 import puppeteer from "puppeteer";
 import puppeteerCore from "puppeteer-core";
 
 export const dynamic = "force-dynamic";
-let installed = false;
-
-function ensureChromiumInstalled() {
-  if (installed) {
-    console.log("already installed chromium");
-  } else {
-    try {
-      // Check if we're in a serverless environment that needs APK installation
-      if (
-        existsSync("/usr/local/server/src/function/") &&
-        existsSync("/usr/local/server/src/function/*.apk")
-      ) {
-        execSync("apk add /usr/local/server/src/function/*.apk");
-        console.log("installed chromium");
-      } else {
-        // For other environments, Chromium will be downloaded by @sparticuz/chromium
-        console.log("chromium will be downloaded automatically");
-      }
-      installed = true;
-    } catch (error) {
-      console.error("chromium installation failed:", error);
-      throw error;
-    }
-  }
-}
+export const remotePath =
+  "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
 
 export async function getBrowser() {
   if (process.env.NODE_ENV === "development") {
@@ -46,7 +22,16 @@ export async function getBrowser() {
 
     return browser;
   } else {
-    ensureChromiumInstalled();
+    // Get the chromium executable path
+    const executablePath = await chromium.executablePath(remotePath);
+
+    // Make the chromium file executable
+    try {
+      await chmod(executablePath, 0o755);
+      console.log("Made chromium executable:", executablePath);
+    } catch (error) {
+      console.warn("Could not make chromium executable:", error);
+    }
 
     const browser = await puppeteerCore.launch({
       args: [
@@ -65,7 +50,7 @@ export async function getBrowser() {
       ],
       defaultViewport: chromium.defaultViewport,
       headless: true,
-      executablePath: "/usr/bin/chromium-browser",
+      executablePath: executablePath,
     });
 
     return browser;
