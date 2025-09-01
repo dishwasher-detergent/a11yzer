@@ -10,7 +10,7 @@ import { Badge } from "../ui/badge";
 
 export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
   return (
-    <Card className="break-inside-avoid-column rounded-lg overflow-hidden py-0 gap-0 ">
+    <Card className="rounded-md overflow-hidden py-0 gap-0 ">
       <CardContent className="p-0 relative">
         <AspectRatio ratio={1} className="w-full">
           <img
