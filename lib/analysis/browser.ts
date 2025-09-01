@@ -28,7 +28,7 @@ export async function getBrowser() {
       const exists = existsSync(join(tmpdir(), "chromium"));
       console.log("Chromium exists in /tmp:", exists);
 
-      const nextFiles = await readdir("/usr/local/server/src/function/.next");
+      const nextFiles = await readdir("/usr/local/server/src/function");
       console.log("Files in .next:", nextFiles);
     } catch (error) {
       console.error("Error reading /tmp directory:", error);
