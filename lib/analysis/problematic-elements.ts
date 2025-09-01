@@ -1,11 +1,12 @@
 import * as cheerio from "cheerio";
-import { Page } from "puppeteer";
+import { Page as LocalPage } from "puppeteer";
+import { Page } from "puppeteer-core";
 
 import { ElementInfo, LimitedData } from "@/interfaces/analysis.interface";
 import { ANALYSIS_LIMITS } from "@/lib/constants";
 
 export async function extractProblematicElements(
-  page: Page,
+  page: Page | LocalPage,
   $: cheerio.CheerioAPI
 ): Promise<LimitedData<ElementInfo>> {
   const elements: ElementInfo[] = [];

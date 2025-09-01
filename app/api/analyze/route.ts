@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import { NextRequest } from "next/server";
 
 import { analyzeWithAIStreaming } from "@/lib/analysis/ai-analyzer";
+import { getBrowser } from "@/lib/analysis/browser";
 import { extractAccessibilityData } from "@/lib/analysis/extractors";
 import { createLimitsInfo } from "@/lib/analysis/limits-info";
 import { extractProblematicElements } from "@/lib/analysis/problematic-elements";
@@ -69,35 +70,7 @@ export async function POST(request: NextRequest) {
             )
           );
 
-          const isLocal = process.env.NODE_ENV === "development";
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          let puppeteer: any;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          let launchOptions: any = {
-            headless: true,
-          };
-
-          if (isLocal) {
-            // Use regular puppeteer for local development
-            puppeteer = await import("puppeteer");
-            launchOptions = {
-              ...launchOptions,
-              args: ["--no-sandbox", "--disable-setuid-sandbox"],
-            };
-          } else {
-            // Use puppeteer-core and @sparticuz/chromium for production
-            const chromium = (await import("@sparticuz/chromium")).default;
-            puppeteer = await import("puppeteer-core");
-            launchOptions = {
-              ...launchOptions,
-              args: chromium.args,
-              executablePath: await chromium.executablePath(),
-            };
-          }
-
-          const browser = await puppeteer.launch(launchOptions);
-
+          const browser = await getBrowser();
           const page = await browser.newPage();
           await page.setViewport({ width: 1280, height: 800 });
           await page.goto(url, { waitUntil: "networkidle2" });

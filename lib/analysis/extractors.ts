@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
-import { Page } from "puppeteer";
+import { Page as LocalPage } from "puppeteer";
+import { Page } from "puppeteer-core";
 
 import {
   AccessibilityData,
@@ -16,7 +17,7 @@ import { ANALYSIS_LIMITS } from "@/lib/constants";
 
 // Main function to extract all accessibility data
 export async function extractAccessibilityData(
-  page: Page
+  page: Page | LocalPage
 ): Promise<AccessibilityData> {
   const html = await page.content();
   const $ = cheerio.load(html);
