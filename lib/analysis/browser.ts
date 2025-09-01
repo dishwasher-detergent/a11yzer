@@ -56,7 +56,10 @@ export async function getBrowser() {
         "--use-gl=swiftshader",
         "--use-mock-keychain",
       ],
-      executablePath: path.join(process.cwd(), ".next/serverless/chromium"),
+      executablePath: path.join(
+        process.cwd(),
+        ".next/serverless/chromium/chrome"
+      ),
     });
 
     return browser;

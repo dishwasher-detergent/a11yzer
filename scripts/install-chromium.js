@@ -1,25 +1,51 @@
-const { install, findChromium } = require("@sparticuz/chromium");
 const fs = require("fs");
 const path = require("path");
+const https = require("https");
+const { spawn } = require("child_process");
 
-async function setup() {
-  await install();
-  const { executablePath } = await findChromium();
+const url =
+  "https://github.com/Sparticuz/chromium/releases/download/v138.0.2/chromium-v138.0.2-pack.x64.tar";
 
-  if (!executablePath) {
-    throw new Error("Could not find Chromium binary after install");
-  }
+const destDir = path.join(".next", "serverless");
+const destFile = path.join(destDir, "chromium.tar");
 
-  const destDir = path.join(".next", "serverless");
-  const destPath = path.join(destDir, "chromium");
+async function downloadChromium() {
+  return new Promise((resolve, reject) => {
+    fs.mkdirSync(destDir, { recursive: true });
 
-  fs.mkdirSync(destDir, { recursive: true });
-  fs.copyFileSync(executablePath, destPath);
-
-  console.log(`Chromium binary copied to ${destPath}`);
+    const file = fs.createWriteStream(destFile);
+    https.get(url, (response) => {
+      if (response.statusCode !== 200) {
+        return reject(new Error(`Failed to download: ${response.statusCode}`));
+      }
+      response.pipe(file);
+      file.on("finish", () => {
+        file.close(resolve);
+      });
+    }).on("error", reject);
+  });
 }
 
-setup().catch((err) => {
-  console.error("Failed to download Chromium:", err);
-  process.exit(1);
-});
+async function extractChromium() {
+  return new Promise((resolve, reject) => {
+    const child = spawn("tar", ["-xf", destFile, "-C", destDir]);
+    child.on("close", (code) => {
+      if (code !== 0) return reject(new Error("Extraction failed"));
+      fs.unlinkSync(destFile); // cleanup
+      resolve();
+    });
+  });
+}
+
+(async () => {
+  try {
+    console.log("Downloading Chromium...");
+    await downloadChromium();
+    console.log("Extracting Chromium...");
+    await extractChromium();
+    console.log("Chromium installed into", destDir);
+  } catch (err) {
+    console.error("Failed to install Chromium:", err);
+    process.exit(1);
+  }
+})();

@@ -6,7 +6,6 @@ import { AnalysisOverview } from "@/components/analysis/overview";
 import { AnalysisProblematicElements } from "@/components/analysis/problematic-elements";
 import { TechnicalDetails } from "@/components/analysis/technical-details";
 import { UrlInput } from "@/components/analysis/url-input";
-import { Hue } from "@/components/hue";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAnalysisStreaming } from "@/hooks/useAnalysisStreaming";
@@ -32,7 +31,7 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
 
   return (
     <div className="h-dvh overflow-hidden flex flex-col flex-nowrap">
-      <div className="flex-1 overflow-y-auto px-12 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2">
+      <div className="flex-1 overflow-y-auto px-12 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2 overflow-x-hidden">
         {analysis ? (
           <>
             <AnalysisOverview summary={analysis.analysis.summary} />
@@ -73,11 +72,6 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
         error={error}
         count={currentCount}
       />
-      {!analysis && (
-        <div className="absolute bottom-10 w-full grid place-items-center">
-          <Hue />
-        </div>
-      )}
     </div>
   );
 }

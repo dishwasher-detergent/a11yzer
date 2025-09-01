@@ -31,7 +31,7 @@ export function Hue({ className }: HueProps) {
       }}
     >
       <div
-        className="gap-15 pointer-events-none flex w-80 origin-center -rotate-45 scale-[200%] justify-center"
+        className="gap-15 pointer-events-none flex w-[640px] origin-center -rotate-45 scale-[200%] justify-center"
         style={{
           filter: `hue-rotate(${value}deg) saturate(8) blur(30px)`,
         }}
