@@ -25,6 +25,7 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
     status,
     analyzeWebsite,
     cancelAnalysis,
+    cached,
   } = useAnalysisStreaming(teamId);
 
   const currentCount = analysis?.count ?? count;
@@ -71,6 +72,7 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
         loading={loading}
         error={error}
         count={currentCount}
+        cached={cached}
       />
     </div>
   );

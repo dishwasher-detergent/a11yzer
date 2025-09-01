@@ -1,17 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { MAX_ANALYSIS_LIMIT } from "@/lib/constants";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  LucideArrowUp,
-  LucideLoader2,
-  LucideTriangleAlert,
-  LucideX,
-} from "lucide-react";
+import { LucideArrowUp, LucideLoader2, LucideX } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { ShineBorder } from "../shine-border";
+
+import { ShineBorder } from "@/components/shine-border";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MAX_ANALYSIS_LIMIT } from "@/lib/constants";
+import { AlertMessage } from "./url-input/alert-message";
+import { UsageCounter } from "./url-input/usage-counter";
 
 const urlSchema = z.object({
   url: z
@@ -43,6 +41,7 @@ interface UrlInputProps {
   loading: boolean;
   error?: string;
   count: number;
+  cached: boolean;
 }
 
 export const UrlInput = memo<UrlInputProps>(function UrlInput({
@@ -53,6 +52,7 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
   loading,
   error,
   count,
+  cached,
 }) {
   const isMaxedOut = useMemo(() => count >= MAX_ANALYSIS_LIMIT, [count]);
 
@@ -111,62 +111,24 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
         Website Accessibility Analysis
       </h2>
       <div className="p-0.5 border bg-secondary rounded-md space-y-1">
-        <div aria-live="polite" aria-atomic="true" className="sr-only">
-          {error && `Error: ${error}`}
-          {errors.url && `Validation error: ${errors.url.message}`}
-        </div>
         {error && (
-          <div
-            className="px-2 py-1 bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2"
-            role="alert"
-            aria-describedby="error-message"
-          >
-            <LucideTriangleAlert
-              className="size-3 flex-shrink-0 text-destructive"
-              aria-hidden="true"
-            />
-            <p id="error-message" className="text-xs text-destructive">
-              {error}
-            </p>
-          </div>
+          <AlertMessage id="error-message" message={error} type="error" />
         )}
-
         {errors.url && (
-          <div
-            className="px-2 py-1 bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2"
-            role="alert"
-            aria-describedby="validation-error"
-          >
-            <LucideTriangleAlert
-              className="size-3 flex-shrink-0 text-destructive"
-              aria-hidden="true"
-            />
-            <p id="validation-error" className="text-xs text-destructive">
-              {errors.url.message}
-            </p>
-          </div>
+          <AlertMessage
+            id="validation-error"
+            message={errors.url.message || "Invalid URL"}
+            type="warning"
+          />
         )}
-        <div className="px-2 py-1">
-          <div aria-live="polite" aria-atomic="true">
-            <p
-              className="text-xs text-muted-foreground"
-              id="usage-counter"
-              aria-label={`Analysis usage: ${count} of ${MAX_ANALYSIS_LIMIT} used${
-                isMaxedOut ? ". Limit reached." : ""
-              }`}
-            >
-              {isMaxedOut ? (
-                <span className="text-destructive font-medium">
-                  Analysis limit reached ({count}/{MAX_ANALYSIS_LIMIT})
-                </span>
-              ) : (
-                <>
-                  You have used {count}/{MAX_ANALYSIS_LIMIT} analyses today.
-                </>
-              )}
-            </p>
-          </div>
-        </div>
+        {cached && (
+          <AlertMessage
+            id="cache-hit"
+            message="This analysis was served from cache. We cache results by domain for 1 hour to reduce load and improve performance. This does not use your quota."
+            type="info"
+          />
+        )}
+        <UsageCounter count={count} isMaxedOut={isMaxedOut} />
         <form
           onSubmit={handleFormSubmit}
           className="flex border rounded-md overflow-hidden h-12 bg-background relative"

@@ -18,6 +18,7 @@ export function useAnalysisStreaming(teamId: string) {
   const [aiResponse, setAiResponse] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [cached, setCached] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const { showLimitNotifications } = useLimitNotifications();
 
@@ -97,6 +98,7 @@ export function useAnalysisStreaming(teamId: string) {
                   setAnalysis(data.data);
                   setStatus(null);
                   setIsStreaming(false);
+                  setCached(data.cached || false);
 
                   if (data.data.limits) {
                     showLimitNotifications(data.data.limits);
@@ -178,5 +180,6 @@ export function useAnalysisStreaming(teamId: string) {
     cancelAnalysis,
     clearAnalysis,
     clearError,
+    cached,
   };
 }
