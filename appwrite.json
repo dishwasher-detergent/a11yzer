@@ -283,5 +283,24 @@
         }
     ],
     "teams": [],
-    "functions": []
+    "functions": [
+        {
+            "$id": "analyzer",
+            "name": "analyzer",
+            "runtime": "node-22",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "scopes": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true,
+            "entrypoint": "dist/main.js",
+            "commands": "apk update && apk fetch chromium nss freetype harfbuzz ca-certificates ttf-freefont && npm install --ignore-scripts && npm run build",
+            "path": "functions/analyzer",
+            "specification": "s-1vcpu-512mb"
+        }
+    ]
 }
