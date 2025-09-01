@@ -9,7 +9,6 @@
     "start": "next start",
     "lint": "next lint",
     "lefthook:install": "lefthook install",
-    "postinstall": "node scripts/install-chromium.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",

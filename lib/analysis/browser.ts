@@ -1,5 +1,4 @@
 import chromium from "@sparticuz/chromium";
-import path from "path";
 import puppeteer from "puppeteer";
 import puppeteerCore from "puppeteer-core";
 
@@ -54,9 +53,7 @@ export async function getBrowser() {
         "--use-gl=swiftshader",
         "--use-mock-keychain",
       ],
-      executablePath: await chromium.executablePath(
-        path.join(process.cwd(), ".next/serverless")
-      ),
+      executablePath: await chromium.executablePath(),
     });
 
     return browser;
