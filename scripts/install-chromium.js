@@ -23,7 +23,11 @@ async function downloadChromium() {
         // Handle redirects
         if (response.statusCode === 301 || response.statusCode === 302) {
           file.close();
-          fs.unlinkSync(destFile).catch(() => {}); // Clean up partial file
+          try {
+            fs.unlinkSync(destFile); // Clean up partial file
+          } catch (e) {
+            // File might not exist yet, ignore error
+          }
           const redirectUrl = response.headers.location;
           if (!redirectUrl) {
             return reject(new Error("Redirect location not found"));
@@ -42,7 +46,11 @@ async function downloadChromium() {
           file.close(resolve);
         });
         file.on("error", (err) => {
-          fs.unlinkSync(destFile).catch(() => {});
+          try {
+            fs.unlinkSync(destFile);
+          } catch (e) {
+            // File might not exist, ignore error
+          }
           reject(err);
         });
       }).on("error", (err) => {
