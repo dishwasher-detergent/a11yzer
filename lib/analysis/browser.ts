@@ -65,7 +65,7 @@ export async function getBrowser() {
       console.log("Chromium exists at path:", exists, executablePath);
 
       // Test chromium executable
-      exec(`${executablePath} --version`, (err, stdout, stderr) => {
+      exec(`${executablePath} --version`, (err, stdout) => {
         if (err) {
           console.error("Chromium version check failed:", err.message);
         } else {
