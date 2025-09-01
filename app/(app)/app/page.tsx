@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { CreateTeam } from "@/components/team/create-team";
+import { CreateTeam } from "@/components/team/create";
 import { getLoggedInUser } from "@/lib/auth";
 import { listTeams } from "@/lib/team";
 

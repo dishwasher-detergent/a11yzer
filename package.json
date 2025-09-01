@@ -27,10 +27,8 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@types/cheerio": "^1.0.0",
-    "@types/puppeteer": "^7.0.4",
+    "@sparticuz/chromium": "^138.0.2",
     "appwrite": "^17.0.2",
-    "canvas": "^3.2.0",
     "cheerio": "^1.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -42,7 +40,7 @@
     "next-themes": "^0.4.6",
     "node-appwrite": "^17.2.0",
     "openai": "^5.16.0",
-    "puppeteer": "^24.17.1",
+    "puppeteer-core": "^24.17.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.62.0",
@@ -62,6 +60,7 @@
     "@types/react-dom": "^19.1.7",
     "eslint": "^9.34.0",
     "eslint-config-next": "15.2.1",
+    "puppeteer": "^24.17.1",
     "tailwindcss": "^4.1.12",
     "typescript": "^5.9.2"
   }

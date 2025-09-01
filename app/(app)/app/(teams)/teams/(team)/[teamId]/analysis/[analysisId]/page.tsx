@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { AnalysisView } from "@/components/analysis/analysis-view";
+import { AnalysisView } from "@/components/analysis/view";
 import { getAnalysisById } from "@/lib/db";
 import { getTeamById } from "@/lib/team";
 

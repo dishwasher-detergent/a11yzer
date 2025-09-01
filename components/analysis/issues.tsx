@@ -41,14 +41,14 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
 
   const renderIssuesList = (filteredIssues: AnalysisIssue[]) => (
     <ul
-      className="grid grid-cols-1 border rounded-md"
+      className="grid grid-cols-1 border rounded-md divide-y"
       role="list"
       aria-label={`List of ${filteredIssues.length} accessibility issues`}
     >
       {filteredIssues.map((issue, index) => (
         <li
           key={index}
-          className="space-y-4 not-last:border-b border-dashed p-4"
+          className="space-y-4 border-dashed p-4"
           role="listitem"
           aria-labelledby={`issue-title-${index}`}
           aria-describedby={`issue-description-${index} issue-recommendation-${index}`}

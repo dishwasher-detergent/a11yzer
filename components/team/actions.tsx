@@ -1,8 +1,8 @@
 import { TeamData } from "@/interfaces/team.interface";
-import { DeleteTeam } from "./delete-team";
-import { EditTeam } from "./edit-team";
-import { InviteTeam } from "./invite-team";
-import { LeaveTeam } from "./leave-team";
+import { DeleteTeam } from "./delete";
+import { EditTeam } from "./edit";
+import { InviteTeam } from "./invite";
+import { LeaveTeam } from "./leave";
 
 interface TeamActionsProps {
   data: TeamData;

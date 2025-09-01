@@ -27,7 +27,7 @@ export const COOKIE_KEY = `a_session_${PROJECT_ID}`;
 export const MAX_TEAM_LIMIT =
   Number(process.env.NEXT_PUBLIC_MAX_TEAM_LIMIT) || 3;
 export const MAX_ANALYSIS_LIMIT =
-  Number(process.env.NEXT_PUBLIC_MAX_ANALYSIS_LIMIT) || 100;
+  Number(process.env.NEXT_PUBLIC_MAX_ANALYSIS_LIMIT) || 5;
 
 export const ANALYSIS_LIMITS = {
   MAX_HEADINGS: 20,

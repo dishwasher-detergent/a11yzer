@@ -11,6 +11,7 @@ import {
 import { memo, useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { ShineBorder } from "../shine-border";
 
 const urlSchema = z.object({
   url: z
@@ -103,7 +104,7 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
 
   return (
     <section
-      className="px-8 pb-8 w-full bg-background"
+      className="px-8 pb-8 w-full bg-background z-10"
       aria-labelledby="url-analysis-heading"
     >
       <h2 id="url-analysis-heading" className="sr-only">
@@ -168,15 +169,23 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
         </div>
         <form
           onSubmit={handleFormSubmit}
-          className="flex border rounded-md overflow-hidden h-12 bg-background"
+          className="flex border rounded-md overflow-hidden h-12 bg-background relative"
           role="search"
           aria-labelledby="form-label"
           noValidate
         >
+          <ShineBorder
+            shineColor={[
+              "var(--color-pink-300)",
+              "var(--color-red-300)",
+              "var(--color-yellow-300)",
+              "var(--color-green-300)",
+              "var(--color-blue-300)",
+            ]}
+          />
           <label id="form-label" className="sr-only">
             Enter a website URL to analyze its accessibility
           </label>
-
           <div className="flex-1 h-full pr-2">
             <Input
               type="url"

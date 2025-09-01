@@ -4,7 +4,7 @@ import { LucideChevronDown, LucideLoader2 } from "lucide-react";
 import { Models } from "node-appwrite";
 import { useState } from "react";
 
-import { AnalysisCard } from "@/components/analysis/analysis-card";
+import { AnalysisCard } from "@/components/analysis/card";
 import { Button } from "@/components/ui/button";
 import { useAnalysisList } from "@/hooks/useAnalysisList";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";

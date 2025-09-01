@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { Query } from "node-appwrite";
 
-import { AnalysisHistory } from "@/components/analysis/analysis-history";
-import { UserActions } from "@/components/user/user-actions";
-import { UserDescription } from "@/components/user/user-description";
+import { AnalysisHistory } from "@/components/analysis/history";
+import { UserActions } from "@/components/user/actions";
+import { UserDescription } from "@/components/user/description";
 import { getLoggedInUser, getUserById } from "@/lib/auth";
 import { listAnalysis } from "@/lib/db";
 

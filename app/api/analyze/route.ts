@@ -1,6 +1,5 @@
 import * as cheerio from "cheerio";
 import { NextRequest } from "next/server";
-import puppeteer from "puppeteer";
 
 import { analyzeWithAIStreaming } from "@/lib/analysis/ai-analyzer";
 import { extractAccessibilityData } from "@/lib/analysis/extractors";
@@ -70,10 +69,34 @@ export async function POST(request: NextRequest) {
             )
           );
 
-          const browser = await puppeteer.launch({
+          const isLocal = process.env.NODE_ENV === "development";
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          let puppeteer: any;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          let launchOptions: any = {
             headless: true,
-            args: ["--no-sandbox", "--disable-setuid-sandbox"],
-          });
+          };
+
+          if (isLocal) {
+            // Use regular puppeteer for local development
+            puppeteer = await import("puppeteer");
+            launchOptions = {
+              ...launchOptions,
+              args: ["--no-sandbox", "--disable-setuid-sandbox"],
+            };
+          } else {
+            // Use puppeteer-core and @sparticuz/chromium for production
+            const chromium = (await import("@sparticuz/chromium")).default;
+            puppeteer = await import("puppeteer-core");
+            launchOptions = {
+              ...launchOptions,
+              args: chromium.args,
+              executablePath: await chromium.executablePath(),
+            };
+          }
+
+          const browser = await puppeteer.launch(launchOptions);
 
           const page = await browser.newPage();
           await page.setViewport({ width: 1280, height: 800 });
