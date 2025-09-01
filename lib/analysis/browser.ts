@@ -25,6 +25,7 @@ export async function getBrowser() {
       args: [
         ...chromium.args,
         "--no-sandbox",
+        "--headless",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu",

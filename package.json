@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lefthook:install": "lefthook install",
-    "postinstall": "node scripts/setup-chromium.js"
+    "lefthook:install": "lefthook install"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
