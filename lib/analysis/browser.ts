@@ -52,6 +52,7 @@ export async function getBrowser() {
         "--password-store=basic",
         "--use-gl=swiftshader",
         "--use-mock-keychain",
+        "--single-process",
       ],
       executablePath: await chromium.executablePath("../../bin"),
     });
