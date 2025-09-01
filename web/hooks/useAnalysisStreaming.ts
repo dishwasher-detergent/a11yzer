@@ -35,14 +35,17 @@ export function useAnalysisStreaming(teamId: string) {
     setIsCancelling(false);
 
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url, teamId }),
-        signal: abortControllerRef.current.signal,
-      });
+      const response = await fetch(
+        "https://68b604c7003b5aa9d9bf.nyc.appwrite.run/analyze",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url, teamId }),
+          signal: abortControllerRef.current.signal,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to analyze website");

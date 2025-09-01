@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 
-export const spawnBrowser = async (url: string, options: any = {}) => {
+export async function spawnBrowser() {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: '/usr/bin/chromium-browser',
@@ -12,13 +12,5 @@ export const spawnBrowser = async (url: string, options: any = {}) => {
     ],
   });
 
-  const page = await browser.newPage();
-
-  try {
-    await page.goto(url, options);
-  } catch {
-    throw new Error(`Failed to load ${url}.`);
-  }
-
-  return { browser, page };
-};
+  return browser;
+}

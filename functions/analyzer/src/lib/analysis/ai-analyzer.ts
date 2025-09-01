@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import OpenAI from 'openai';
 
 import {
   AccessibilityData,
@@ -8,7 +8,7 @@ import {
   Image,
   LimitedData,
   Link,
-} from "@/interfaces/analysis.interface";
+} from '../../interfaces/analysis.interface.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -18,8 +18,8 @@ const openai = new OpenAI({
 export interface AIAnalysisResult {
   overallScore: number;
   issues: Array<{
-    type: "accessibility" | "ux" | "ui";
-    priority: "high" | "medium" | "low";
+    type: 'accessibility' | 'ux' | 'ui';
+    priority: 'high' | 'medium' | 'low';
     title: string;
     description: string;
     recommendation: string;
@@ -48,21 +48,21 @@ Title: ${accessibilityData.title}
 
 ${createDataSummary<Heading>(
   accessibilityData.headings,
-  "Headings"
+  'Headings'
 )}: ${JSON.stringify(accessibilityData.headings.items, null, 2)}
 
 ${createDataSummary<Image>(
   accessibilityData.images,
-  "Images"
+  'Images'
 )}: ${JSON.stringify(accessibilityData.images.items, null, 2)}
 
-${createDataSummary<Link>(accessibilityData.links, "Links")}: ${JSON.stringify(
+${createDataSummary<Link>(accessibilityData.links, 'Links')}: ${JSON.stringify(
     accessibilityData.links.items,
     null,
     2
   )}
 
-${createDataSummary<Form>(accessibilityData.forms, "Forms")}: ${JSON.stringify(
+${createDataSummary<Form>(accessibilityData.forms, 'Forms')}: ${JSON.stringify(
     accessibilityData.forms.items,
     null,
     2
@@ -70,7 +70,7 @@ ${createDataSummary<Form>(accessibilityData.forms, "Forms")}: ${JSON.stringify(
 
 ${createDataSummary<AriaElement>(
   accessibilityData.ariaLabels,
-  "ARIA Labels"
+  'ARIA Labels'
 )}: ${JSON.stringify(accessibilityData.ariaLabels.items, null, 2)}
 
 Semantic Structure: ${JSON.stringify(
@@ -111,15 +111,15 @@ Format your response as JSON with the following structure:
 `;
 
   const completion = await openai.chat.completions.create({
-    model: "gpt-5-mini",
+    model: 'gpt-5-mini',
     messages: [
       {
-        role: "system",
+        role: 'system',
         content:
-          "You are an expert accessibility auditor and UX consultant. Analyze webpages for WCAG compliance and provide actionable improvement suggestions.",
+          'You are an expert accessibility auditor and UX consultant. Analyze webpages for WCAG compliance and provide actionable improvement suggestions.',
       },
       {
-        role: "user",
+        role: 'user',
         content: prompt,
       },
     ],
@@ -128,12 +128,12 @@ Format your response as JSON with the following structure:
   const aiResponse = completion.choices[0]?.message?.content;
 
   try {
-    return JSON.parse(aiResponse || "{}");
+    return JSON.parse(aiResponse || '{}');
   } catch {
     return {
       overallScore: 50,
       issues: [],
-      summary: "Failed to parse AI response",
+      summary: 'Failed to parse AI response',
     };
   }
 }
@@ -160,49 +160,49 @@ Use ONLY the data below—do not invent details that aren't present. If somethin
 
 Title: ${accessibilityData.title}
 
-${createDataSummary<Heading>(accessibilityData.headings, "Headings")}:
+${createDataSummary<Heading>(accessibilityData.headings, 'Headings')}:
 ${accessibilityData.headings.items
   .map((h) => `${h.level}: ${h.text}`)
-  .join("\n")}
+  .join('\n')}
 
-${createDataSummary<Image>(accessibilityData.images, "Images")}:
+${createDataSummary<Image>(accessibilityData.images, 'Images')}:
 ${accessibilityData.images.items
   .map((img) => `Alt: "${img.alt}", Src: ${img.src}`)
-  .join("\n")}
+  .join('\n')}
 
-${createDataSummary<Link>(accessibilityData.links, "Links")}:
+${createDataSummary<Link>(accessibilityData.links, 'Links')}:
 ${accessibilityData.links.items
   .map((link) => `Text: "${link.text}", Href: ${link.href}`)
-  .join("\n")}
+  .join('\n')}
 
-${createDataSummary<Form>(accessibilityData.forms, "Forms")}:
+${createDataSummary<Form>(accessibilityData.forms, 'Forms')}:
 ${accessibilityData.forms.items
   .map(
     (form) =>
       `Inputs: ${form.inputs
         .map((input) => `${input.type} (hasLabel: ${input.hasLabel})`)
-        .join(", ")}, HasFieldset: ${form.hasFieldset}`
+        .join(', ')}, HasFieldset: ${form.hasFieldset}`
   )
-  .join("\n")}
+  .join('\n')}
 
 ${createDataSummary<AriaElement>(
   accessibilityData.ariaLabels,
-  "ARIA Elements"
+  'ARIA Elements'
 )}:
 ${accessibilityData.ariaLabels.items
   .map(
     (aria) =>
-      `Tag: ${aria.tag}, Role: ${aria.role || "none"}, Label: ${
-        aria.ariaLabel || "none"
+      `Tag: ${aria.tag}, Role: ${aria.role || 'none'}, Label: ${
+        aria.ariaLabel || 'none'
       }`
   )
-  .join("\n")}
+  .join('\n')}
 
 Semantic Structure:
-- Main: ${accessibilityData.semanticStructure.hasMain ? "Yes" : "No"}
-- Nav: ${accessibilityData.semanticStructure.hasNav ? "Yes" : "No"}
-- Header: ${accessibilityData.semanticStructure.hasHeader ? "Yes" : "No"}
-- Footer: ${accessibilityData.semanticStructure.hasFooter ? "Yes" : "No"}
+- Main: ${accessibilityData.semanticStructure.hasMain ? 'Yes' : 'No'}
+- Nav: ${accessibilityData.semanticStructure.hasNav ? 'Yes' : 'No'}
+- Header: ${accessibilityData.semanticStructure.hasHeader ? 'Yes' : 'No'}
+- Footer: ${accessibilityData.semanticStructure.hasFooter ? 'Yes' : 'No'}
 
 Keyboard Navigation:
 - Focusable Elements: ${accessibilityData.keyboardNavigation.focusableElements}
@@ -242,25 +242,25 @@ UI: hit target sizes, spacing rhythm, affordances, visual hierarchy.
 UX: navigation clarity, form UX, task clarity, reducing cognitive load.`;
 
   const stream = await openai.chat.completions.create({
-    model: "gpt-5-mini",
+    model: 'gpt-5-mini',
     messages: [
       {
-        role: "system",
+        role: 'system',
         content:
-          "You are an experienced accessibility specialist and product designer. Evaluate the provided page data for WCAG 2.1 AA compliance and high-leverage UI/UX improvements.",
+          'You are an experienced accessibility specialist and product designer. Evaluate the provided page data for WCAG 2.1 AA compliance and high-leverage UI/UX improvements.',
       },
       {
-        role: "user",
+        role: 'user',
         content: prompt,
       },
     ],
     stream: true,
   });
 
-  let fullResponse = "";
+  let fullResponse = '';
 
   for await (const chunk of stream) {
-    const content = chunk.choices[0]?.delta?.content || "";
+    const content = chunk.choices[0]?.delta?.content || '';
     if (content) {
       fullResponse += content;
       yield content;
@@ -273,7 +273,7 @@ UX: navigation clarity, form UX, task clarity, reducing cognitive load.`;
     return {
       overallScore: 50,
       issues: [],
-      summary: "Failed to parse AI response",
+      summary: 'Failed to parse AI response',
     };
   }
 }

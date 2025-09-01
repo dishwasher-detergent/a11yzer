@@ -8,7 +8,6 @@ import { KeepWarm } from './pages/keepWarm.js';
 import { Context } from './types/types.js';
 
 let installed = false;
-const cache = 1440; //24 hours in seconds
 
 const app = new Hono();
 
@@ -23,7 +22,7 @@ app.onError((err, c) => {
 KeepWarm(app);
 
 // API Routes
-Analyze(app, cache);
+Analyze(app);
 
 export default async (context: Context) => {
   if (installed) {

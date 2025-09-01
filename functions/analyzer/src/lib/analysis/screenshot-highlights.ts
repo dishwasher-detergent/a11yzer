@@ -1,31 +1,23 @@
-import { ElementInfo } from "@/interfaces/analysis.interface";
+import { Browser } from 'puppeteer';
+import { ElementInfo } from '../../interfaces/analysis.interface.js';
 
 export async function addHighlightsToScreenshot(
+  browser: Browser,
   screenshotBase64: string,
   elements: ElementInfo[]
 ): Promise<string> {
   try {
     const imageDataUrl = `data:image/png;base64,${screenshotBase64}`;
     const canvasHTML = createCanvasHTML(imageDataUrl, elements);
-    const puppeteer = await import("puppeteer");
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-      ],
-    });
 
     const page = await browser.newPage();
 
     await page.setContent(canvasHTML);
-    await page.waitForSelector("#canvas", { timeout: 10000 });
+    await page.waitForSelector('#canvas', { timeout: 10000 });
     await page.evaluate(() => {
       return new Promise<void>((resolve) => {
         const img = document.querySelector(
-          "#original-image"
+          '#original-image'
         ) as HTMLImageElement;
         if (img.complete) {
           resolve();
@@ -35,15 +27,15 @@ export async function addHighlightsToScreenshot(
       });
     });
 
-    const canvasElement = await page.$("#canvas");
-    const screenshotBuffer = await canvasElement!.screenshot({ type: "png" });
+    const canvasElement = await page.$('#canvas');
+    const screenshotBuffer = await canvasElement!.screenshot({ type: 'png' });
 
     await browser.close();
 
-    const highlightedBase64 = Buffer.from(screenshotBuffer).toString("base64");
+    const highlightedBase64 = Buffer.from(screenshotBuffer).toString('base64');
     return highlightedBase64;
   } catch (error) {
-    console.error("Error adding highlights to screenshot:", error);
+    console.error('Error adding highlights to screenshot:', error);
     return screenshotBase64;
   }
 }
@@ -113,7 +105,7 @@ function createCanvasHTML(
             </div>
           `;
           })
-          .join("")}
+          .join('')}
       </div>
     </body>
     </html>

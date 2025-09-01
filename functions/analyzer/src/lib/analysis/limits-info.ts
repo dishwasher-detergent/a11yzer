@@ -1,7 +1,7 @@
 import {
   AccessibilityData,
   LimitedData,
-} from "@/interfaces/analysis.interface";
+} from '../../interfaces/analysis.interface.js';
 
 export interface LimitsInfo {
   anyLimited: boolean;
@@ -28,11 +28,11 @@ export function createLimitsInfo(
 
   // Check each data category for limits
   const categories = [
-    { name: "headings", data: accessibilityData.headings },
-    { name: "images", data: accessibilityData.images },
-    { name: "links", data: accessibilityData.links },
-    { name: "forms", data: accessibilityData.forms },
-    { name: "aria labels", data: accessibilityData.ariaLabels },
+    { name: 'headings', data: accessibilityData.headings },
+    { name: 'images', data: accessibilityData.images },
+    { name: 'links', data: accessibilityData.links },
+    { name: 'forms', data: accessibilityData.forms },
+    { name: 'aria labels', data: accessibilityData.ariaLabels },
   ];
 
   categories.forEach(({ name, data }) => {
@@ -53,9 +53,9 @@ export function createLimitsInfo(
 
   const summary = anyLimited
     ? `Analysis was performed on a sample of data. Some categories (${limitedCategories.join(
-        ", "
+        ', '
       )}) were limited to prevent overwhelming the analysis. Full analysis may require examining additional elements.`
-    : "Complete analysis was performed on all page elements.";
+    : 'Complete analysis was performed on all page elements.';
 
   return {
     anyLimited,

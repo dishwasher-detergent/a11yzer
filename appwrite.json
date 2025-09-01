@@ -294,7 +294,7 @@
             "events": [],
             "scopes": [],
             "schedule": "",
-            "timeout": 15,
+            "timeout": 900,
             "enabled": true,
             "logging": true,
             "entrypoint": "dist/main.js",
