@@ -1,9 +1,10 @@
 import chromium from "@sparticuz/chromium";
-import path from "path";
 import puppeteer from "puppeteer";
 import puppeteerCore from "puppeteer-core";
 
 export const dynamic = "force-dynamic";
+export const remoteExecutablePath =
+  "https://github.com/Sparticuz/chromium/releases/download/v138.0.2/chromium-v138.0.2-pack.x64.tar";
 
 export async function getBrowser() {
   if (process.env.NODE_ENV === "development") {
@@ -54,7 +55,7 @@ export async function getBrowser() {
         "--use-gl=swiftshader",
         "--use-mock-keychain",
       ],
-      executablePath: path.join(process.cwd(), ".next/serverless/chromium"),
+      executablePath: await chromium.executablePath(remoteExecutablePath),
     });
 
     return browser;
