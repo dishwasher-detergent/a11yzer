@@ -111,7 +111,7 @@ export async function getBrowser() {
               encoding: "utf8",
             });
             console.log("Chromium file details:", lsOutput.trim());
-          } catch (lsError) {
+          } catch {
             console.error("Could not get file details");
           }
         }
