@@ -53,7 +53,7 @@ export async function getBrowser() {
         "--use-gl=swiftshader",
         "--use-mock-keychain",
       ],
-      executablePath: await chromium.executablePath(),
+      executablePath: await chromium.executablePath("../../bin"),
     });
 
     return browser;
