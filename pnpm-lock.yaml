@@ -90,8 +90,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       node-appwrite:
-        specifier: ^17.2.0
-        version: 17.2.0
+        specifier: ^18.0.0
+        version: 18.0.0
       openai:
         specifier: ^5.16.0
         version: 5.16.0(ws@8.18.3)(zod@3.25.76)
@@ -2722,8 +2722,8 @@ packages:
       sass:
         optional: true
 
-  node-appwrite@17.2.0:
-    resolution: {integrity: sha512-naYUsVZEdF6YKF/q/s0DBQkAHJj2RhEWwmcXrkbfAAPc3Bn+D3CCftBqyNWeo17JBCoYWqQEgT2Od9xOVQR26A==}
+  node-appwrite@18.0.0:
+    resolution: {integrity: sha512-2S0T17H2Gm5ZcdInCmHk8Pc8P6mKW8cDCoSBNF3PYGxbKjT51V/HY/2n6IPRqk2HrHPySmx3JIMN+V6QBprqAw==}
 
   node-fetch-native-with-agent@1.7.2:
     resolution: {integrity: sha512-5MaOOCuJEvcckoz7/tjdx1M6OusOY6Xc5f459IaruGStWnKzlI1qpNgaAwmn4LmFYcsSlj+jBMk84wmmRxfk5g==}
@@ -6220,7 +6220,7 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  node-appwrite@17.2.0:
+  node-appwrite@18.0.0:
     dependencies:
       node-fetch-native-with-agent: 1.7.2
 

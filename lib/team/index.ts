@@ -29,31 +29,34 @@ import { AddTeamFormData, EditTeamFormData } from "./schemas";
  */
 export async function getTeamById(id: string): Promise<Result<TeamData>> {
   return withAuth(async () => {
-    const { database, team } = await createSessionClient();
+    const { table: database, team } = await createSessionClient();
 
     return unstable_cache(
       async (id) => {
         try {
-          const data = await database.getDocument<TeamData>(
-            DATABASE_ID,
-            TEAM_COLLECTION_ID,
-            id
-          );
+          const data = await database.getRow<TeamData>({
+            databaseId: DATABASE_ID,
+            tableId: TEAM_COLLECTION_ID,
+            rowId: id,
+          });
 
-          const memberships = await team.listMemberships(data.$id);
+          const memberships = await team.listMemberships({ teamId: data.$id });
 
           const userIds = memberships.memberships.map(
             (member) => member.userId
           );
           const uniqueUserIds = Array.from(new Set(userIds));
 
-          const users = await database.listDocuments<UserData>(
-            DATABASE_ID,
-            USER_COLLECTION_ID,
-            [Query.equal("$id", uniqueUserIds), Query.select(["$id", "name"])]
-          );
+          const users = await database.listRows<UserData>({
+            databaseId: DATABASE_ID,
+            tableId: USER_COLLECTION_ID,
+            queries: [
+              Query.equal("$id", uniqueUserIds),
+              Query.select(["$id", "name"]),
+            ],
+          });
 
-          const usersMembershipData: UserMemberData[] = users.documents.map(
+          const usersMembershipData: UserMemberData[] = users.rows.map(
             (user) => {
               const member = memberships.memberships.filter(
                 (member) => member.userId === user.$id
@@ -102,21 +105,21 @@ export async function getTeamById(id: string): Promise<Result<TeamData>> {
  */
 export async function listTeams(): Promise<Result<TeamData[]>> {
   return withAuth(async (user) => {
-    const { database } = await createSessionClient();
+    const { table: database } = await createSessionClient();
 
     return unstable_cache(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       async (userId) => {
         try {
-          const data = await database.listDocuments<TeamData>(
-            DATABASE_ID,
-            TEAM_COLLECTION_ID
-          );
+          const data = await database.listRows<TeamData>({
+            databaseId: DATABASE_ID,
+            tableId: TEAM_COLLECTION_ID,
+          });
 
           return {
             success: true,
             message: "Teams successfully retrieved.",
-            data: data.documents,
+            data: data.rows,
           };
         } catch (err) {
           const error = err as Error;
@@ -157,7 +160,7 @@ export async function createTeam({
   permissions?: string[];
 }): Promise<Result<TeamData>> {
   return withAuth(async (user) => {
-    const { database, team } = await createSessionClient();
+    const { table: database, team } = await createSessionClient();
 
     permissions = [
       ...permissions,
@@ -166,11 +169,11 @@ export async function createTeam({
     ];
 
     try {
-      const existingTeams = await database.listDocuments<TeamData>(
-        DATABASE_ID,
-        TEAM_COLLECTION_ID,
-        [Query.select(["$id"])]
-      );
+      const existingTeams = await database.listRows<TeamData>({
+        databaseId: DATABASE_ID,
+        tableId: TEAM_COLLECTION_ID,
+        queries: [Query.select(["$id"])],
+      });
 
       if (existingTeams.total >= MAX_TEAM_LIMIT) {
         throw new Error(
@@ -190,16 +193,16 @@ export async function createTeam({
         Permission.write(Role.team(teamResponse.$id, ADMIN_ROLE)),
       ];
 
-      const teamData = await database.createDocument<TeamData>(
-        DATABASE_ID,
-        TEAM_COLLECTION_ID,
-        teamResponse.$id,
-        {
+      const teamData = await database.createRow<TeamData>({
+        databaseId: DATABASE_ID,
+        tableId: TEAM_COLLECTION_ID,
+        rowId: teamResponse.$id,
+        data: {
           name: data.name,
           about: data.about,
         },
-        permissions
-      );
+        permissions,
+      });
 
       revalidateTag("teams");
 
@@ -240,23 +243,23 @@ export async function updateTeam({
   permissions?: string[];
 }): Promise<Result<TeamData>> {
   return withAuth(async (user) => {
-    const { database, team } = await createSessionClient();
+    const { table: database, team } = await createSessionClient();
 
     try {
       await checkUserRole(id, user.$id, [ADMIN_ROLE, OWNER_ROLE]);
 
-      await team.updateName(id, data.name);
+      await team.updateName({ teamId: id, name: data.name });
 
-      const teamData = await database.updateDocument<TeamData>(
-        DATABASE_ID,
-        TEAM_COLLECTION_ID,
-        id,
-        {
+      const teamData = await database.updateRow<TeamData>({
+        databaseId: DATABASE_ID,
+        tableId: TEAM_COLLECTION_ID,
+        rowId: id,
+        data: {
           name: data.name,
           about: data.about,
         },
-        permissions
-      );
+        permissions,
+      });
 
       revalidateTag("teams");
       revalidateTag(`team:${id}`);
@@ -284,12 +287,16 @@ export async function updateTeam({
  */
 export async function deleteTeam(id: string): Promise<Result<TeamData>> {
   return withAuth(async (user) => {
-    const { database, team } = await createSessionClient();
+    const { table: database, team } = await createSessionClient();
 
     try {
       await checkUserRole(id, user.$id, [OWNER_ROLE]);
-      await team.delete(id);
-      await database.deleteDocument(DATABASE_ID, TEAM_COLLECTION_ID, id);
+      await team.delete({ teamId: id });
+      await database.deleteRow({
+        databaseId: DATABASE_ID,
+        tableId: TEAM_COLLECTION_ID,
+        rowId: id,
+      });
       await setLastVisitedTeam(null);
 
       revalidateTag("teams");
@@ -319,12 +326,13 @@ export async function deleteTeam(id: string): Promise<Result<TeamData>> {
  */
 export async function leaveTeam(teamId: string): Promise<Result<string>> {
   return withAuth(async (user) => {
-    const { database, team } = await createSessionClient();
+    const { table: database, team } = await createSessionClient();
 
     try {
-      const memberships = await team.listMemberships(teamId, [
-        Query.equal("userId", user.$id),
-      ]);
+      const memberships = await team.listMemberships({
+        teamId,
+        queries: [Query.equal("userId", user.$id)],
+      });
 
       const membership = memberships.memberships[0];
 
@@ -336,22 +344,22 @@ export async function leaveTeam(teamId: string): Promise<Result<string>> {
         throw new Error("You cannot leave a team you own.");
       }
 
-      await team.deleteMembership(teamId, membership.$id);
+      await team.deleteMembership({ teamId, membershipId: membership.$id });
 
-      const data = await database.listDocuments<TeamData>(
-        DATABASE_ID,
-        TEAM_COLLECTION_ID,
-        [Query.orderDesc("$createdAt"), Query.limit(1)]
-      );
+      const data = await database.listRows<TeamData>({
+        databaseId: DATABASE_ID,
+        tableId: TEAM_COLLECTION_ID,
+        queries: [Query.orderDesc("$createdAt"), Query.limit(1)],
+      });
 
       revalidateTag("teams");
       revalidateTag(`team:${teamId}`);
 
-      if (data.documents.length > 0) {
+      if (data.rows.length > 0) {
         return {
           success: true,
           message: `You've left the team!`,
-          data: data.documents[0].$id,
+          data: data.rows[0].$id,
         };
       }
 
@@ -393,21 +401,23 @@ export async function inviteMember(
         OWNER_ROLE,
       ]);
 
-      const exists = await users.list([Query.equal("email", email)]);
+      const exists = await users.list({
+        queries: [Query.equal("email", email)],
+      });
 
       if (exists.total == 0) {
         throw new Error("User is not a current member of the platform.");
       }
 
-      const data = await team.createMembership(
+      const data = await team.createMembership({
         teamId,
-        [MEMBER_ROLE],
-        email,
-        undefined,
-        undefined,
-        `http://${HOSTNAME}/accept/${teamId}`,
-        email.split("@")[0]
-      );
+        roles: [MEMBER_ROLE],
+        email: email,
+        phone: undefined,
+        userId: undefined,
+        url: `http://${HOSTNAME}/accept/${teamId}`,
+        name: email.split("@")[0],
+      });
 
       await createUserData(data.userId);
 
@@ -448,14 +458,16 @@ export async function removeMember(
         throw new Error("You cannot remove yourself from the team.");
       }
 
-      const userMembership = await team.listMemberships(teamId, [
-        Query.equal("userId", user.$id),
-      ]);
+      const userMembership = await team.listMemberships({
+        teamId,
+        queries: [Query.equal("userId", user.$id)],
+      });
       const currentUserRole = userMembership.memberships[0]?.roles[0];
 
-      const memberToRemove = await team.listMemberships(teamId, [
-        Query.equal("userId", userId),
-      ]);
+      const memberToRemove = await team.listMemberships({
+        teamId,
+        queries: [Query.equal("userId", userId)],
+      });
       const membership = memberToRemove.memberships[0];
 
       if (!membership) {
@@ -478,7 +490,10 @@ export async function removeMember(
         );
       }
 
-      await team.deleteMembership(teamId, membership.$id);
+      await team.deleteMembership({
+        teamId,
+        membershipId: membership.$id,
+      });
       revalidateTag(`team:${teamId}`);
 
       return {
@@ -517,10 +532,11 @@ export async function promoteToAdmin(
       ]);
       const currentRoles = userMembership.memberships[0]?.roles;
       const membership = userMembership.memberships[0];
-      await team.updateMembership(teamId, membership.$id, [
-        ...currentRoles,
-        ADMIN_ROLE,
-      ]);
+      await team.updateMembership({
+        teamId,
+        membershipId: membership.$id,
+        roles: [...currentRoles, ADMIN_ROLE],
+      });
 
       revalidateTag(`team:${teamId}`);
 
@@ -558,14 +574,17 @@ export async function removeAdminRole(
     try {
       await checkUserRole(teamId, user.$id, [OWNER_ROLE]);
 
-      const userMembership = await team.listMemberships(teamId, [
-        Query.equal("userId", userId),
-      ]);
+      const userMembership = await team.listMemberships({
+        teamId,
+        queries: [Query.equal("userId", userId)],
+      });
       const currentRoles = userMembership.memberships[0]?.roles;
       const membership = userMembership.memberships[0];
-      await team.updateMembership(teamId, membership.$id, [
-        ...currentRoles.filter((x) => x != ADMIN_ROLE),
-      ]);
+      await team.updateMembership({
+        teamId,
+        membershipId: membership.$id,
+        roles: [...currentRoles.filter((x) => x != ADMIN_ROLE)],
+      });
 
       revalidateTag(`team:${teamId}`);
 
@@ -599,9 +618,10 @@ export async function getCurrentUserRoles(
     const { team } = await createSessionClient();
 
     try {
-      const userMembership = await team.listMemberships(teamId, [
-        Query.equal("userId", user.$id),
-      ]);
+      const userMembership = await team.listMemberships({
+        teamId,
+        queries: [Query.equal("userId", user.$id)],
+      });
 
       return {
         success: true,
@@ -637,9 +657,10 @@ export async function checkUserRole(
 ): Promise<Models.MembershipList> {
   const { team } = await createSessionClient();
 
-  const userMembership = await team.listMemberships(teamId, [
-    Query.equal("userId", userId),
-  ]);
+  const userMembership = await team.listMemberships({
+    teamId,
+    queries: [Query.equal("userId", userId)],
+  });
 
   const currentUserRoles = userMembership.memberships[0]?.roles;
 

@@ -77,16 +77,13 @@ export async function POST(request: NextRequest) {
             ),
           ]);
 
-          if (
-            existingAnalysis.data &&
-            existingAnalysis.data?.documents.length > 0
-          ) {
+          if (existingAnalysis.data && existingAnalysis.data?.rows.length > 0) {
             controller.enqueue(
               encoder.encode(
                 `data: ${JSON.stringify({
                   type: "complete",
-                  data: existingAnalysis.data?.documents[0].data,
-                  analysisId: existingAnalysis.data?.documents[0]?.$id,
+                  data: existingAnalysis.data?.rows[0].data,
+                  analysisId: existingAnalysis.data?.rows[0]?.$id,
                   cached: true,
                 })}\n\n`
               )

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect("/signin");
   }
 
-  const { account, database, users } = await createAdminClient();
+  const { account, table: database, users } = await createAdminClient();
   const session = await account.createSession(userId, secret);
   const sessionUserId = session.userId;
 
@@ -30,25 +30,25 @@ export async function GET(request: NextRequest) {
   const user = await users.get(sessionUserId);
 
   try {
-    await database.getDocument<UserData>(
-      DATABASE_ID,
-      USER_COLLECTION_ID,
-      sessionUserId
-    );
+    await database.getRow<UserData>({
+      databaseId: DATABASE_ID,
+      tableId: USER_COLLECTION_ID,
+      rowId: sessionUserId,
+    });
   } catch {
-    await database.createDocument<UserData>(
-      DATABASE_ID,
-      USER_COLLECTION_ID,
-      sessionUserId,
-      {
+    await database.createRow<UserData>({
+      databaseId: DATABASE_ID,
+      tableId: USER_COLLECTION_ID,
+      rowId: sessionUserId,
+      data: {
         name: user.name,
       },
-      [
+      permissions: [
         Permission.read(Role.user(sessionUserId)),
         Permission.write(Role.user(sessionUserId)),
         Permission.read(Role.users()),
-      ]
-    );
+      ],
+    });
   }
 
   return response;

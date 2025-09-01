@@ -10,7 +10,7 @@ import { useAnalysisList } from "@/hooks/useAnalysisList";
 import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
 
 interface AnalysisHistoryProps {
-  initialData?: Models.DocumentList<AnalysisDb<AnalysisResult>>;
+  initialData?: Models.RowList<AnalysisDb<AnalysisResult>>;
   teamId?: string;
   userId?: string;
 }

@@ -52,7 +52,7 @@ export async function getLoggedInUser(): Promise<Models.User<{
  */
 export async function getUserData(): Promise<Result<User>> {
   return withAuth(async (user) => {
-    const { database } = await createSessionClient();
+    const { table: database } = await createSessionClient();
 
     return unstable_cache(
       async (id) => {
@@ -62,16 +62,16 @@ export async function getUserData(): Promise<Result<User>> {
         endOfDay.setUTCHours(23, 59, 59, 999);
 
         try {
-          const data = await database.getDocument<UserData>(
-            DATABASE_ID,
-            USER_COLLECTION_ID,
-            id
-          );
+          const data = await database.getRow<UserData>({
+            databaseId: DATABASE_ID,
+            tableId: USER_COLLECTION_ID,
+            rowId: id,
+          });
 
-          const userStats = await database.listDocuments<AnalysisUserStats>(
-            DATABASE_ID,
-            ANALYSIS_USER_STATS_COLLECTION_ID,
-            [
+          const userStats = await database.listRows<AnalysisUserStats>({
+            databaseId: DATABASE_ID,
+            tableId: ANALYSIS_USER_STATS_COLLECTION_ID,
+            queries: [
               Query.equal("userId", id),
               Query.limit(1),
               Query.between(
@@ -79,8 +79,8 @@ export async function getUserData(): Promise<Result<User>> {
                 startOfDay.toISOString(),
                 endOfDay.toISOString()
               ),
-            ]
-          );
+            ],
+          });
 
           return {
             success: true,
@@ -88,7 +88,7 @@ export async function getUserData(): Promise<Result<User>> {
             data: {
               ...user,
               ...data,
-              count: userStats.documents[0]?.count || 0,
+              count: userStats.rows[0]?.count || 0,
             },
           };
         } catch (err) {
@@ -119,7 +119,7 @@ export async function getUserData(): Promise<Result<User>> {
  */
 export async function getUserById(id: string): Promise<Result<UserData>> {
   return withAuth(async () => {
-    const { database } = await createSessionClient();
+    const { table: database } = await createSessionClient();
 
     return unstable_cache(
       async (id) => {
@@ -129,16 +129,16 @@ export async function getUserById(id: string): Promise<Result<UserData>> {
         endOfDay.setUTCHours(23, 59, 59, 999);
 
         try {
-          const data = await database.getDocument<UserData>(
-            DATABASE_ID,
-            USER_COLLECTION_ID,
-            id
-          );
+          const data = await database.getRow<UserData>({
+            databaseId: DATABASE_ID,
+            tableId: USER_COLLECTION_ID,
+            rowId: id,
+          });
 
-          const userStats = await database.listDocuments<AnalysisUserStats>(
-            DATABASE_ID,
-            ANALYSIS_USER_STATS_COLLECTION_ID,
-            [
+          const userStats = await database.listRows<AnalysisUserStats>({
+            databaseId: DATABASE_ID,
+            tableId: ANALYSIS_USER_STATS_COLLECTION_ID,
+            queries: [
               Query.equal("userId", id),
               Query.limit(1),
               Query.between(
@@ -146,15 +146,15 @@ export async function getUserById(id: string): Promise<Result<UserData>> {
                 startOfDay.toISOString(),
                 endOfDay.toISOString()
               ),
-            ]
-          );
+            ],
+          });
 
           return {
             success: true,
             message: "User successfully retrieved.",
             data: {
               ...data,
-              count: userStats.documents[0]?.count || 0,
+              count: userStats.rows[0]?.count || 0,
             },
           };
         } catch (err) {
@@ -192,12 +192,17 @@ export async function updateProfile({
   data: UpdateProfileFormData;
 }): Promise<Response> {
   return withAuth(async () => {
-    const { account, database } = await createSessionClient();
+    const { account, table: database } = await createSessionClient();
 
     try {
-      await account.updateName(data.name);
-      await database.updateDocument(DATABASE_ID, USER_COLLECTION_ID, id, {
-        about: data.about,
+      await account.updateName({ name: data.name });
+      await database.updateRow({
+        databaseId: DATABASE_ID,
+        tableId: USER_COLLECTION_ID,
+        rowId: id,
+        data: {
+          about: data.about,
+        },
       });
 
       revalidateTag("user");
@@ -411,33 +416,33 @@ export async function createUserData(
   userId: string
 ): Promise<Result<UserData>> {
   return withAuth(async (user) => {
-    const { database } = await createAdminClient();
+    const { table: database } = await createAdminClient();
 
     try {
-      await database.getDocument<UserData>(
-        DATABASE_ID,
-        USER_COLLECTION_ID,
-        userId
-      );
+      await database.getRow<UserData>({
+        databaseId: DATABASE_ID,
+        tableId: USER_COLLECTION_ID,
+        rowId: userId,
+      });
 
       return {
         success: true,
         message: "User data already exists.",
       };
     } catch {
-      await database.createDocument<UserData>(
-        DATABASE_ID,
-        USER_COLLECTION_ID,
-        userId,
-        {
+      await database.createRow<UserData>({
+        databaseId: DATABASE_ID,
+        tableId: USER_COLLECTION_ID,
+        rowId: userId,
+        data: {
           name: user.name,
         },
-        [
+        permissions: [
           Permission.read(Role.user(userId)),
           Permission.write(Role.user(userId)),
           Permission.read(Role.users()),
-        ]
-      );
+        ],
+      });
 
       return {
         success: true,

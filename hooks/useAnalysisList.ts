@@ -13,7 +13,7 @@ import { getTeamById } from "@/lib/team";
 import { Models } from "node-appwrite";
 
 interface Props {
-  initialAnalysis?: Models.DocumentList<AnalysisDb<AnalysisResult>>;
+  initialAnalysis?: Models.RowList<AnalysisDb<AnalysisResult>>;
   teamId?: string;
   userId?: string;
   searchTerm?: string;
@@ -31,7 +31,7 @@ export const useAnalysisList = ({
 }: Props) => {
   const [analysisList, setAnalysisList] = useState<
     AnalysisDb<AnalysisResult>[]
-  >(initialAnalysis?.documents ?? []);
+  >(initialAnalysis?.rows ?? []);
   const [fetchLoading, setFetchLoading] = useState<boolean>(
     initialAnalysis ? false : true
   );
@@ -49,11 +49,11 @@ export const useAnalysisList = ({
 
   useEffect(() => {
     if (initialLoad) {
-      if (initialAnalysis && initialAnalysis.documents.length > 0) {
+      if (initialAnalysis && initialAnalysis.rows.length > 0) {
         const lastDocument =
-          initialAnalysis.documents[initialAnalysis.documents.length - 1];
+          initialAnalysis.rows[initialAnalysis.rows.length - 1];
         setNextCursor(lastDocument?.$id);
-        setHasMore(initialAnalysis.documents.length === limit);
+        setHasMore(initialAnalysis.rows.length === limit);
 
         return;
       }
@@ -87,20 +87,16 @@ export const useAnalysisList = ({
 
         if (result.success && result.data) {
           if (cursor) {
-            setAnalysisList((prev) => [
-              ...prev,
-              ...(result.data?.documents || []),
-            ]);
+            setAnalysisList((prev) => [...prev, ...(result.data?.rows || [])]);
           } else {
-            setAnalysisList(result.data.documents);
+            setAnalysisList(result.data.rows);
           }
 
-          const lastDocument =
-            result.data.documents[result.data.documents.length - 1];
+          const lastDocument = result.data.rows[result.data.rows.length - 1];
 
           setTotalAnalysis(result.data.total);
           setNextCursor(lastDocument?.$id);
-          setHasMore(result.data.documents.length === limit);
+          setHasMore(result.data.rows.length === limit);
         } else {
           toast.error(result.message);
           if (!cursor) {
@@ -134,7 +130,7 @@ export const useAnalysisList = ({
 
     if (client) {
       unsubscribe = client.subscribe<AnalysisDb<string>>(
-        `databases.${DATABASE_ID}.collections.${ANALYSIS_COLLECTION_ID}.documents`,
+        `databases.${DATABASE_ID}.collections.${ANALYSIS_COLLECTION_ID}.rows`,
         async (response) => {
           if (teamId && response.payload.teamId !== teamId) return;
           if (userId && response.payload.userId !== userId) return;
@@ -142,7 +138,7 @@ export const useAnalysisList = ({
           if (searchTerm === undefined) {
             if (
               response.events.includes(
-                "databases.*.collections.*.documents.*.create"
+                "databases.*.collections.*.rows.*.create"
               )
             ) {
               const { data } = await getUserById(response.payload.userId);
@@ -165,7 +161,7 @@ export const useAnalysisList = ({
 
             if (
               response.events.includes(
-                "databases.*.collections.*.documents.*.update"
+                "databases.*.collections.*.rows.*.update"
               )
             ) {
               const { data } = await getUserById(response.payload.userId);
@@ -191,7 +187,7 @@ export const useAnalysisList = ({
 
             if (
               response.events.includes(
-                "databases.*.collections.*.documents.*.delete"
+                "databases.*.collections.*.rows.*.delete"
               )
             ) {
               setAnalysisList((prev) =>

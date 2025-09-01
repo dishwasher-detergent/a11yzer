@@ -148,7 +148,7 @@ export interface AnalysisResult {
   count: number;
 }
 
-export interface AnalysisDb<T> extends Models.Document {
+export interface AnalysisDb<T> extends Models.Row {
   userId: string;
   user?: UserData;
   teamId: string;

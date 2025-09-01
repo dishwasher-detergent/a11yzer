@@ -35,12 +35,12 @@ export async function uploadScreenshotImage({
     ];
 
     try {
-      const response = await storage.createFile(
-        SCREENSHOT_BUCKET_ID,
-        id,
-        data,
-        permissions
-      );
+      const response = await storage.createFile({
+        bucketId: SCREENSHOT_BUCKET_ID,
+        fileId: id,
+        file: data,
+        permissions: permissions,
+      });
 
       return {
         success: true,
@@ -72,7 +72,7 @@ export async function deleteScreenshotImage(
     const { storage } = await createSessionClient();
 
     try {
-      await storage.deleteFile(SCREENSHOT_BUCKET_ID, id);
+      await storage.deleteFile({ bucketId: SCREENSHOT_BUCKET_ID, fileId: id });
 
       return {
         success: true,

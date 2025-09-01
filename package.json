@@ -38,7 +38,7 @@
     "lucide-react": "^0.477.0",
     "next": "15.2.1",
     "next-themes": "^0.4.6",
-    "node-appwrite": "^17.2.0",
+    "node-appwrite": "^18.0.0",
     "openai": "^5.16.0",
     "puppeteer-core": "24.4.0",
     "react": "^19.1.1",

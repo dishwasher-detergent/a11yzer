@@ -6,8 +6,8 @@ import { cookies } from "next/headers";
 import {
   Account,
   Client,
-  Databases,
   Storage,
+  TablesDB,
   Teams,
   Users,
 } from "node-appwrite";
@@ -31,8 +31,8 @@ export async function createSessionClient(session?: string) {
     get team() {
       return new Teams(client);
     },
-    get database() {
-      return new Databases(client);
+    get table() {
+      return new TablesDB(client);
     },
     get storage() {
       return new Storage(client);
@@ -56,8 +56,8 @@ export async function createAdminClient() {
     get team() {
       return new Teams(client);
     },
-    get database() {
-      return new Databases(client);
+    get table() {
+      return new TablesDB(client);
     },
     get storage() {
       return new Storage(client);

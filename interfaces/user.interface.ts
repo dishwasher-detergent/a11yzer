@@ -1,6 +1,6 @@
 import { Models } from "node-appwrite";
 
-export interface UserData extends Models.Document {
+export interface UserData extends Models.Row {
   name: string;
   about?: string;
   count?: number;
@@ -14,7 +14,7 @@ export interface UserMemberData extends UserData {
 
 export interface User extends Models.User<Models.Preferences>, UserData {}
 
-export interface AnalysisUserStats extends Models.Document {
+export interface AnalysisUserStats extends Models.Row {
   userId: string;
   count: number;
 }
