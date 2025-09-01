@@ -1,12 +1,41 @@
 import chromium from "@sparticuz/chromium-min";
+import { execSync } from "child_process";
+import { existsSync } from "fs";
 import puppeteer from "puppeteer";
 import puppeteerCore from "puppeteer-core";
 
 export const dynamic = "force-dynamic";
-export const remotePath =
-  "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
+let installed = false;
 
-export async function getBrowser() {
+function ensureChromiumInstalled(context?: { log: (message: string) => void }) {
+  if (installed) {
+    context?.log?.("already installed chromium") ||
+      console.log("already installed chromium");
+  } else {
+    try {
+      // Check if we're in a serverless environment that needs APK installation
+      if (
+        existsSync("/usr/local/server/src/function/") &&
+        existsSync("/usr/local/server/src/function/*.apk")
+      ) {
+        execSync("apk add /usr/local/server/src/function/*.apk");
+        context?.log?.("installed chromium") ||
+          console.log("installed chromium");
+      } else {
+        // For other environments, Chromium will be downloaded by @sparticuz/chromium
+        context?.log?.("chromium will be downloaded automatically") ||
+          console.log("chromium will be downloaded automatically");
+      }
+      installed = true;
+    } catch (error) {
+      context?.log?.(`chromium installation failed: ${error}`) ||
+        console.error("chromium installation failed:", error);
+      throw error;
+    }
+  }
+}
+
+export async function getBrowser(context?: { log: (message: string) => void }) {
   if (process.env.NODE_ENV === "development") {
     console.log("Launching browser in development mode");
     const browser = await puppeteer.launch({
@@ -21,6 +50,8 @@ export async function getBrowser() {
 
     return browser;
   } else {
+    ensureChromiumInstalled(context);
+
     const browser = await puppeteerCore.launch({
       args: [
         ...chromium.args,
@@ -38,7 +69,7 @@ export async function getBrowser() {
       ],
       defaultViewport: chromium.defaultViewport,
       headless: true,
-      executablePath: await chromium.executablePath(remotePath),
+      executablePath: "/usr/bin/chromium-browser",
     });
 
     return browser;
