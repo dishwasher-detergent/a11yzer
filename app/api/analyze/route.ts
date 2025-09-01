@@ -5,6 +5,11 @@ import { analyzeWithAIStreaming } from "@/lib/analysis/ai-analyzer";
 import { getBrowser } from "@/lib/analysis/browser";
 import { extractAccessibilityData } from "@/lib/analysis/extractors";
 import { createLimitsInfo } from "@/lib/analysis/limits-info";
+import { extractProblematicElements } from "@/lib/analysis/problematic-elements";
+import {
+  createErrorResponse,
+  createValidationErrorResponse,
+} from "@/lib/analysis/response-utils";
 import { addHighlightsToScreenshot } from "@/lib/analysis/screenshot-highlights";
 import { getLoggedInUser, getUserData } from "@/lib/auth";
 import {
@@ -15,11 +20,7 @@ import {
 } from "@/lib/constants";
 import { createAnalysis } from "@/lib/db";
 import { uploadScreenshotImage } from "@/lib/storage";
-import { extractProblematicElements } from "../../../../functions/analyzer/src/lib/analysis/problematic-elements";
-import {
-  createErrorResponse,
-  createValidationErrorResponse,
-} from "../../../../functions/analyzer/src/lib/analysis/response-utils";
+import { Browser } from "puppeteer";
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,9 +71,10 @@ export async function POST(request: NextRequest) {
             )
           );
 
-          const browser = await getBrowser();
+          const browser = (await getBrowser()) as Browser;
           const page = await browser.newPage();
           await page.setViewport({ width: 1280, height: 800 });
+          await page.goto(url, { waitUntil: "networkidle2" });
           await page.goto(url, { waitUntil: "networkidle2" });
 
           controller.enqueue(
@@ -108,9 +110,8 @@ export async function POST(request: NextRequest) {
             fullPage: true,
           });
 
-          await browser.close();
-
           const highlightedScreenshot = await addHighlightsToScreenshot(
+            browser,
             screenshot as string,
             problematicElements.items
           );
