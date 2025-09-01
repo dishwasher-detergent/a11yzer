@@ -69,9 +69,11 @@ export async function POST(request: NextRequest) {
             )
           );
 
-          // Configure Puppeteer for local vs production deployment
           const isLocal = process.env.NODE_ENV === "development";
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let puppeteer: any;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let launchOptions: any = {
             headless: true,
           };
