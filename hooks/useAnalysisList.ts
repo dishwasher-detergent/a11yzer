@@ -1,7 +1,7 @@
 "use client";
 
-import { Models, Query } from "node-appwrite";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Query } from "appwrite";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useSession } from "@/hooks/userSession";
@@ -10,8 +10,9 @@ import { getUserById } from "@/lib/auth";
 import { ANALYSIS_COLLECTION_ID, DATABASE_ID } from "@/lib/constants";
 import { listAnalysis } from "@/lib/db";
 import { getTeamById } from "@/lib/team";
+import { Models } from "node-appwrite";
 
-interface UseAnalysisListProps {
+interface Props {
   initialAnalysis?: Models.DocumentList<AnalysisDb<AnalysisResult>>;
   teamId?: string;
   userId?: string;
@@ -20,286 +21,193 @@ interface UseAnalysisListProps {
   cursor?: string;
 }
 
-interface UseAnalysisListReturn {
-  analysisList: AnalysisDb<AnalysisResult>[];
-  loading: boolean;
-  analysisLoading: boolean;
-  sessionLoading: boolean;
-  hasMore: boolean;
-  totalAnalysis: number;
-  nextCursor: string | undefined;
-  refetchAnalysisList: () => void;
-  error: string | null;
-}
-
-/**
- * Hook for fetching a list of analysis from the database with cursor pagination
- * @param initialAnalysis - Optional initial analysis data
- * @param teamId - Optional team ID to filter by and enable realtime updates
- * @param userId - Optional user ID to filter by and enable realtime updates
- * @param searchTerm - Optional search term to filter analysis
- * @param limit - Number of items per page (default: 5)
- * @param cursor - Cursor for pagination
- * @returns Object with analysisList, loading state, pagination info, and refetch function
- */
-export function useAnalysisList({
+export const useAnalysisList = ({
   initialAnalysis,
   teamId,
   userId,
   searchTerm,
   limit = 5,
   cursor,
-}: UseAnalysisListProps): UseAnalysisListReturn {
+}: Props) => {
   const [analysisList, setAnalysisList] = useState<
     AnalysisDb<AnalysisResult>[]
   >(initialAnalysis?.documents ?? []);
-  const [analysisLoading, setAnalysisLoading] = useState<boolean>(
-    !initialAnalysis
+  const [fetchLoading, setFetchLoading] = useState<boolean>(
+    initialAnalysis ? false : true
   );
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [totalAnalysis, setTotalAnalysis] = useState<number>(
     initialAnalysis?.total ?? 0
   );
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-  const [error, setError] = useState<string | null>(null);
-
-  // Refs for cleanup and optimization
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const mountedRef = useRef(true);
-
+  const [initialLoad, setInitialLoad] = useState<boolean>(
+    !!initialAnalysis && !cursor && !searchTerm
+  );
   const { client, loading: sessionLoading } = useSession();
 
-  // Memoized values
-  const loading = useMemo(
-    () => sessionLoading || analysisLoading,
-    [sessionLoading, analysisLoading]
-  );
+  const loading = sessionLoading || fetchLoading;
 
-  const shouldFetch = useMemo(
-    () => !initialAnalysis || !!cursor || !!searchTerm,
-    [initialAnalysis, cursor, searchTerm]
-  );
+  useEffect(() => {
+    if (initialLoad) {
+      if (initialAnalysis && initialAnalysis.documents.length > 0) {
+        const lastDocument =
+          initialAnalysis.documents[initialAnalysis.documents.length - 1];
+        setNextCursor(lastDocument?.$id);
+        setHasMore(initialAnalysis.documents.length === limit);
 
-  // Memoized queries builder
-  const buildQueries = useCallback(() => {
-    const queries = [Query.orderDesc("$createdAt")];
-
-    if (teamId) queries.push(Query.equal("teamId", teamId));
-    if (userId) queries.push(Query.equal("userId", userId));
-    if (searchTerm?.trim()) queries.push(Query.search("url", searchTerm));
-
-    queries.push(Query.limit(limit));
-    if (cursor) queries.push(Query.cursorAfter(cursor));
-
-    return queries;
-  }, [teamId, userId, searchTerm, limit, cursor]);
-
-  const handleError = useCallback((error: unknown, context: string) => {
-    console.error(`useAnalysisList ${context}:`, error);
-    const errorMessage =
-      error instanceof Error ? error.message : "An unexpected error occurred";
-    setError(errorMessage);
-    toast.error(errorMessage);
-  }, []);
-
-  const fetchAnalysisList = useCallback(async () => {
-    if (!shouldFetch || !mountedRef.current) return;
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+        return;
+      }
     }
 
-    abortControllerRef.current = new AbortController();
-    setAnalysisLoading(true);
-    setError(null);
+    const fetchAnalysis = async () => {
+      setFetchLoading(true);
 
-    try {
-      const queries = buildQueries();
-      const result = await listAnalysis(queries);
+      try {
+        const queries = [Query.orderDesc("$createdAt")];
 
-      if (!mountedRef.current) return;
-
-      if (result.success && result.data) {
-        const documents = result.data.documents || [];
-
-        if (cursor) {
-          setAnalysisList((prev) => [...prev, ...documents]);
-        } else {
-          setAnalysisList(documents);
+        if (teamId) {
+          queries.push(Query.equal("teamId", teamId));
         }
 
-        setTotalAnalysis(result.data.total);
-        setHasMore(documents.length === limit);
+        if (userId) {
+          queries.push(Query.equal("userId", userId));
+        }
 
-        const lastDocument = documents[documents.length - 1];
-        setNextCursor(lastDocument?.$id);
-      } else {
-        handleError(new Error(result.message), "fetch");
+        if (searchTerm && searchTerm.trim() !== "") {
+          queries.push(Query.search("url", searchTerm));
+        }
+
+        queries.push(Query.limit(limit));
+
+        if (cursor) {
+          queries.push(Query.cursorAfter(cursor));
+        }
+
+        const result = await listAnalysis(queries);
+
+        if (result.success && result.data) {
+          if (cursor) {
+            setAnalysisList((prev) => [
+              ...prev,
+              ...(result.data?.documents || []),
+            ]);
+          } else {
+            setAnalysisList(result.data.documents);
+          }
+
+          const lastDocument =
+            result.data.documents[result.data.documents.length - 1];
+
+          setTotalAnalysis(result.data.total);
+          setNextCursor(lastDocument?.$id);
+          setHasMore(result.data.documents.length === limit);
+        } else {
+          toast.error(result.message);
+          if (!cursor) {
+            setAnalysisList([]);
+          }
+          setHasMore(false);
+          setNextCursor(undefined);
+        }
+      } catch (error) {
         if (!cursor) {
           setAnalysisList([]);
         }
         setHasMore(false);
         setNextCursor(undefined);
+      } finally {
+        setFetchLoading(false);
       }
-    } catch (err) {
-      if (!mountedRef.current) return;
-      if (err instanceof Error && err.name === "AbortError") return;
+    };
 
-      handleError(err, "fetch");
-      if (!cursor) {
-        setAnalysisList([]);
-      }
-      setHasMore(false);
-      setNextCursor(undefined);
-    } finally {
-      if (mountedRef.current) {
-        setAnalysisLoading(false);
-      }
+    fetchAnalysis();
+  }, [teamId, userId, searchTerm, limit, cursor, initialLoad]);
+
+  useEffect(() => {
+    if (searchTerm || cursor) {
+      setInitialLoad(false);
     }
-  }, [shouldFetch, buildQueries, cursor, limit, handleError]);
+  }, [searchTerm, cursor]);
 
   useEffect(() => {
-    if (initialAnalysis && !cursor && !searchTerm) {
-      const lastDocument =
-        initialAnalysis.documents[initialAnalysis.documents.length - 1];
-      setNextCursor(lastDocument?.$id);
-      setHasMore(initialAnalysis.documents.length === limit);
-    }
-  }, [initialAnalysis, cursor, searchTerm, limit]);
-
-  useEffect(() => {
-    fetchAnalysisList();
-  }, [fetchAnalysisList]);
-
-  const refetchAnalysisList = useCallback(() => {
-    setNextCursor(undefined);
-    fetchAnalysisList();
-  }, [fetchAnalysisList]);
-
-  useEffect(() => {
-    if (!client || searchTerm !== undefined) return;
-
     let unsubscribe: (() => void) | undefined;
 
-    const userCache = new Map<string, any>();
-    const teamCache = new Map<string, any>();
+    if (client) {
+      unsubscribe = client.subscribe<AnalysisDb<string>>(
+        `databases.${DATABASE_ID}.collections.${ANALYSIS_COLLECTION_ID}.documents`,
+        async (response) => {
+          if (teamId && response.payload.teamId !== teamId) return;
+          if (userId && response.payload.userId !== userId) return;
 
-    const getCachedUserData = async (userId: string) => {
-      if (userCache.has(userId)) {
-        return userCache.get(userId);
-      }
-      const { data } = await getUserById(userId);
-      userCache.set(userId, data);
-      return data;
-    };
+          if (searchTerm === undefined) {
+            if (
+              response.events.includes(
+                "databases.*.collections.*.documents.*.create"
+              )
+            ) {
+              const { data } = await getUserById(response.payload.userId);
+              const { data: teamData } = await getTeamById(
+                response.payload.teamId
+              );
 
-    const getCachedTeamData = async (teamId: string) => {
-      if (teamCache.has(teamId)) {
-        return teamCache.get(teamId);
-      }
-      const { data } = await getTeamById(teamId);
-      teamCache.set(teamId, data);
-      return data;
-    };
+              setAnalysisList((prev) => [
+                {
+                  ...response.payload,
+                  data: JSON.parse(response.payload.data) as AnalysisResult,
+                  user: data,
+                  team: teamData,
+                },
+                ...prev,
+              ]);
 
-    const handleRealtimeUpdate = async (response: any) => {
-      if (!mountedRef.current) return;
+              setTotalAnalysis((prev) => prev + 1);
+            }
 
-      if (teamId && response.payload.teamId !== teamId) return;
-      if (userId && response.payload.userId !== userId) return;
+            if (
+              response.events.includes(
+                "databases.*.collections.*.documents.*.update"
+              )
+            ) {
+              const { data } = await getUserById(response.payload.userId);
+              const { data: teamData } = await getTeamById(
+                response.payload.teamId
+              );
 
-      try {
-        if (
-          response.events.includes(
-            "databases.*.collections.*.documents.*.create"
-          )
-        ) {
-          const [userData, teamData] = await Promise.all([
-            getCachedUserData(response.payload.userId),
-            getCachedTeamData(response.payload.teamId),
-          ]);
+              setAnalysisList((prev) =>
+                prev.map((x) =>
+                  x.$id === response.payload.$id
+                    ? {
+                        user: data,
+                        ...response.payload,
+                        team: teamData,
+                        data: JSON.parse(
+                          response.payload.data
+                        ) as AnalysisResult,
+                      }
+                    : x
+                )
+              );
+            }
 
-          const newAnalysis = {
-            ...response.payload,
-            data: JSON.parse(response.payload.data) as AnalysisResult,
-            user: userData,
-            team: teamData,
-          };
-
-          setAnalysisList((prev) => [newAnalysis, ...prev]);
-          setTotalAnalysis((prev) => prev + 1);
+            if (
+              response.events.includes(
+                "databases.*.collections.*.documents.*.delete"
+              )
+            ) {
+              setAnalysisList((prev) =>
+                prev.filter((x) => x.$id !== response.payload.$id)
+              );
+              setTotalAnalysis((prev) => prev - 1);
+            }
+          }
         }
-
-        if (
-          response.events.includes(
-            "databases.*.collections.*.documents.*.update"
-          )
-        ) {
-          const [userData, teamData] = await Promise.all([
-            getCachedUserData(response.payload.userId),
-            getCachedTeamData(response.payload.teamId),
-          ]);
-
-          const updatedAnalysis = {
-            ...response.payload,
-            data: JSON.parse(response.payload.data) as AnalysisResult,
-            user: userData,
-            team: teamData,
-          };
-
-          setAnalysisList((prev) =>
-            prev.map((analysis) =>
-              analysis.$id === response.payload.$id ? updatedAnalysis : analysis
-            )
-          );
-        }
-
-        if (
-          response.events.includes(
-            "databases.*.collections.*.documents.*.delete"
-          )
-        ) {
-          setAnalysisList((prev) =>
-            prev.filter((analysis) => analysis.$id !== response.payload.$id)
-          );
-          setTotalAnalysis((prev) => prev - 1);
-        }
-      } catch (err) {
-        handleError(err, "realtime update");
-      }
-    };
-
-    unsubscribe = client.subscribe<AnalysisDb<string>>(
-      `databases.${DATABASE_ID}.collections.${ANALYSIS_COLLECTION_ID}.documents`,
-      handleRealtimeUpdate
-    );
+      );
+    }
 
     return () => {
       if (unsubscribe) unsubscribe();
-      userCache.clear();
-      teamCache.clear();
     };
-  }, [client, teamId, userId, searchTerm, handleError]);
+  }, [client, teamId, userId, searchTerm]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
-  return {
-    analysisList,
-    loading,
-    analysisLoading,
-    sessionLoading,
-    hasMore,
-    totalAnalysis,
-    nextCursor,
-    refetchAnalysisList,
-    error,
-  };
-}
+  return { analysisList, loading, hasMore, totalAnalysis, nextCursor };
+};

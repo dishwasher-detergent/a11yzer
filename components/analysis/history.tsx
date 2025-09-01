@@ -37,7 +37,7 @@ export function AnalysisHistory({
   };
 
   return (
-    <div>
+    <>
       <h3 className="font-semibold text-base mb-2">Analysis History</h3>
       <div className="grid md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 grid-cols-2 gap-4">
         {analysisList?.map((item) => (
@@ -72,6 +72,6 @@ export function AnalysisHistory({
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }

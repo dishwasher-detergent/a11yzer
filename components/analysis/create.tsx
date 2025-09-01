@@ -51,7 +51,7 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
         )}
       </div>
       {loading && status && (
-        <div className="mx-12 p-2 border border-b-0 rounded-t-md bg-secondary">
+        <div className="mx-12 p-2 border border-b-0 rounded-t-md bg-secondary z-10">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold">Analysis Progress</p>
             <Badge variant="secondary">
@@ -73,9 +73,11 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
         error={error}
         count={currentCount}
       />
-      <div className="absolute bottom-10 w-full grid place-items-center">
-        <Hue />
-      </div>
+      {!analysis && (
+        <div className="absolute bottom-10 w-full grid place-items-center">
+          <Hue />
+        </div>
+      )}
     </div>
   );
 }
