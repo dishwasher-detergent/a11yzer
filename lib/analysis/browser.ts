@@ -1,4 +1,4 @@
-import chromium from "@sparticuz/chromium-min";
+import chromium from "@sparticuz/chromium";
 import { constants } from "fs";
 import { access, chmod, readdir } from "fs/promises";
 import { tmpdir } from "os";
@@ -31,9 +31,7 @@ export async function getBrowser() {
     console.log("Setting up chromium environment...");
 
     // Use the default path without custom font to avoid issues
-    const executablePath = await chromium.executablePath(
-      "https://github.com/Sparticuz/chromium/releases/download/v133.0.0/chromium-v133.0.0-pack.tar"
-    );
+    const executablePath = await chromium.executablePath();
     console.log("Chromium executable path:", executablePath);
 
     // Verify the file exists and is accessible

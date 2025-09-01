@@ -56,7 +56,7 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.1.8(@types/react@19.1.11))(@types/react@19.1.11)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@sparticuz/chromium-min':
+      '@sparticuz/chromium':
         specifier: 133.0.0
         version: 133.0.0
       appwrite:
@@ -1110,8 +1110,8 @@ packages:
   '@rushstack/eslint-patch@1.12.0':
     resolution: {integrity: sha512-5EwMtOqvJMMa3HbmxLlF74e+3/HhwBTMcvt3nqVJgGCozO6hzIPOBlwm8mGVNR9SN2IJpxSnlxczyDjcn7qIyw==}
 
-  '@sparticuz/chromium-min@133.0.0':
-    resolution: {integrity: sha512-7obk2CRitrlyxT4AKsCjSfE0QiHjDbi5GeOJirkerAZFV7o4VAsKzqoTQ/6rm3segZwfNFZzy8EdDelfV08aag==}
+  '@sparticuz/chromium@133.0.0':
+    resolution: {integrity: sha512-wioNxMtSxRI+Y6ymc/UFPX9lY7A1SDgBezjFITH6arwe5CONfWosNDGpgflUGYajxxGktb1k3kjJ83jWzbccBw==}
     engines: {node: '>= 16'}
 
   '@standard-schema/utils@0.3.0':
@@ -4335,7 +4335,7 @@ snapshots:
 
   '@rushstack/eslint-patch@1.12.0': {}
 
-  '@sparticuz/chromium-min@133.0.0':
+  '@sparticuz/chromium@133.0.0':
     dependencies:
       follow-redirects: 1.15.11
       tar-fs: 3.1.0
