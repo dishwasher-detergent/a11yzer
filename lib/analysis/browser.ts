@@ -74,7 +74,6 @@ export async function getBrowser() {
           "--disable-translate",
           "--disable-features=TranslateUI,VizDisplayCompositor",
         ],
-        defaultViewport: chromium.defaultViewport,
         executablePath: executablePath,
         headless: true,
         timeout: 60000, // Increased timeout for serverless cold starts
