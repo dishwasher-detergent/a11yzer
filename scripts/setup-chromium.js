@@ -78,13 +78,34 @@ async function setupChromium() {
     if (fs.existsSync(chromiumPath)) {
       console.log('Chromium binary found at:', chromiumPath);
       try {
-        const version = execSync(`${chromiumPath} --version`, { encoding: 'utf8' });
+        const stats = fs.statSync(chromiumPath);
+        console.log('Chromium file size:', stats.size, 'bytes');
+        console.log('Chromium file permissions:', stats.mode.toString(8));
+        
+        const version = execSync(`${chromiumPath} --version`, { 
+          encoding: 'utf8',
+          timeout: 10000 
+        });
         console.log('Chromium version:', version.trim());
       } catch (versionError) {
-        console.warn('Could not get Chromium version, but binary exists');
+        console.warn('Could not get Chromium version:', versionError.message);
+        console.log('Attempting to make Chromium executable...');
+        try {
+          execSync(`chmod +x ${chromiumPath}`);
+          console.log('Made Chromium executable');
+        } catch (chmodError) {
+          console.error('Failed to make Chromium executable:', chmodError.message);
+        }
       }
     } else {
       console.error('Chromium binary not found after setup');
+      console.log('Listing /tmp contents:');
+      try {
+        const tmpContents = fs.readdirSync('/tmp');
+        console.log(tmpContents.slice(0, 20).join(', '));
+      } catch (listError) {
+        console.error('Could not list /tmp contents');
+      }
     }
 
   } catch (error) {

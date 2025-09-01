@@ -1,5 +1,5 @@
 import chromium from "@sparticuz/chromium-min";
-import { exec } from "child_process";
+import { execSync } from "child_process";
 import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import { tmpdir } from "os";
@@ -42,7 +42,7 @@ export async function getBrowser() {
     console.log("Launching browser in production mode");
 
     const config = getChromiumConfig();
-    let executablePath: string;
+    let executablePath: string = "";
 
     if (config && existsSync(config.executablePath)) {
       // Use pre-installed Chromium from postinstall script
@@ -53,7 +53,33 @@ export async function getBrowser() {
       console.log(
         "Pre-installed Chromium not found, downloading via chromium-min"
       );
-      executablePath = await chromium.executablePath(config?.remoteUrl);
+      try {
+        executablePath = await chromium.executablePath(config?.remoteUrl);
+        console.log("Downloaded Chromium to:", executablePath);
+      } catch (downloadError) {
+        console.error("Failed to download Chromium:", downloadError);
+        // Try alternative paths
+        const alternativePaths = [
+          "/usr/bin/chromium-browser",
+          "/usr/bin/chromium",
+          "/usr/bin/google-chrome",
+          "/opt/google/chrome/chrome",
+        ];
+
+        let found = false;
+        for (const altPath of alternativePaths) {
+          if (existsSync(altPath)) {
+            executablePath = altPath;
+            console.log("Using system Chromium at:", executablePath);
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          throw new Error("No Chromium binary found in any expected location");
+        }
+      }
     }
 
     try {
@@ -64,14 +90,34 @@ export async function getBrowser() {
       const exists = existsSync(executablePath);
       console.log("Chromium exists at path:", exists, executablePath);
 
-      // Test chromium executable
-      exec(`${executablePath} --version`, (err, stdout) => {
-        if (err) {
-          console.error("Chromium version check failed:", err.message);
-        } else {
-          console.log("Chromium version:", stdout.trim());
+      // Test chromium executable synchronously
+      if (exists) {
+        try {
+          const version = execSync(`${executablePath} --version`, {
+            encoding: "utf8",
+            timeout: 5000,
+          });
+          console.log("Chromium version:", version.trim());
+        } catch (versionError) {
+          console.error(
+            "Chromium version check failed:",
+            versionError instanceof Error
+              ? versionError.message
+              : "Unknown error"
+          );
+          // Try to get more info about the executable
+          try {
+            const lsOutput = execSync(`ls -la ${executablePath}`, {
+              encoding: "utf8",
+            });
+            console.log("Chromium file details:", lsOutput.trim());
+          } catch (lsError) {
+            console.error("Could not get file details");
+          }
         }
-      });
+      } else {
+        console.error("Chromium executable not found at:", executablePath);
+      }
     } catch (error) {
       console.error("Error during browser setup:", error);
     }
