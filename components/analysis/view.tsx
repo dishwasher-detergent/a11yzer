@@ -16,7 +16,7 @@ export function AnalysisView({ data }: AnalysisViewProps) {
     <div className="overflow-hidden flex flex-col flex-nowrap">
       {data && (
         <>
-          <div className="flex-1 overflow-y-auto px-12 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2">
+          <div className="flex-1 overflow-y-auto px-6 md:px-12 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2">
             <AnalysisOverview summary={data.data.analysis.summary} />
             <TechnicalDetails accessibilityData={data.data.accessibilityData} />
             <AnalysisProblematicElements
@@ -29,7 +29,7 @@ export function AnalysisView({ data }: AnalysisViewProps) {
             />
           </div>
           <section
-            className="px-8 pb-8 w-full bg-background"
+            className="px-4 pb-4 md:px-8 md:pb-8 w-full bg-background"
             aria-labelledby="url-analysis-heading"
           >
             <div className="p-0.5 border bg-secondary rounded-md space-y-1">
