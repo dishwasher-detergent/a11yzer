@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const { spawn } = require("child_process");
+const zlib = require("zlib");
 
 const url =
   "https://github.com/Sparticuz/chromium/releases/download/v138.0.2/chromium-v138.0.2-pack.x64.tar";
@@ -68,10 +69,47 @@ async function extractChromium() {
     const child = spawn("tar", ["-xf", destFile, "-C", destDir]);
     child.on("close", (code) => {
       if (code !== 0) return reject(new Error("Extraction failed"));
-      fs.unlinkSync(destFile); // cleanup
+      fs.unlinkSync(destFile); // cleanup tar file
       resolve();
     });
   });
+}
+
+async function decompressBrotliFiles() {
+  const brFiles = fs.readdirSync(destDir).filter(file => file.endsWith('.br'));
+  
+  for (const brFile of brFiles) {
+    const brPath = path.join(destDir, brFile);
+    const outputPath = path.join(destDir, brFile.replace('.br', ''));
+    
+    console.log(`Decompressing ${brFile}...`);
+    
+    await new Promise((resolve, reject) => {
+      const input = fs.createReadStream(brPath);
+      const output = fs.createWriteStream(outputPath);
+      const brotli = zlib.createBrotliDecompress();
+      
+      input.pipe(brotli).pipe(output);
+      
+      output.on('finish', () => {
+        fs.unlinkSync(brPath); // Remove .br file after decompression
+        resolve();
+      });
+      
+      output.on('error', reject);
+      brotli.on('error', reject);
+    });
+  }
+  
+  // Make chromium executable
+  const chromiumPath = path.join(destDir, 'chromium');
+  if (fs.existsSync(chromiumPath)) {
+    try {
+      fs.chmodSync(chromiumPath, '755');
+    } catch (err) {
+      console.warn('Could not set executable permissions:', err.message);
+    }
+  }
 }
 
 (async () => {
@@ -80,6 +118,8 @@ async function extractChromium() {
     await downloadChromium();
     console.log("Extracting Chromium...");
     await extractChromium();
+    console.log("Decompressing Brotli files...");
+    await decompressBrotliFiles();
     console.log("Chromium installed into", destDir);
   } catch (err) {
     console.error("Failed to install Chromium:", err);
