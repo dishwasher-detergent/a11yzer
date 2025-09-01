@@ -7,10 +7,9 @@ import puppeteerCore from "puppeteer-core";
 export const dynamic = "force-dynamic";
 let installed = false;
 
-function ensureChromiumInstalled(context?: { log: (message: string) => void }) {
+function ensureChromiumInstalled() {
   if (installed) {
-    context?.log?.("already installed chromium") ||
-      console.log("already installed chromium");
+    console.log("already installed chromium");
   } else {
     try {
       // Check if we're in a serverless environment that needs APK installation
@@ -19,23 +18,20 @@ function ensureChromiumInstalled(context?: { log: (message: string) => void }) {
         existsSync("/usr/local/server/src/function/*.apk")
       ) {
         execSync("apk add /usr/local/server/src/function/*.apk");
-        context?.log?.("installed chromium") ||
-          console.log("installed chromium");
+        console.log("installed chromium");
       } else {
         // For other environments, Chromium will be downloaded by @sparticuz/chromium
-        context?.log?.("chromium will be downloaded automatically") ||
-          console.log("chromium will be downloaded automatically");
+        console.log("chromium will be downloaded automatically");
       }
       installed = true;
     } catch (error) {
-      context?.log?.(`chromium installation failed: ${error}`) ||
-        console.error("chromium installation failed:", error);
+      console.error("chromium installation failed:", error);
       throw error;
     }
   }
 }
 
-export async function getBrowser(context?: { log: (message: string) => void }) {
+export async function getBrowser() {
   if (process.env.NODE_ENV === "development") {
     console.log("Launching browser in development mode");
     const browser = await puppeteer.launch({
@@ -50,7 +46,7 @@ export async function getBrowser(context?: { log: (message: string) => void }) {
 
     return browser;
   } else {
-    ensureChromiumInstalled(context);
+    ensureChromiumInstalled();
 
     const browser = await puppeteerCore.launch({
       args: [
