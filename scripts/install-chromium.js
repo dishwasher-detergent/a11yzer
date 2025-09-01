@@ -13,16 +13,45 @@ async function downloadChromium() {
   return new Promise((resolve, reject) => {
     fs.mkdirSync(destDir, { recursive: true });
 
-    const file = fs.createWriteStream(destFile);
-    https.get(url, (response) => {
-      if (response.statusCode !== 200) {
-        return reject(new Error(`Failed to download: ${response.statusCode}`));
+    function download(downloadUrl, maxRedirects = 5) {
+      if (maxRedirects <= 0) {
+        return reject(new Error("Too many redirects"));
       }
-      response.pipe(file);
-      file.on("finish", () => {
-        file.close(resolve);
+
+      const file = fs.createWriteStream(destFile);
+      https.get(downloadUrl, (response) => {
+        // Handle redirects
+        if (response.statusCode === 301 || response.statusCode === 302) {
+          file.close();
+          fs.unlinkSync(destFile).catch(() => {}); // Clean up partial file
+          const redirectUrl = response.headers.location;
+          if (!redirectUrl) {
+            return reject(new Error("Redirect location not found"));
+          }
+          console.log(`Following redirect to: ${redirectUrl}`);
+          return download(redirectUrl, maxRedirects - 1);
+        }
+
+        if (response.statusCode !== 200) {
+          file.close();
+          return reject(new Error(`Failed to download: ${response.statusCode}`));
+        }
+
+        response.pipe(file);
+        file.on("finish", () => {
+          file.close(resolve);
+        });
+        file.on("error", (err) => {
+          fs.unlinkSync(destFile).catch(() => {});
+          reject(err);
+        });
+      }).on("error", (err) => {
+        file.close();
+        reject(err);
       });
-    }).on("error", reject);
+    }
+
+    download(url);
   });
 }
 
