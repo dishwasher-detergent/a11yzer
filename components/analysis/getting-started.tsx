@@ -15,14 +15,14 @@ export default function GettingStart() {
               "var(--color-blue-300)",
             ]}
           />
-          <div className="p-4 border-b">
-            <h1 className="text-2xl font-bold tracking-tight">
+          <header className="p-4 border-b">
+            <h2 className="font-semibold text-lg pb-2">
               Accessibility Analysis
-            </h1>
-            <p className="text-lg text-muted-foreground">
+            </h2>
+            <p className="text-muted-foreground text-sm">
               Get comprehensive accessibility insights for any website
             </p>
-          </div>
+          </header>
           <div className="grid grid-cols-1 md:grid-cols-3 divide-x">
             <div className="p-4 flex flex-col">
               <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center mb-3">
