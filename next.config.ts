@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  serverExternalPackages: [
+    "@sparticuz/chromium",
+    "puppeteer-core",
+    "chrome-aws-lambda",
+  ],
 };
 
 export default nextConfig;
