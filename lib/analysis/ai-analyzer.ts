@@ -42,7 +42,7 @@ export async function analyzeWithAI(
   };
 
   const prompt = `
-Analyze this webpage for accessibility issues and UI/UX improvements. Here's the data:
+Analyze the provided webpage data and return structured findings. Focus only on the most critical and impactful issues (avoid minor or redundant notes).
 
 Title: ${accessibilityData.title}
 
@@ -85,28 +85,38 @@ Keyboard Navigation: ${JSON.stringify(
     2
   )}
 
-Note: Some data may be limited to prevent prompt overflow. Focus on the most critical accessibility issues from the provided sample.
 
-Please provide:
-1. Critical accessibility issues (WCAG violations)
-2. UI/UX improvement suggestions
-3. Priority level (High/Medium/Low) for each issue
-4. Specific recommendations for fixes
+### Required Analysis
+1. Accessibility Issues (WCAG violations)
+   - Identify and describe clear violations or risks of non-compliance.
+2. UI/UX Improvement Suggestions
+   - Highlight usability, consistency, and design-related improvements.
+3. Priority Level
+   - Assign one of: critical, high, medium, or low.
+4. Recommendations
+   - Provide clear, actionable fixes.
+5. Overall Score
+   - Assign numerical values to priority levels:
+     - Low = 1
+     - Medium = 2
+     - High = 3
+     - Critical = 4
+   - Use these values to calculate an overall score out of 100 (higher = better).
 
-Format your response as JSON with the following structure:
+### Response Format (JSON only):
 {
-  "overallScore": number (0-100),
+  "overallScore": 0,
   "issues": [
     {
-      "type": "accessibility" | "ux" | "ui",
-      "priority": "high" | "medium" | "low",
+      "type": "accessibility" | "ui" | "ux",
+      "priority": "critical" | "high" | "medium" | "low",
       "title": "Issue title",
-      "description": "Detailed description",
-      "recommendation": "How to fix this",
-      "wcagCriterion": "WCAG criterion if applicable"
+      "description": "Detailed explanation of the issue",
+      "recommendation": "Actionable steps to fix",
+      "wcagCriterion": "Reference if applicable, otherwise null"
     }
   ],
-  "summary": "Overall assessment summary"
+  "summary": "Overall assessment summary highlighting key risks and improvements"
 }
 `;
 
