@@ -1,7 +1,10 @@
 "use client";
 
 import { Check, ChevronsUpDown } from "lucide-react";
+import Link from "next/link";
+import { useEffect } from "react";
 
+import { CreateTeam } from "@/components/team/create";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,37 +20,40 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useTeamData } from "@/hooks/useTeamData";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TeamData } from "@/interfaces/team.interface";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useEffect } from "react";
-import { Skeleton } from "../ui/skeleton";
-import { CreateTeam } from "./create";
 
-export function TeamSwitcher() {
+export interface TeamSwitcherProps {
+  currentTeamId: string;
+  data: TeamData[];
+  loading: boolean;
+  refetchTeams: () => void;
+}
+
+export function TeamSwitcher({
+  currentTeamId,
+  data,
+  loading,
+  refetchTeams,
+}: TeamSwitcherProps) {
   const { isMobile } = useSidebar();
-  const { teamId } = useParams<{
-    teamId: string;
-  }>();
-
-  const { teams, loading, refetchTeams } = useTeamData();
 
   useEffect(() => {
-    if (teams.findIndex((team) => team.$id === teamId) === -1) {
+    if (data.findIndex((team) => team.$id === currentTeamId) === -1) {
       refetchTeams();
     }
-  }, [teamId]);
+  }, [currentTeamId]);
 
   if (loading) {
     return <Skeleton className="h-12 w-full" />;
   }
 
-  if (teams.length == 0) {
+  if (data.length == 0) {
     return <CreateTeam className="w-full" />;
   }
 
-  const activeTeam = teams.find((x) => x.$id === teamId);
+  const activeTeam = data.find((x) => x.$id === currentTeamId);
 
   return (
     <SidebarMenu>
@@ -89,7 +95,7 @@ export function TeamSwitcher() {
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Teams
             </DropdownMenuLabel>
-            {teams.map((teamItem) => (
+            {data.map((teamItem) => (
               <DropdownMenuItem
                 key={teamItem.$id}
                 className="cursor-pointer text-sm flex justify-between items-center"
@@ -108,7 +114,9 @@ export function TeamSwitcher() {
                     <Check
                       className={cn(
                         "size-3",
-                        teamId === teamItem.$id ? "opacity-100" : "opacity-0"
+                        currentTeamId === teamItem.$id
+                          ? "opacity-100"
+                          : "opacity-0"
                       )}
                     />
                   </DropdownMenuShortcut>

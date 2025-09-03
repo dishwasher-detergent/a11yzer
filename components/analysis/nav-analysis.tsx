@@ -11,13 +11,14 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
-import { useAnalysisList } from "@/hooks/useAnalysisList";
+import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
 
-export function NavAnalysis() {
-  const { analysisList, loading } = useAnalysisList({
-    limit: 5,
-  });
+interface NavAnalysisProps {
+  data: AnalysisDb<AnalysisResult>[];
+  loading: boolean;
+}
 
+export function NavAnalysis({ data, loading }: NavAnalysisProps) {
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Recent</SidebarGroupLabel>
@@ -28,7 +29,7 @@ export function NavAnalysis() {
               <SidebarMenuSkeleton />
             </SidebarMenuItem>
           ))}
-        {analysisList?.slice(0, 5).map((item, index) => (
+        {data?.slice(0, 5).map((item, index) => (
           <SidebarMenuItem key={item.$id}>
             <SidebarMenuButton
               size="lg"
@@ -50,7 +51,7 @@ export function NavAnalysis() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
-        {!loading && analysisList?.length === 0 && (
+        {!loading && data?.length === 0 && (
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <div className="grid flex-1 text-left text-sm leading-tight">

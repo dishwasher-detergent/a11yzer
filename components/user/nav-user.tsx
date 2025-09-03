@@ -20,12 +20,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useUserData } from "@/hooks/useUserData";
+import { User } from "@/interfaces/user.interface";
 import { logOut } from "@/lib/auth";
 
-export function NavUser() {
+interface NavUserProps {
+  data: User | null;
+  loading: boolean;
+}
+
+export function NavUser({ data, loading }: NavUserProps) {
   const { isMobile } = useSidebar();
-  const { user, loading } = useUserData();
 
   if (loading) {
     return <Skeleton className="h-12 w-full" />;
@@ -42,12 +46,12 @@ export function NavUser() {
             >
               <div className="border flex aspect-square size-8 items-center justify-center rounded-lg bg-background">
                 <p className="font-semibold uppercase text-muted-foreground">
-                  {user?.name[0]}
+                  {data?.name[0]}
                 </p>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user?.name}</span>
-                <span className="truncate text-xs">{user?.email}</span>
+                <span className="truncate font-medium">{data?.name}</span>
+                <span className="truncate text-xs">{data?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -61,8 +65,8 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user?.name}</span>
-                  <span className="truncate text-xs">{user?.email}</span>
+                  <span className="truncate font-medium">{data?.name}</span>
+                  <span className="truncate text-xs">{data?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
