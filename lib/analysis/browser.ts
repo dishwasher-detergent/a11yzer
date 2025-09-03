@@ -8,7 +8,7 @@ export async function getBrowser() {
   if (process.env.NODE_ENV === "development") {
     console.log("Launching Chromium in development mode...");
     return puppeteer.launch({
-      headless: false, // "shell" works too
+      headless: true,
       defaultViewport: { width: 1920, height: 1080 },
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });

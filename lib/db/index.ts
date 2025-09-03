@@ -124,12 +124,12 @@ export async function listAnalysis(
           };
         }
       },
-      ["analysis", `analysis:user-${userId}`],
+      ["analysis", `analysis:user-${user.$id}`],
       {
         tags: [
           "analysis",
           `analysis:${queries.join("-")}`,
-          `analysis:user-${userId}`,
+          `analysis:user-${user.$id}`,
         ],
         revalidate: 600,
       }

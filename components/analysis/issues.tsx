@@ -171,7 +171,10 @@ export function AnalysisIssues({ issues, overallScore }: AnalysisIssuesProps) {
         className="w-full"
         aria-label="Filter accessibility issues by category"
       >
-        <TabsList aria-label="Issue categories">
+        <TabsList
+          aria-label="Issue categories"
+          className="max-w-full w-sm overflow-x-auto h-auto"
+        >
           <TabsTrigger
             value="all"
             aria-label={`View all ${issues.length} issues`}

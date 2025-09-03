@@ -105,7 +105,7 @@ export function AnalysisProblematicElements({
 
         <div
           ref={imageContainerRef}
-          className="max-h-96 overflow-y-auto w-full lg:w-3/5 flex-none border-b lg:border-b-0 lg:border-r"
+          className="max-h-96 overflow-y-auto w-full border-b lg:border-b-0 lg:border-r"
           role="img"
           aria-labelledby="screenshot-description"
         >
@@ -124,9 +124,9 @@ export function AnalysisProblematicElements({
           </div>
         </div>
 
-        {problematicElements && problematicElements.items.length > 0 ? (
+        {problematicElements && problematicElements.items.length > 0 && (
           <div
-            className="max-h-96 overflow-y-auto"
+            className="max-h-96 overflow-y-auto w-full lg:w-2/5 flex-none"
             role="complementary"
             aria-labelledby="elements-list-heading"
           >
@@ -179,16 +179,6 @@ export function AnalysisProblematicElements({
                 </li>
               ))}
             </ul>
-          </div>
-        ) : (
-          <div
-            className="p-4 flex items-center justify-center"
-            role="status"
-            aria-live="polite"
-          >
-            <p className="text-muted-foreground text-sm">
-              No problematic elements identified in the screenshot.
-            </p>
           </div>
         )}
       </div>
