@@ -129,7 +129,7 @@ export async function listAnalysis(
         tags: [
           "analysis",
           `analysis:${queries.join("-")}`,
-          `analysis:user-${user.$id}`,
+          `analysis:user-${userId}`,
         ],
         revalidate: 600,
       }
