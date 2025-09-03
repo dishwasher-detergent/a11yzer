@@ -124,7 +124,7 @@ export async function listAnalysis(
           };
         }
       },
-      ["analysis"],
+      ["analysis", `analysis:user-${userId}`],
       {
         tags: [
           "analysis",
