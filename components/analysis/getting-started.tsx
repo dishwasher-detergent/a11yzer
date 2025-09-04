@@ -5,10 +5,11 @@ import { ShineBorder } from "@/components/shine-border";
 
 export default function GettingStart() {
   return (
-    <div className="lg:col-span-2 flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+    <div className="lg:col-span-2 flex flex-col items-center md:justify-center space-y-6">
       <div className="space-y-4 max-w-2xl relative">
-        <div className="rounded-md border mt-8 relative z-10 bg-background">
+        <div className="rounded-md border relative z-10 bg-background">
           <ShineBorder
+            className="hidden md:block"
             shineColor={[
               "var(--color-pink-300)",
               "var(--color-red-300)",
@@ -69,7 +70,7 @@ export default function GettingStart() {
             </p>
           </div>
         </div>
-        <div className="absolute top-1/2 translate-y-1/2 w-full grid place-items-center z-0">
+        <div className="hidden md:grid absolute top-1/2 translate-y-1/2 w-full place-items-center z-0">
           <Hue />
         </div>
       </div>

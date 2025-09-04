@@ -31,7 +31,7 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
   const currentCount = analysis?.count ?? count;
 
   return (
-    <div className="h-dvh overflow-hidden flex flex-col flex-nowrap">
+    <div className="h-full overflow-hidden flex flex-col flex-nowrap">
       <div className="flex-1 overflow-y-auto px-6 md:px-12 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2 overflow-x-hidden">
         {analysis ? (
           <>
