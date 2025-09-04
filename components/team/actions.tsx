@@ -8,15 +8,9 @@ interface TeamActionsProps {
   data: TeamData;
   isOwner: boolean;
   isAdmin: boolean;
-  isMember: boolean;
 }
 
-export function TeamActions({
-  data,
-  isOwner,
-  isAdmin,
-  isMember,
-}: TeamActionsProps) {
+export function TeamActions({ data, isOwner, isAdmin }: TeamActionsProps) {
   return (
     <div>
       <h3 className="font-semibold text-base mb-2">Actions</h3>
