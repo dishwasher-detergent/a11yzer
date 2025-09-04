@@ -7,10 +7,12 @@ export async function addHighlightsToScreenshot(
   screenshotBase64: string,
   elements: ElementInfo[]
 ): Promise<string> {
+  let page = null;
+
   try {
     const imageDataUrl = `data:image/png;base64,${screenshotBase64}`;
     const canvasHTML = createCanvasHTML(imageDataUrl, elements);
-    const page = await browser.newPage();
+    page = await browser.newPage();
 
     await page.setContent(canvasHTML);
     await page.waitForSelector("#canvas", { timeout: 10000 });
@@ -30,13 +32,20 @@ export async function addHighlightsToScreenshot(
     const canvasElement = await page.$("#canvas");
     const screenshotBuffer = await canvasElement!.screenshot({ type: "png" });
 
-    await browser.close();
-
     const highlightedBase64 = Buffer.from(screenshotBuffer).toString("base64");
     return highlightedBase64;
   } catch (error) {
     console.error("Error adding highlights to screenshot:", error);
     return screenshotBase64;
+  } finally {
+    // Only close the page, not the entire browser
+    try {
+      if (page) {
+        await page.close();
+      }
+    } catch (closeError) {
+      console.error("Error closing screenshot page:", closeError);
+    }
   }
 }
 

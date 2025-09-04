@@ -121,7 +121,7 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
             type="warning"
           />
         )}
-        {cached && (
+        {cached && !error && (
           <AlertMessage
             id="cache-hit"
             message="This analysis was served from cache. We cache results by domain for 1 hour to reduce load and improve performance. This does not use your quota."

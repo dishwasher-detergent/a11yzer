@@ -19,21 +19,54 @@ import { ANALYSIS_LIMITS } from "@/lib/constants";
 export async function extractAccessibilityData(
   page: Page | LocalPage
 ): Promise<AccessibilityData> {
-  const html = await page.content();
-  const $ = cheerio.load(html);
+  try {
+    // Check if page is still connected
+    if (page.isClosed()) {
+      throw new Error("Page is closed or disconnected");
+    }
 
-  const title = $("title").text() || "No title found";
+    const html = await page.content();
+    const $ = cheerio.load(html);
 
-  return {
-    title,
-    headings: extractHeadings($),
-    images: extractImages($),
-    links: extractLinks($),
-    forms: extractForms($),
-    ariaLabels: extractAriaLabels($),
-    semanticStructure: analyzeSemanticStructure($),
-    keyboardNavigation: analyzeKeyboardNavigation($),
-  };
+    const title = $("title").text() || "No title found";
+
+    return {
+      title,
+      headings: extractHeadings($),
+      images: extractImages($),
+      links: extractLinks($),
+      forms: extractForms($),
+      ariaLabels: extractAriaLabels($),
+      semanticStructure: analyzeSemanticStructure($),
+      keyboardNavigation: analyzeKeyboardNavigation($),
+    };
+  } catch (error) {
+    console.error("Error extracting accessibility data:", error);
+    // Return minimal data structure in case of errors
+    return {
+      title: "Error: Could not extract page data",
+      headings: { items: [], totalCount: 0, limited: false },
+      images: { items: [], totalCount: 0, limited: false },
+      links: { items: [], totalCount: 0, limited: false },
+      forms: { items: [], totalCount: 0, limited: false },
+      ariaLabels: { items: [], totalCount: 0, limited: false },
+      semanticStructure: {
+        hasMain: false,
+        hasNav: false,
+        hasHeader: false,
+        hasFooter: false,
+        hasAside: false,
+        hasSection: false,
+        hasArticle: false,
+        skipLinks: 0,
+      },
+      keyboardNavigation: {
+        focusableElements: 0,
+        tabIndexElements: 0,
+        negativeTabIndex: 0,
+      },
+    };
+  }
 }
 
 export function extractHeadings(

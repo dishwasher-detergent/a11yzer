@@ -12,7 +12,15 @@ export async function getBrowser() {
     return puppeteer.launch({
       headless: true,
       defaultViewport: { width: 1920, height: 1080 },
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--disable-gpu",
+      ],
     });
   }
 
@@ -33,7 +41,16 @@ export async function getBrowser() {
   const executablePath = await chromium.executablePath();
 
   const browser = await puppeteerCore.launch({
-    args: chromium.args,
+    args: [
+      ...chromium.args,
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--disable-gpu",
+    ],
     defaultViewport: chromium.defaultViewport,
     executablePath,
     headless: chromium.headless,
