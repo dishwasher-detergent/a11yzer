@@ -111,8 +111,6 @@ export async function POST(request: NextRequest) {
             browser = (await getBrowser()) as Browser;
             page = await browser.newPage();
 
-            await page.setDefaultNavigationTimeout(30000);
-            await page.setDefaultTimeout(30000);
             await page.setUserAgent(
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
             );
@@ -123,7 +121,7 @@ export async function POST(request: NextRequest) {
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
               try {
                 await page.goto(url, {
-                  waitUntil: "domcontentloaded",
+                  waitUntil: "networkidle2",
                   timeout: 30000,
                 });
 
@@ -132,25 +130,7 @@ export async function POST(request: NextRequest) {
                 break;
               } catch (navError) {
                 console.log(`Navigation attempt ${attempt} failed:`, navError);
-
-                if (attempt === maxRetries) {
-                  try {
-                    await page.goto(url, {
-                      waitUntil: "load",
-                      timeout: 20000,
-                    });
-                    navigationSuccess = true;
-                    break;
-                  } catch (finalError) {
-                    const errorMessage =
-                      finalError instanceof Error
-                        ? finalError.message
-                        : "Unknown error";
-                    throw new Error(
-                      `Failed to navigate to ${url} after ${maxRetries} attempts: ${errorMessage}`
-                    );
-                  }
-                }
+                navigationSuccess = false;
 
                 await new Promise((resolve) => setTimeout(resolve, 1000));
               }
