@@ -124,12 +124,24 @@ export async function listAnalysis(
           };
         }
       },
-      ["analysis", `analysis:user-${user.$id}`],
+      [
+        "analysis",
+        `analysis:user-${user.$id}`,
+        `analysis:${(() => {
+          const queriesStr = queries.join("-");
+          const encoded = Buffer.from(queriesStr).toString("base64");
+          return encoded.length > 256 ? encoded.substring(0, 256) : encoded;
+        })()}`,
+      ],
       {
         tags: [
           "analysis",
-          `analysis:${queries.join("-")}`,
           `analysis:user-${user.$id}`,
+          `analysis:${(() => {
+            const queriesStr = queries.join("-");
+            const encoded = Buffer.from(queriesStr).toString("base64");
+            return encoded.length > 256 ? encoded.substring(0, 256) : encoded;
+          })()}`,
         ],
         revalidate: 600,
       }
