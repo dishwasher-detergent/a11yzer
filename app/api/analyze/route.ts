@@ -109,19 +109,37 @@ export async function POST(request: NextRequest) {
 
           try {
             browser = (await getBrowser()) as Browser;
-            page = await browser.newPage();
-
-            await page.setUserAgent(
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-            );
 
             let navigationSuccess = false;
             const maxRetries = 3;
 
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
               try {
+                if (page) {
+                  try {
+                    await page.close();
+                  } catch {
+                    // Ignore errors when closing potentially detached page
+                  }
+                }
+
+                page = await browser.newPage();
+
+                await page.setUserAgent(
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                );
+                await page.setViewport({ width: 1920, height: 1080 });
+                const waitStrategy =
+                  attempt === 1
+                    ? "networkidle2"
+                    : attempt === 2
+                    ? "domcontentloaded"
+                    : "load";
+
+                console.log(waitStrategy);
+
                 await page.goto(url, {
-                  waitUntil: "networkidle2",
+                  waitUntil: waitStrategy,
                   timeout: 30000,
                 });
 
@@ -132,12 +150,16 @@ export async function POST(request: NextRequest) {
                 console.log(`Navigation attempt ${attempt} failed:`, navError);
                 navigationSuccess = false;
 
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                if (attempt < maxRetries) {
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                }
               }
             }
 
-            if (!navigationSuccess) {
-              throw new Error(`Failed to navigate to ${url}`);
+            if (!navigationSuccess || !page) {
+              throw new Error(
+                `Failed to navigate to ${url} after ${maxRetries} attempts`
+              );
             }
 
             controller.enqueue(

@@ -103,7 +103,7 @@ export async function getUserData(): Promise<Result<User>> {
           };
         }
       },
-      ["user"],
+      ["user", `user:${user.$id}`],
       {
         tags: ["user", `user:${user.$id}`],
         revalidate: 600,
@@ -169,7 +169,7 @@ export async function getUserById(id: string): Promise<Result<UserData>> {
           };
         }
       },
-      ["user", id],
+      ["user", `user:${id}`, id],
       {
         tags: ["user", `user:${id}`],
         revalidate: 600,
@@ -239,7 +239,7 @@ export async function logOut(): Promise<boolean> {
 export async function deleteSession(): Promise<void> {
   const { account } = await createSessionClient();
 
-  account.deleteSession("current");
+  account.deleteSession({ sessionId: "current" });
   (await cookies()).delete(COOKIE_KEY);
 
   revalidateTag("logged_in_user");
@@ -259,7 +259,10 @@ export async function signInWithEmail(
   const { account } = await createAdminClient();
 
   try {
-    const session = await account.createEmailPasswordSession(email, password);
+    const session = await account.createEmailPasswordSession({
+      email,
+      password,
+    });
 
     revalidateTag("logged_in_user");
 
@@ -302,8 +305,11 @@ export async function signUpWithEmail(
 
   try {
     const id = ID.unique();
-    await account.create(id, email, password, name);
-    const session = await account.createEmailPasswordSession(email, password);
+    await account.create({ userId: id, email, password, name });
+    const session = await account.createEmailPasswordSession({
+      email,
+      password,
+    });
 
     (await cookies()).set(COOKIE_KEY, session.secret, {
       path: "/",
@@ -336,11 +342,11 @@ export async function signUpWithGithub(): Promise<void> {
   const { account } = await createAdminClient();
   const origin = (await headers()).get("origin");
 
-  const redirectUrl = await account.createOAuth2Token(
-    OAuthProvider.Github,
-    `${origin}/api/auth/callback`,
-    `${origin}/signup`
-  );
+  const redirectUrl = await account.createOAuth2Token({
+    provider: OAuthProvider.Github,
+    success: `${origin}/api/auth/callback`,
+    failure: `${origin}/signup`,
+  });
 
   return redirect(redirectUrl);
 }
@@ -359,7 +365,7 @@ export async function createPasswordRecovery(
   const origin = (await headers()).get("origin");
 
   try {
-    await account.createRecovery(email, `${origin}/reset`);
+    await account.createRecovery({ email, url: `${origin}/reset` });
   } catch (err) {
     const error = err as Error;
 
@@ -390,7 +396,7 @@ export async function resetPassword(
   const { account } = await createAdminClient();
 
   try {
-    await account.updateRecovery(id, token, password);
+    await account.updateRecovery({ userId: id, secret: token, password });
   } catch (err) {
     const error = err as Error;
 

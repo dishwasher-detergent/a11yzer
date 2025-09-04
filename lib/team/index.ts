@@ -90,7 +90,7 @@ export async function getTeamById(id: string): Promise<Result<TeamData>> {
           };
         }
       },
-      ["team", id],
+      ["team", `team:${id}`, id],
       {
         tags: ["team", `team:${id}`],
         revalidate: 600,
@@ -133,7 +133,7 @@ export async function listTeams(): Promise<Result<TeamData[]>> {
           };
         }
       },
-      ["teams"],
+      ["teams", `teams:user-${user.$id}`],
       {
         tags: ["teams", `teams:user-${user.$id}`],
         revalidate: 600,
@@ -204,7 +204,7 @@ export async function createTeam({
         permissions,
       });
 
-      revalidateTag("teams");
+      revalidateTag(`teams:user-${user.$id}`);
 
       return {
         success: true,
@@ -261,7 +261,7 @@ export async function updateTeam({
         permissions,
       });
 
-      revalidateTag("teams");
+      revalidateTag(`teams:user-${user.$id}`);
       revalidateTag(`team:${id}`);
 
       return {
@@ -299,7 +299,7 @@ export async function deleteTeam(id: string): Promise<Result<TeamData>> {
       });
       await setLastVisitedTeam(null);
 
-      revalidateTag("teams");
+      revalidateTag(`teams:user-${user.$id}`);
 
       return {
         success: true,
@@ -352,7 +352,7 @@ export async function leaveTeam(teamId: string): Promise<Result<string>> {
         queries: [Query.orderDesc("$createdAt"), Query.limit(1)],
       });
 
-      revalidateTag("teams");
+      revalidateTag(`teams:user-${user.$id}`);
       revalidateTag(`team:${teamId}`);
 
       if (data.rows.length > 0) {
@@ -418,6 +418,7 @@ export async function addMember(
       await createUserData(data.userId);
 
       revalidateTag(`team:${teamId}`);
+      revalidateTag(`teams:user-${user.$id}`);
 
       return {
         success: true,
@@ -486,7 +487,9 @@ export async function removeMember(
         teamId,
         membershipId: membership.$id,
       });
+
       revalidateTag(`team:${teamId}`);
+      revalidateTag(`teams:user-${user.$id}`);
 
       return {
         success: true,
@@ -531,6 +534,7 @@ export async function promoteToAdmin(
       });
 
       revalidateTag(`team:${teamId}`);
+      revalidateTag(`teams:user-${user.$id}`);
 
       return {
         success: true,
@@ -579,6 +583,7 @@ export async function removeAdminRole(
       });
 
       revalidateTag(`team:${teamId}`);
+      revalidateTag(`teams:user-${user.$id}`);
 
       return {
         success: true,
