@@ -23,7 +23,7 @@ export default function RecoverPasswordPage() {
         ]}
       />
       <CardHeader>
-        <CardTitle>Password Recovery</CardTitle>
+        <CardTitle className="text-lg">Password Recovery</CardTitle>
         <CardDescription>
           Enter your email address and we&apos;ll send you a password reset
           link.

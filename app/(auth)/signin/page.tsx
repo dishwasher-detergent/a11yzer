@@ -23,7 +23,7 @@ export default function SignInPage() {
         ]}
       />
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
+        <CardTitle className="text-lg">Sign In</CardTitle>
         <CardDescription>
           Enter your email below to sign in to your account.
         </CardDescription>

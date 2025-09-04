@@ -26,7 +26,7 @@ export default async function Invite({
         ]}
       />
       <CardHeader>
-        <CardTitle className="text-2xl mt-2">Accept Team Invite</CardTitle>
+        <CardTitle className="text-lg mt-2">Accept Team Invite</CardTitle>
       </CardHeader>
       <CardContent>
         <AcceptForm

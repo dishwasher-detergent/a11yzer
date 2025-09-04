@@ -1,23 +1,12 @@
 import { LucideCheckCircle, LucideLightbulb, LucideZap } from "lucide-react";
 
 import { Hue } from "@/components/hue";
-import { ShineBorder } from "@/components/shine-border";
 
 export default function GettingStart() {
   return (
     <div className="lg:col-span-2 flex flex-col items-center md:justify-center space-y-6">
       <div className="space-y-4 max-w-2xl relative">
         <div className="rounded-md border relative z-10 bg-background">
-          <ShineBorder
-            className="hidden md:block"
-            shineColor={[
-              "var(--color-pink-300)",
-              "var(--color-red-300)",
-              "var(--color-yellow-300)",
-              "var(--color-green-300)",
-              "var(--color-blue-300)",
-            ]}
-          />
           <header className="p-4 border-b">
             <h2 className="font-semibold text-lg pb-2">
               Accessibility Analysis
@@ -26,7 +15,7 @@ export default function GettingStart() {
               Get comprehensive accessibility insights for any website
             </p>
           </header>
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-x divide-y">
+          <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-y-0 divide-y">
             <div className="p-4 flex md:flex-col gap-4">
               <div className="size-8 flex-none rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center">
                 <LucideCheckCircle className="h-3" />

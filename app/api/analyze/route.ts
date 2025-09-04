@@ -113,11 +113,52 @@ export async function POST(request: NextRequest) {
 
             await page.setDefaultNavigationTimeout(30000);
             await page.setDefaultTimeout(30000);
+            await page.setUserAgent(
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            );
 
-            await page.goto(url, {
-              waitUntil: "networkidle2",
-              timeout: 30000,
-            });
+            let navigationSuccess = false;
+            const maxRetries = 3;
+
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+              try {
+                await page.goto(url, {
+                  waitUntil: "domcontentloaded",
+                  timeout: 30000,
+                });
+
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                navigationSuccess = true;
+                break;
+              } catch (navError) {
+                console.log(`Navigation attempt ${attempt} failed:`, navError);
+
+                if (attempt === maxRetries) {
+                  try {
+                    await page.goto(url, {
+                      waitUntil: "load",
+                      timeout: 20000,
+                    });
+                    navigationSuccess = true;
+                    break;
+                  } catch (finalError) {
+                    const errorMessage =
+                      finalError instanceof Error
+                        ? finalError.message
+                        : "Unknown error";
+                    throw new Error(
+                      `Failed to navigate to ${url} after ${maxRetries} attempts: ${errorMessage}`
+                    );
+                  }
+                }
+
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+              }
+            }
+
+            if (!navigationSuccess) {
+              throw new Error(`Failed to navigate to ${url}`);
+            }
 
             controller.enqueue(
               encoder.encode(
@@ -272,16 +313,25 @@ export async function POST(request: NextRequest) {
             console.error("Browser operation error:", browserError);
             throw browserError;
           } finally {
-            // Always cleanup browser resources
+            // Always cleanup browser resources with proper error handling
             try {
-              if (page) {
-                await page.close();
+              if (page && !page.isClosed()) {
+                await page.close().catch(() => {
+                  // Ignore errors during page cleanup
+                });
               }
-              if (browser) {
-                await browser.close();
+            } catch (pageCleanupError) {
+              console.error("Page cleanup error:", pageCleanupError);
+            }
+
+            try {
+              if (browser && browser.isConnected()) {
+                await browser.close().catch(() => {
+                  // Ignore errors during browser cleanup
+                });
               }
-            } catch (cleanupError) {
-              console.error("Browser cleanup error:", cleanupError);
+            } catch (browserCleanupError) {
+              console.error("Browser cleanup error:", browserCleanupError);
             }
           }
         } catch (error) {

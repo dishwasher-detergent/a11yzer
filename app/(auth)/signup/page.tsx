@@ -23,7 +23,7 @@ export default function SignUpPage() {
         ]}
       />
       <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
+        <CardTitle className="text-lg">Sign Up</CardTitle>
         <CardDescription>
           Enter your email below to create your account.
         </CardDescription>

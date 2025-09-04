@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
         ]}
       />
       <CardHeader>
-        <CardTitle>Set New Password</CardTitle>
+        <CardTitle className="text-lg">Set New Password</CardTitle>
         <CardDescription>Please enter your new password below.</CardDescription>
       </CardHeader>
       <CardContent>
