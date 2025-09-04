@@ -1,8 +1,10 @@
 import chromium from "@sparticuz/chromium";
+import { execSync } from "child_process";
 import puppeteer from "puppeteer";
 import puppeteerCore from "puppeteer-core";
 
 export const dynamic = "force-dynamic";
+let installed = false;
 
 export async function getBrowser() {
   if (process.env.NODE_ENV === "development") {
@@ -14,7 +16,19 @@ export async function getBrowser() {
     });
   }
 
-  console.log("Launching Chromium in production mode...");
+  if (process.env.APPWRITE_SITES) {
+    try {
+      execSync("apk update && apk add --no-cache nss nspr", {
+        stdio: "inherit",
+      });
+      installed = true;
+    } catch (err) {
+      const error = err as Error;
+
+      console.error(error);
+      throw new Error(`Chromium installation failed: ${error.message}`);
+    }
+  }
 
   const executablePath = await chromium.executablePath();
 
