@@ -102,8 +102,8 @@ export function TeamSwitcher({
                 asChild
               >
                 <Link href={`/app/teams/${teamItem.$id}`}>
-                  <div className="flex flex-row gap-2 items-center">
-                    <div className="flex size-6 items-center justify-center rounded-md border">
+                  <div className="flex flex-row gap-2 items-center overflow-hidden">
+                    <div className="flex size-6 items-center justify-center rounded-md border flex-none">
                       <p className="font-semibold uppercase text-muted-foreground">
                         {teamItem?.name[0]}
                       </p>
