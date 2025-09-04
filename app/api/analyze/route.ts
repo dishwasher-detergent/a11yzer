@@ -106,8 +106,6 @@ export async function POST(request: NextRequest) {
 
           const browser = (await getBrowser()) as Browser;
           const page = await browser.newPage();
-          await page.setViewport({ width: 1280, height: 800 });
-          await page.goto(url, { waitUntil: "networkidle2" });
           await page.goto(url, { waitUntil: "networkidle2" });
 
           controller.enqueue(
