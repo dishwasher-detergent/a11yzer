@@ -13,7 +13,7 @@ interface AnalysisViewProps {
 
 export function AnalysisView({ data }: AnalysisViewProps) {
   return (
-    <div className="overflow-hidden flex flex-col flex-nowrap">
+    <main className="overflow-hidden flex flex-col flex-nowrap">
       {data && (
         <>
           <div className="flex-1 overflow-y-auto px-6 md:px-12 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2">
@@ -61,6 +61,6 @@ export function AnalysisView({ data }: AnalysisViewProps) {
           </section>
         </>
       )}
-    </div>
+    </main>
   );
 }

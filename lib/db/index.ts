@@ -130,7 +130,7 @@ export async function listAnalysis(
         `analysis:${(() => {
           const queriesStr = queries.join("-");
           const encoded = Buffer.from(queriesStr).toString("base64");
-          return encoded.length > 256 ? encoded.substring(0, 256) : encoded;
+          return encoded.length > 128 ? encoded.substring(0, 128) : encoded;
         })()}`,
       ],
       {
@@ -140,7 +140,7 @@ export async function listAnalysis(
           `analysis:${(() => {
             const queriesStr = queries.join("-");
             const encoded = Buffer.from(queriesStr).toString("base64");
-            return encoded.length > 256 ? encoded.substring(0, 256) : encoded;
+            return encoded.length > 128 ? encoded.substring(0, 128) : encoded;
           })()}`,
         ],
         revalidate: 600,
