@@ -1,4 +1,5 @@
 import { RecoveryFooter } from "@/components/recovery-footer";
+import { ShineBorder } from "@/components/shine-border";
 import {
   Card,
   CardContent,
@@ -11,7 +12,16 @@ import { RecoverForm } from "./form";
 
 export default function RecoverPasswordPage() {
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm relative z-10">
+      <ShineBorder
+        shineColor={[
+          "var(--color-pink-300)",
+          "var(--color-red-300)",
+          "var(--color-yellow-300)",
+          "var(--color-green-300)",
+          "var(--color-blue-300)",
+        ]}
+      />
       <CardHeader>
         <CardTitle>Password Recovery</CardTitle>
         <CardDescription>

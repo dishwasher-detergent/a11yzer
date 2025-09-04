@@ -1,6 +1,7 @@
 import { LucideCheckCircle, LucideLightbulb, LucideZap } from "lucide-react";
-import { Hue } from "../hue";
-import { ShineBorder } from "../shine-border";
+
+import { Hue } from "@/components/hue";
+import { ShineBorder } from "@/components/shine-border";
 
 export default function GettingStart() {
   return (
