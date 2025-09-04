@@ -26,7 +26,7 @@ export default function GettingStart() {
           </header>
           <div className="grid grid-cols-1 md:grid-cols-3 divide-x divide-y">
             <div className="p-4 flex md:flex-col gap-4">
-              <div className="size-8 flex-none rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center mb-3">
+              <div className="size-8 flex-none rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center">
                 <LucideCheckCircle className="h-3" />
               </div>
               <div>
@@ -37,7 +37,7 @@ export default function GettingStart() {
               </div>
             </div>
             <div className="p-4 flex md:flex-col gap-4">
-              <div className="size-8 flex-none rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 flex items-center justify-center mb-3">
+              <div className="size-8 flex-none rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 flex items-center justify-center">
                 <LucideZap className="h-3" />
               </div>
               <div>
@@ -48,7 +48,7 @@ export default function GettingStart() {
               </div>
             </div>
             <div className="p-4 flex md:flex-col gap-4">
-              <div className="size-8 flex-none rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300 flex items-center justify-center mb-3">
+              <div className="size-8 flex-none rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300 flex items-center justify-center">
                 <LucideLightbulb className="h-3" />
               </div>
               <div>

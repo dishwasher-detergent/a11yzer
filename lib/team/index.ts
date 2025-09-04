@@ -387,7 +387,7 @@ export async function leaveTeam(teamId: string): Promise<Result<string>> {
  * @param {string} email The email of the user to invite
  * @returns {Promise<Result<void>>}
  */
-export async function inviteMember(
+export async function addMember(
   teamId: string,
   email: string
 ): Promise<Result<void>> {
@@ -395,11 +395,7 @@ export async function inviteMember(
     const { team, users } = await createAdminClient();
 
     try {
-      await checkUserRole(teamId, user.$id, [
-        MEMBER_ROLE,
-        ADMIN_ROLE,
-        OWNER_ROLE,
-      ]);
+      await checkUserRole(teamId, user.$id, [ADMIN_ROLE, OWNER_ROLE]);
 
       const exists = await users.list({
         queries: [Query.equal("email", email)],
@@ -458,6 +454,8 @@ export async function removeMember(
         throw new Error("You cannot remove yourself from the team.");
       }
 
+      await checkUserRole(teamId, user.$id, [ADMIN_ROLE, OWNER_ROLE]);
+
       const userMembership = await team.listMemberships({
         teamId,
         queries: [Query.equal("userId", user.$id)],
@@ -482,12 +480,6 @@ export async function removeMember(
 
       if (memberRole === ADMIN_ROLE && currentUserRole !== OWNER_ROLE) {
         throw new Error("Only team owners can remove admin members.");
-      }
-
-      if (currentUserRole !== OWNER_ROLE && currentUserRole !== ADMIN_ROLE) {
-        throw new Error(
-          "You must be an admin or owner to remove team members."
-        );
       }
 
       await team.deleteMembership({

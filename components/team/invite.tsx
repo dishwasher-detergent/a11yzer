@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { TeamData } from "@/interfaces/team.interface";
-import { inviteMember } from "@/lib/team";
+import { addMember } from "@/lib/team";
 import { InviteTeamFormData, inviteTeamSchema } from "@/lib/team/schemas";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -39,7 +39,7 @@ export function InviteTeam({ team }: { team: TeamData }) {
           size="sm"
           variant="secondary"
         >
-          Invite Member
+          Add Member
           <LucideUserRoundPlus className="size-3.5" />
         </Button>
       }
@@ -67,7 +67,7 @@ function InviteForm({ className, setOpen, team }: FormProps) {
   async function onSubmit(values: InviteTeamFormData) {
     setLoading(true);
 
-    const data = await inviteMember(team.$id, values.email);
+    const data = await addMember(team.$id, values.email);
 
     if (data.success) {
       toast.success(data.message);
