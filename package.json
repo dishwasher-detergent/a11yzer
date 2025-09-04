@@ -1,5 +1,5 @@
 {
-  "name": "ai-accessibility-checker",
+  "name": "a11yzer",
   "version": "0.1.0",
   "description": "AI-powered web accessibility analysis tool",
   "private": true,
