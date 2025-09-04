@@ -26,9 +26,7 @@ export async function getBrowser() {
 
   if (process.env.APPWRITE_SITES && !installed) {
     try {
-      execSync("apk update && apk add --no-cache nss nspr", {
-        stdio: "inherit",
-      });
+      execSync('apk update && apk add --no-cache nss freetype harfbuzz ca-certificates ttf-freefont', { stdio: 'inherit' });
       installed = true;
     } catch (err) {
       const error = err as Error;
