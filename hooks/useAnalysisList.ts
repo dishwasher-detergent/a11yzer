@@ -96,7 +96,15 @@ export const useAnalysisList = ({
 
           setTotalAnalysis(result.data.total);
           setNextCursor(lastDocument?.$id);
-          setHasMore(result.data.rows.length === limit);
+
+          const updatedAnalysisList = cursor
+            ? [...analysisList, ...(result.data?.rows || [])]
+            : result.data.rows;
+
+          setHasMore(
+            updatedAnalysisList.length < result.data.total &&
+              result.data.rows.length === limit
+          );
         } else {
           toast.error(result.message);
           if (!cursor) {

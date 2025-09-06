@@ -23,6 +23,9 @@ import {
 import { createAnalysis, listAnalysis } from "@/lib/db";
 import { uploadScreenshotImage } from "@/lib/storage";
 
+export const runtime = "nodejs";
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   try {
     const { url, teamId } = await request.json();
