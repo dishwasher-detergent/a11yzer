@@ -35,7 +35,7 @@ export function AnalysisLoader({ status, url }: AssemblyLoaderProps) {
               Analyzing Your Website
             </h1>
             <p className="text-muted-foreground">
-              We're examining{" "}
+              We&apos;re examining{" "}
               <code className="font-mono text-sm bg-muted px-2 py-1 rounded">
                 {url}
               </code>
