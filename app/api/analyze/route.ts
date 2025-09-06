@@ -25,6 +25,19 @@ import { uploadScreenshotImage } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
+export const dynamic = "force-dynamic";
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,17 +65,18 @@ export async function POST(request: NextRequest) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
+        const sendMessage = (data: any) => {
+          const message = `data: ${JSON.stringify(data)}\n\n`;
+          controller.enqueue(encoder.encode(message));
+        };
+
         try {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "status",
-                message: "Starting analysis...",
-                step: 1,
-                totalSteps: 6,
-              })}\n\n`
-            )
-          );
+          sendMessage({
+            type: "status",
+            message: "Starting analysis...",
+            step: 1,
+            totalSteps: 6,
+          });
 
           const oneHourAgo = new Date();
           oneHourAgo.setHours(oneHourAgo.getHours() - 1);
@@ -81,31 +95,23 @@ export async function POST(request: NextRequest) {
           ]);
 
           if (existingAnalysis.data && existingAnalysis.data?.rows.length > 0) {
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "complete",
-                  data: existingAnalysis.data?.rows[0].data,
-                  analysisId: existingAnalysis.data?.rows[0]?.$id,
-                  cached: true,
-                })}\n\n`
-              )
-            );
+            sendMessage({
+              type: "complete",
+              data: existingAnalysis.data?.rows[0].data,
+              analysisId: existingAnalysis.data?.rows[0]?.$id,
+              cached: true,
+            });
 
             controller.close();
             return;
           }
 
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "status",
-                message: "Launching browser and navigating to URL...",
-                step: 2,
-                totalSteps: 6,
-              })}\n\n`
-            )
-          );
+          sendMessage({
+            type: "status",
+            message: "Launching browser and navigating to URL...",
+            step: 2,
+            totalSteps: 6,
+          });
 
           let browser: Browser | null = null;
           let page = null;
@@ -165,16 +171,12 @@ export async function POST(request: NextRequest) {
               );
             }
 
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "status",
-                  message: "Extracting accessibility data...",
-                  step: 3,
-                  totalSteps: 6,
-                })}\n\n`
-              )
-            );
+            sendMessage({
+              type: "status",
+              message: "Extracting accessibility data...",
+              step: 3,
+              totalSteps: 6,
+            });
 
             const html = await page.content();
             const $ = cheerio.load(html);
@@ -185,16 +187,12 @@ export async function POST(request: NextRequest) {
               $
             );
 
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "status",
-                  message: "Taking screenshot and processing...",
-                  step: 4,
-                  totalSteps: 6,
-                })}\n\n`
-              )
-            );
+            sendMessage({
+              type: "status",
+              message: "Taking screenshot and processing...",
+              step: 4,
+              totalSteps: 6,
+            });
 
             const screenshot = await page.screenshot({
               encoding: "base64",
@@ -227,16 +225,12 @@ export async function POST(request: NextRequest) {
               throw new Error("Failed to upload screenshot");
             }
 
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "status",
-                  message: "Starting AI analysis...",
-                  step: 5,
-                  totalSteps: 6,
-                })}\n\n`
-              )
-            );
+            sendMessage({
+              type: "status",
+              message: "Starting AI analysis...",
+              step: 5,
+              totalSteps: 6,
+            });
 
             let analysis = null;
             let aiResponseBuffer = "";
@@ -245,14 +239,10 @@ export async function POST(request: NextRequest) {
               accessibilityData
             )) {
               aiResponseBuffer += chunk;
-              controller.enqueue(
-                encoder.encode(
-                  `data: ${JSON.stringify({
-                    type: "ai_chunk",
-                    content: chunk,
-                  })}\n\n`
-                )
-              );
+              sendMessage({
+                type: "ai_chunk",
+                content: chunk,
+              });
             }
 
             try {
@@ -265,16 +255,12 @@ export async function POST(request: NextRequest) {
               };
             }
 
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "status",
-                  message: "Saving results...",
-                  step: 6,
-                  totalSteps: 6,
-                })}\n\n`
-              )
-            );
+            sendMessage({
+              type: "status",
+              message: "Saving results...",
+              step: 6,
+              totalSteps: 6,
+            });
 
             const limitsInfo = createLimitsInfo(accessibilityData);
 
@@ -302,16 +288,12 @@ export async function POST(request: NextRequest) {
               throw new Error("Failed to create analysis");
             }
 
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "complete",
-                  data: data,
-                  analysisId: analysisResult.data?.$id,
-                  cached: false,
-                })}\n\n`
-              )
-            );
+            sendMessage({
+              type: "complete",
+              data: data,
+              analysisId: analysisResult.data?.$id,
+              cached: false,
+            });
 
             controller.close();
           } catch (browserError) {
@@ -341,15 +323,11 @@ export async function POST(request: NextRequest) {
           }
         } catch (error) {
           console.error("Analysis error:", error);
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "error",
-                message: "Failed to analyze webpage",
-                error: error instanceof Error ? error.message : "Unknown error",
-              })}\n\n`
-            )
-          );
+          sendMessage({
+            type: "error",
+            message: "Failed to analyze webpage",
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
           controller.close();
         }
       },
@@ -358,11 +336,13 @@ export async function POST(request: NextRequest) {
     return new Response(stream, {
       headers: {
         "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
         Connection: "keep-alive",
+        "X-Accel-Buffering": "no", // Disable nginx buffering
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Transfer-Encoding": "chunked",
       },
     });
   } catch (error) {
