@@ -1,15 +1,27 @@
+import * as cheerio from "cheerio";
 import { NextRequest } from "next/server";
 import { Query } from "node-appwrite";
 import { Browser } from "puppeteer";
 
+import { analyzeWithAIStreaming } from "@/lib/analysis/ai-analyzer";
 import { getBrowser } from "@/lib/analysis/browser";
+import { extractAccessibilityData } from "@/lib/analysis/extractors";
+import { createLimitsInfo } from "@/lib/analysis/limits-info";
+import { extractProblematicElements } from "@/lib/analysis/problematic-elements";
 import {
   createErrorResponse,
   createValidationErrorResponse,
 } from "@/lib/analysis/response-utils";
+import { addHighlightsToScreenshot } from "@/lib/analysis/screenshot-highlights";
 import { getLoggedInUser, getUserData } from "@/lib/auth";
-import { MAX_ANALYSIS_LIMIT } from "@/lib/constants";
-import { listAnalysis } from "@/lib/db";
+import {
+  ENDPOINT,
+  MAX_ANALYSIS_LIMIT,
+  PROJECT_ID,
+  SCREENSHOT_BUCKET_ID,
+} from "@/lib/constants";
+import { createAnalysis, listAnalysis } from "@/lib/db";
+import { uploadScreenshotImage } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -167,122 +179,122 @@ export async function POST(request: NextRequest) {
               totalSteps: 6,
             });
 
-            // const html = await page.content();
-            // const $ = cheerio.load(html);
+            const html = await page.content();
+            const $ = cheerio.load(html);
 
-            // const accessibilityData = await extractAccessibilityData(page);
-            // const problematicElements = await extractProblematicElements(
-            //   page,
-            //   $
-            // );
+            const accessibilityData = await extractAccessibilityData(page);
+            const problematicElements = await extractProblematicElements(
+              page,
+              $
+            );
 
-            // sendMessage({
-            //   type: "status",
-            //   message: "Taking screenshot and processing...",
-            //   step: 4,
-            //   totalSteps: 6,
-            // });
+            sendMessage({
+              type: "status",
+              message: "Taking screenshot and processing...",
+              step: 4,
+              totalSteps: 6,
+            });
 
-            // const screenshot = await page.screenshot({
-            //   encoding: "base64",
-            //   fullPage: true,
-            // });
+            const screenshot = await page.screenshot({
+              encoding: "base64",
+              fullPage: true,
+            });
 
-            // const highlightedScreenshot = await addHighlightsToScreenshot(
-            //   browser,
-            //   screenshot as string,
-            //   problematicElements.items
-            // );
+            const highlightedScreenshot = await addHighlightsToScreenshot(
+              browser,
+              screenshot as string,
+              problematicElements.items
+            );
 
-            // const screenshotBuffer = Buffer.from(
-            //   highlightedScreenshot,
-            //   "base64"
-            // );
-            // const screenshotFile = new File(
-            //   [screenshotBuffer],
-            //   "screenshot.png",
-            //   {
-            //     type: "image/png",
-            //   }
-            // );
+            const screenshotBuffer = Buffer.from(
+              highlightedScreenshot,
+              "base64"
+            );
+            const screenshotFile = new File(
+              [screenshotBuffer],
+              "screenshot.png",
+              {
+                type: "image/png",
+              }
+            );
 
-            // const uploadResult = await uploadScreenshotImage({
-            //   data: screenshotFile,
-            // });
+            const uploadResult = await uploadScreenshotImage({
+              data: screenshotFile,
+            });
 
-            // if (!uploadResult.success) {
-            //   throw new Error("Failed to upload screenshot");
-            // }
+            if (!uploadResult.success) {
+              throw new Error("Failed to upload screenshot");
+            }
 
-            // sendMessage({
-            //   type: "status",
-            //   message: "Starting AI analysis...",
-            //   step: 5,
-            //   totalSteps: 6,
-            // });
+            sendMessage({
+              type: "status",
+              message: "Starting AI analysis...",
+              step: 5,
+              totalSteps: 6,
+            });
 
-            // let analysis = null;
-            // let aiResponseBuffer = "";
+            let analysis = null;
+            let aiResponseBuffer = "";
 
-            // for await (const chunk of analyzeWithAIStreaming(
-            //   accessibilityData
-            // )) {
-            //   aiResponseBuffer += chunk;
-            //   sendMessage({
-            //     type: "ai_chunk",
-            //     content: chunk,
-            //   });
-            // }
+            for await (const chunk of analyzeWithAIStreaming(
+              accessibilityData
+            )) {
+              aiResponseBuffer += chunk;
+              sendMessage({
+                type: "ai_chunk",
+                content: chunk,
+              });
+            }
 
-            // try {
-            //   analysis = JSON.parse(aiResponseBuffer);
-            // } catch {
-            //   analysis = {
-            //     overallScore: 50,
-            //     issues: [],
-            //     summary: "Failed to parse AI response",
-            //   };
-            // }
+            try {
+              analysis = JSON.parse(aiResponseBuffer);
+            } catch {
+              analysis = {
+                overallScore: 50,
+                issues: [],
+                summary: "Failed to parse AI response",
+              };
+            }
 
-            // sendMessage({
-            //   type: "status",
-            //   message: "Saving results...",
-            //   step: 6,
-            //   totalSteps: 6,
-            // });
+            sendMessage({
+              type: "status",
+              message: "Saving results...",
+              step: 6,
+              totalSteps: 6,
+            });
 
-            // const limitsInfo = createLimitsInfo(accessibilityData);
+            const limitsInfo = createLimitsInfo(accessibilityData);
 
-            // const data = {
-            //   url: url,
-            //   accessibilityData: accessibilityData,
-            //   problematicElements: problematicElements,
-            //   analysis: analysis,
-            //   screenshotUrl: `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
-            //     uploadResult.data!.$id
-            //   }/view?project=${PROJECT_ID}`,
-            //   limitsInfo: limitsInfo,
-            //   count: (userData?.count || 0) + 1,
-            // };
+            const data = {
+              url: url,
+              accessibilityData: accessibilityData,
+              problematicElements: problematicElements,
+              analysis: analysis,
+              screenshotUrl: `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
+                uploadResult.data!.$id
+              }/view?project=${PROJECT_ID}`,
+              limitsInfo: limitsInfo,
+              count: (userData?.count || 0) + 1,
+            };
 
-            // const analysisResult = await createAnalysis({
-            //   data: {
-            //     data: JSON.stringify(data),
-            //     url: url,
-            //     teamId: teamId,
-            //   },
-            // });
+            const analysisResult = await createAnalysis({
+              data: {
+                data: JSON.stringify(data),
+                url: url,
+                teamId: teamId,
+              },
+            });
 
-            // if (!analysisResult.success) {
-            //   throw new Error("Failed to create analysis");
-            // }
+            if (!analysisResult.success) {
+              throw new Error("Failed to create analysis");
+            }
 
-            // sendMessage({
-            //   type: "complete",
-            //   data: data,
-            //   analysisId: analysisResult.data?.$id,
-            //   cached: false,
-            // });
+            sendMessage({
+              type: "complete",
+              data: data,
+              analysisId: analysisResult.data?.$id,
+              cached: false,
+            });
 
             controller.close();
           } catch (browserError) {
