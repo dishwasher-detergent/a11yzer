@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sendMessage = (data: any) => {
           const message = `data: ${JSON.stringify(data)}\n\n`;
           controller.enqueue(encoder.encode(message));
