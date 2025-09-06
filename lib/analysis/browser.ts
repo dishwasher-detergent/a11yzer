@@ -26,9 +26,12 @@ export async function getBrowser() {
 
   if (process.env.APPWRITE_SITES && !installed) {
     try {
-      execSync("apk update && apk add --no-cache nss nspr", {
-        stdio: "inherit",
-      });
+      console.log("Installing Chromium dependencies...");
+
+      execSync(
+        "apk update && apk add --no-cache nss freetype harfbuzz ca-certificates ttf-freefont",
+        { stdio: "inherit" }
+      );
       installed = true;
     } catch (err) {
       const error = err as Error;
@@ -36,6 +39,10 @@ export async function getBrowser() {
       console.error(error);
       throw new Error(`Chromium installation failed: ${error.message}`);
     }
+  }
+
+  if (installed) {
+    console.log("Chromium dependencies already installed.");
   }
 
   const executablePath = await chromium.executablePath();
