@@ -12,6 +12,7 @@ import {
   Role,
 } from "node-appwrite";
 
+import { TEAM_NAME_MAX_LENGTH } from "@/constants/team.constants";
 import { AuthResponse, Response, Result } from "@/interfaces/result.interface";
 import { AnalysisUserStats, User, UserData } from "@/interfaces/user.interface";
 import {
@@ -21,6 +22,7 @@ import {
   USER_COLLECTION_ID,
 } from "@/lib/constants";
 import { createAdminClient, createSessionClient } from "@/lib/server/appwrite";
+import { createTeam } from "../team";
 import {
   ResetPasswordFormData,
   SignInFormData,
@@ -319,6 +321,12 @@ export async function signUpWithEmail(
     });
 
     await createUserData(session.userId);
+    await createTeam({
+      data: {
+        name: `${name.slice(0, TEAM_NAME_MAX_LENGTH - 7)}'s Team`,
+        about: "This team was automatically created for you.",
+      },
+    });
   } catch (err) {
     const error = err as Error;
 

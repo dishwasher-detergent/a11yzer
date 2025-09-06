@@ -29,7 +29,7 @@ export async function getBrowser() {
       console.log("Installing Chromium dependencies...");
 
       execSync(
-        "apk update && apk add --no-cache nss freetype harfbuzz ca-certificates ttf-freefont",
+        "apk update && apk add --no-cache nss freetype harfbuzz ttf-freefont",
         { stdio: "inherit" }
       );
       installed = true;

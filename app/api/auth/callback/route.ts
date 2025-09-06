@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { TEAM_NAME_MAX_LENGTH } from "@/constants/team.constants";
 import { UserData } from "@/interfaces/user.interface";
 import { COOKIE_KEY, DATABASE_ID, USER_COLLECTION_ID } from "@/lib/constants";
 import { createAdminClient } from "@/lib/server/appwrite";
+import { createTeam } from "@/lib/team";
 import { Permission, Role } from "node-appwrite";
 
 export async function GET(request: NextRequest) {
@@ -14,7 +16,7 @@ export async function GET(request: NextRequest) {
   }
 
   const { account, table: database, users } = await createAdminClient();
-  const session = await account.createSession(userId, secret);
+  const session = await account.createSession({ userId, secret });
   const sessionUserId = session.userId;
 
   // Set the cookie in the response headers
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
     secure: true,
   });
 
-  const user = await users.get(sessionUserId);
+  const user = await users.get({ userId: sessionUserId });
 
   try {
     await database.getRow<UserData>({
@@ -50,6 +52,13 @@ export async function GET(request: NextRequest) {
       ],
     });
   }
+
+  await createTeam({
+    data: {
+      name: `${user.name?.slice(0, TEAM_NAME_MAX_LENGTH - 7)}'s Team`,
+      about: "This team was automatically created for you.",
+    },
+  });
 
   return response;
 }
