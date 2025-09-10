@@ -13,10 +13,10 @@ interface AnalysisViewProps {
 
 export function AnalysisView({ data }: AnalysisViewProps) {
   return (
-    <main className="overflow-hidden flex flex-col flex-nowrap">
+    <main className="flex flex-col flex-nowrap">
       {data && (
         <>
-          <div className="flex-1 overflow-y-auto px-6 md:px-12 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 md:px-4 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2">
             <AnalysisOverview summary={data.data.analysis.summary} />
             <TechnicalDetails accessibilityData={data.data.accessibilityData} />
             <AnalysisProblematicElements
@@ -28,10 +28,7 @@ export function AnalysisView({ data }: AnalysisViewProps) {
               overallScore={data.data.analysis.overallScore}
             />
           </div>
-          <section
-            className="px-4 pb-4 md:px-8 md:pb-8 w-full bg-background"
-            aria-labelledby="url-analysis-heading"
-          >
+          <section className="p-2 md:p-4 w-full bg-background relative before:absolute before:top-0 before:h-px before:w-[200vw] before:bg-border before:-left-[100vw]">
             <div className="p-0.5 border bg-secondary rounded-md space-y-1">
               <div className="px-2 py-1">
                 <div aria-live="polite" aria-atomic="true">

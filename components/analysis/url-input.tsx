@@ -104,7 +104,7 @@ export const UrlInput = memo<UrlInputProps>(function UrlInput({
 
   return (
     <section
-      className="px-4 pb-4 md:px-8 md:pb-8 w-full bg-background z-10"
+      className="p-2 md:p-4 w-full bg-background z-10"
       aria-labelledby="url-analysis-heading"
     >
       <h2 id="url-analysis-heading" className="sr-only">

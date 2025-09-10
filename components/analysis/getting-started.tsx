@@ -1,49 +1,53 @@
-import { Hue } from "@/components/hue";
-
-export default function GettingStart() {
+export default function GettingStarted() {
   return (
-    <div className="lg:col-span-2 flex flex-col items-center md:justify-center space-y-6">
-      <div className="space-y-4 max-w-2xl relative">
-        <div className="rounded-md border relative z-10 bg-background">
-          <header className="p-4 border-b">
-            <h2 className="font-semibold text-lg pb-2">
-              Accessibility Analysis
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              Get comprehensive accessibility insights for any website
-            </p>
-          </header>
-          <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-y-0 divide-y">
-            <div className="p-4">
-              <h3 className="font-semibold mb-2">WCAG Compliance</h3>
-              <p className="text-sm text-muted-foreground">
-                Check compliance with Web Content Accessibility Guidelines
-              </p>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold mb-2">Instant Results</h3>
-              <p className="text-sm text-muted-foreground">
-                Get detailed analysis results in seconds
-              </p>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold mb-2">Actionable Insights</h3>
-              <p className="text-sm text-muted-foreground">
-                Get specific recommendations to improve accessibility
-              </p>
-            </div>
-          </div>
-          <div className="p-4 bg-muted border-t">
-            <p className="text-sm text-muted-foreground">
-              <strong>How it works:</strong> Enter any website URL below and
-              we&apos;ll analyze it for accessibility issues, provide a
-              compliance score, and give you detailed recommendations for
-              improvements.
+    <div className="flex flex-col justify-center h-full">
+      <div className="w-full flex-none relative before:absolute before:top-0 before:h-px before:w-[200vw] before:bg-border before:-left-[100vw] after:absolute after:bottom-0 after:h-px after:w-[200vw] after:bg-border after:-left-[100vw]">
+        <div className="p-2 bg-muted/30">
+          <div className="rounded-lg p-4 bg-background border">
+            <h2 className="font-bold text-lg">Accessibility Analysis</h2>
+            <p className="text-muted-foreground">
+              Get comprehensive accessibility insights for any website.
             </p>
           </div>
         </div>
-        <div className="hidden md:grid absolute top-1/2 translate-y-1/2 w-full place-items-center z-0">
-          <Hue />
+      </div>
+      <div className="w-full flex-none">
+        <div className="bg-muted/30 divide-y md:divide-x md:divide-y-0 grid grid-cols-1 md:grid-cols-3">
+          <div className="p-2">
+            <div className="rounded-lg p-4 bg-background border">
+              <h2 className="font-bold mb-2">WCAG Compliance</h2>
+              <p className="text-muted-foreground text-sm">
+                Check compliance with Web Content Accessibility Guidelines.
+              </p>
+            </div>
+          </div>
+          <div className="p-2">
+            <div className="rounded-lg p-4 bg-background border">
+              <h2 className="font-bold mb-2">Instant Result</h2>
+              <p className="text-muted-foreground text-sm">
+                Receive accessibility insights immediately after analysis.
+              </p>
+            </div>
+          </div>
+          <div className="p-2">
+            <div className="rounded-lg p-4 bg-background border">
+              <h2 className="font-bold mb-2">Actionable Insights</h2>
+              <p className="text-muted-foreground text-sm">
+                Receive clear recommendations to improve website accessibility.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="w-full flex-none relative before:absolute before:top-0 before:h-px before:w-[200vw] before:bg-border before:-left-[100vw] after:absolute after:bottom-0 after:h-px after:w-[200vw] after:bg-border after:-left-[100vw]">
+        <div className="p-2 bg-muted/30">
+          <div className="rounded-lg p-4 bg-background border">
+            <p className="text-muted-foreground text-sm">
+              <span className="font-bold">How it works</span>: Enter a website
+              URL, and our tool scans the site for accessibility issues,
+              providing a detailed report with findings and recommendations.
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -8,11 +8,7 @@ interface AnalysisOverviewProps {
 
 export function AnalysisOverview({ summary }: AnalysisOverviewProps) {
   return (
-    <section
-      className="p-4 col-start-1 lg:col-start-auto"
-      aria-labelledby="overview-heading"
-      role="region"
-    >
+    <section className="p-4 col-start-1 lg:col-start-auto">
       <header className="pb-2">
         <h2 id="overview-heading" className="font-semibold text-lg">
           Overview

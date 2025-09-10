@@ -17,5 +17,11 @@ export default async function TeamPage({
     redirect("/app");
   }
 
-  return <AnalysisCreate count={user.count!} teamId={teamId} />;
+  return (
+    <div className="w-full h-full col-span-2 max-w-5xl mx-auto border-x justify-center flex flex-row flex-nowrap">
+      <div className="h-full border-r flex-none bg-[repeating-linear-gradient(-45deg,var(--color-border),var(--color-border)_1px,transparent_1px,transparent_6px)] w-8" />
+      <AnalysisCreate count={user.count!} teamId={teamId} />
+      <div className="h-full border-l flex-none bg-[repeating-linear-gradient(-45deg,var(--color-border),var(--color-border)_1px,transparent_1px,transparent_6px)] w-8" />
+    </div>
+  );
 }
