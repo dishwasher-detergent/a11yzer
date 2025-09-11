@@ -16,136 +16,7 @@ const openai = new OpenAI({
 });
 
 export interface AIAnalysisResult {
-  overallScore: number;
-  issues: Array<{
-    type: "accessibility" | "ux" | "ui";
-    priority: "high" | "medium" | "low";
-    title: string;
-    description: string;
-    recommendation: string;
-    wcagCriterion?: string;
-  }>;
-  summary: string;
-}
-
-export async function analyzeWithAI(
-  accessibilityData: AccessibilityData
-): Promise<AIAnalysisResult> {
-  const createDataSummary = <T>(
-    data: LimitedData<T>,
-    label: string
-  ): string => {
-    if (data.limited) {
-      return `${label} (showing first ${data.items.length} of ${data.totalCount} total - data limited to prevent prompt overflow)`;
-    }
-    return label;
-  };
-
-  const prompt = `
-Analyze the provided webpage data and return structured findings. Focus only on the most critical and impactful issues (avoid minor or redundant notes).
-
-Title: ${accessibilityData.title}
-
-${createDataSummary<Heading>(
-  accessibilityData.headings,
-  "Headings"
-)}: ${JSON.stringify(accessibilityData.headings.items, null, 2)}
-
-${createDataSummary<Image>(
-  accessibilityData.images,
-  "Images"
-)}: ${JSON.stringify(accessibilityData.images.items, null, 2)}
-
-${createDataSummary<Link>(accessibilityData.links, "Links")}: ${JSON.stringify(
-    accessibilityData.links.items,
-    null,
-    2
-  )}
-
-${createDataSummary<Form>(accessibilityData.forms, "Forms")}: ${JSON.stringify(
-    accessibilityData.forms.items,
-    null,
-    2
-  )}
-
-${createDataSummary<AriaElement>(
-  accessibilityData.ariaLabels,
-  "ARIA Labels"
-)}: ${JSON.stringify(accessibilityData.ariaLabels.items, null, 2)}
-
-Semantic Structure: ${JSON.stringify(
-    accessibilityData.semanticStructure,
-    null,
-    2
-  )}
-
-Keyboard Navigation: ${JSON.stringify(
-    accessibilityData.keyboardNavigation,
-    null,
-    2
-  )}
-
-
-### Required Analysis
-1. Accessibility Issues (WCAG violations)
-   - Identify and describe clear violations or risks of non-compliance.
-2. UI/UX Improvement Suggestions
-   - Highlight usability, consistency, and design-related improvements.
-3. Priority Level
-   - Assign one of: critical, high, medium, or low.
-4. Recommendations
-   - Provide clear, actionable fixes.
-5. Overall Score
-   - Assign numerical values to priority levels:
-     - Low = 1
-     - Medium = 2
-     - High = 3
-     - Critical = 4
-   - Use these values to calculate an overall score out of 100 (higher = better).
-
-### Response Format (JSON only):
-{
-  "overallScore": 0,
-  "issues": [
-    {
-      "type": "accessibility" | "ui" | "ux",
-      "priority": "critical" | "high" | "medium" | "low",
-      "title": "Issue title",
-      "description": "Detailed explanation of the issue",
-      "recommendation": "Actionable steps to fix",
-      "wcagCriterion": "Reference if applicable, otherwise null"
-    }
-  ],
-  "summary": "Overall assessment summary highlighting key risks and improvements"
-}
-`;
-
-  const completion = await openai.chat.completions.create({
-    model: "gpt-5-mini",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are an expert accessibility auditor and UX consultant. Analyze webpages for WCAG compliance and provide actionable improvement suggestions.",
-      },
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
-  });
-
-  const aiResponse = completion.choices[0]?.message?.content;
-
-  try {
-    return JSON.parse(aiResponse || "{}");
-  } catch {
-    return {
-      overallScore: 50,
-      issues: [],
-      summary: "Failed to parse AI response",
-    };
-  }
+  markdown: string;
 }
 
 export async function* analyzeWithAIStreaming(
@@ -220,21 +91,31 @@ Keyboard Navigation:
 - Negative Tab Index: ${accessibilityData.keyboardNavigation.negativeTabIndex}
 
 ---
-# Output format (JSON only)
-Return one JSON object with exactly these top-level fields:
-- overallScore (number, 0-100)
-- issues (array of objects)
-- summary (string, one paragraph, ≤ 300 chars)
+# Output format (Markdown only)
+Return a well-structured markdown document with the following sections:
 
-Each issue must include:
-- type: "accessibility" | "ui" | "ux"
-- priority: "critical" | "high" | "medium" | "low"
-- title
-- description
-- recommendation
-- wcagCriterion: { id: string, name: string, link: string }
+## Overall Score: [0-100]
 
-Output only the JSON — no commentary, no markdown.
+## Summary
+[One paragraph summary, ≤ 300 characters]
+
+## Issues Found
+
+For each issue, use this format:
+### [Issue Title]
+**Type:** accessibility | ui | ux  
+**Priority:** critical | high | medium | low  
+**WCAG Criterion:** [ID: Name - Link] (if applicable)
+
+**Description:**
+[Detailed explanation of the issue]
+
+**Recommendation:**
+[Actionable steps to fix]
+
+---
+
+Output only the markdown — no JSON, no code blocks.
 
 ---
 # Scoring rubric
@@ -257,7 +138,7 @@ UX: navigation clarity, form UX, task clarity, reducing cognitive load.`;
       {
         role: "system",
         content:
-          "You are an experienced accessibility specialist and product designer. Evaluate the provided page data for WCAG 2.1 AA compliance and high-leverage UI/UX improvements.",
+          "You are an experienced accessibility specialist and product designer. Evaluate the provided page data for WCAG 2.1 AA compliance and high-leverage UI/UX improvements. Return your analysis in markdown format.",
       },
       {
         role: "user",
@@ -277,13 +158,9 @@ UX: navigation clarity, form UX, task clarity, reducing cognitive load.`;
     }
   }
 
-  try {
-    return JSON.parse(fullResponse);
-  } catch {
-    return {
-      overallScore: 50,
-      issues: [],
-      summary: "Failed to parse AI response",
-    };
-  }
+  return {
+    markdown:
+      fullResponse ||
+      "# Analysis Failed\n\nFailed to generate analysis report.",
+  };
 }

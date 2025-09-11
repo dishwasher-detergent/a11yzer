@@ -3,7 +3,7 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { ID, Models, Permission, Query, Role } from "node-appwrite";
 
-import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { AnalysisDb } from "@/interfaces/analysis.interface";
 import { Result } from "@/interfaces/result.interface";
 import { TeamData } from "@/interfaces/team.interface";
 import { AnalysisUserStats, UserData } from "@/interfaces/user.interface";
@@ -25,7 +25,7 @@ import { createAdminClient, createSessionClient } from "@/lib/server/appwrite";
  */
 export async function listAnalysis(
   queries: string[] = []
-): Promise<Result<Models.RowList<AnalysisDb<AnalysisResult>>>> {
+): Promise<Result<Models.RowList<AnalysisDb>>> {
   return withAuth(async (user) => {
     const { table: database } = await createSessionClient();
 
@@ -33,7 +33,7 @@ export async function listAnalysis(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       async (queries, userId) => {
         try {
-          const analysis = await database.listRows<AnalysisDb<string>>({
+          const analysis = await database.listRows<AnalysisDb>({
             databaseId: DATABASE_ID,
             tableId: ANALYSIS_COLLECTION_ID,
             queries,
@@ -94,14 +94,12 @@ export async function listAnalysis(
             {}
           );
 
-          const newAnalysis: AnalysisDb<AnalysisResult>[] = analysis.rows.map(
-            (analysis) => ({
-              ...analysis,
-              data: JSON.parse(analysis.data) as AnalysisResult,
-              user: userMap[analysis.userId],
-              team: teamMap[analysis.teamId],
-            })
-          );
+          const newAnalysis: AnalysisDb[] = analysis.rows.map((analysis) => ({
+            ...analysis,
+            data: analysis.data,
+            user: userMap[analysis.userId],
+            team: teamMap[analysis.teamId],
+          }));
 
           const newRows = {
             ...analysis,
@@ -158,14 +156,14 @@ export async function listAnalysis(
 export async function getAnalysisById(
   analysisId: string,
   queries: string[] = []
-): Promise<Result<AnalysisDb<AnalysisResult>>> {
+): Promise<Result<AnalysisDb>> {
   return withAuth(async () => {
     const { table: database } = await createSessionClient();
 
     return unstable_cache(
       async () => {
         try {
-          const analysis = await database.getRow<AnalysisDb<string>>({
+          const analysis = await database.getRow<AnalysisDb>({
             databaseId: DATABASE_ID,
             tableId: ANALYSIS_COLLECTION_ID,
             rowId: analysisId,
@@ -191,7 +189,7 @@ export async function getAnalysisById(
             message: "Analysis successfully retrieved.",
             data: {
               ...analysis,
-              data: JSON.parse(analysis.data) as AnalysisResult,
+              data: analysis.data,
               user: userRes,
               team: teamRes,
             },
@@ -235,9 +233,10 @@ export async function createAnalysis({
     teamId: string;
     data: string;
     url: string;
+    screenshot: string;
   };
   permissions?: string[];
-}): Promise<Result<AnalysisDb<string>>> {
+}): Promise<Result<AnalysisDb>> {
   return withAuth(async (user) => {
     const { table: database } = await createSessionClient();
     const { table: adminDatabase } = await createAdminClient();
@@ -276,7 +275,7 @@ export async function createAnalysis({
         };
       }
 
-      const analysis = await database.createRow<AnalysisDb<string>>({
+      const analysis = await database.createRow<AnalysisDb>({
         databaseId: DATABASE_ID,
         tableId: ANALYSIS_COLLECTION_ID,
         rowId: id,

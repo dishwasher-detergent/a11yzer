@@ -11,10 +11,10 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
-import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { AnalysisDb } from "@/interfaces/analysis.interface";
 
 interface NavAnalysisProps {
-  data: AnalysisDb<AnalysisResult>[];
+  data: AnalysisDb[];
   loading: boolean;
 }
 
@@ -61,14 +61,14 @@ function Content({ data, loading }: NavAnalysisProps) {
           <SidebarMenuButton
             size="lg"
             asChild
-            tooltip={item.data.analysis.summary.slice(0, 25)}
+            tooltip={item.data.slice(0, 25)}
             className="truncate"
           >
             <Link href={`/app/teams/${item.teamId}/analysis/${item.$id}`}>
               <Badge variant="secondary">{index + 1}</Badge>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {item.data.analysis.summary.slice(0, 25)}...
+                  {item.data.slice(0, 25)}...
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
                   {item.url}

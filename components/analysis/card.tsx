@@ -3,19 +3,19 @@
 import Link from "next/link";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
-import { Badge } from "../ui/badge";
+import { AnalysisDb } from "@/interfaces/analysis.interface";
 
-export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
+export function AnalysisCard(analysis: AnalysisDb) {
   return (
     <Card className="rounded-md overflow-hidden py-0 gap-0 ">
       <CardContent className="p-0 relative">
         <AspectRatio ratio={1} className="w-full">
           <img
-            src={analysis.data.screenshotUrl}
-            alt={analysis.data.analysis.summary.slice(0, 25)}
+            src={analysis.screenshot}
+            alt={analysis.data.slice(0, 25)}
             className="object-cover object-left-top bg-primary"
           />
         </AspectRatio>
@@ -38,13 +38,11 @@ export function AnalysisCard(analysis: AnalysisDb<AnalysisResult>) {
               <Link
                 href={`/app/teams/${analysis.teamId}/analysis/${analysis.$id}`}
               >
-                {analysis.data.analysis.summary.slice(0, 25)}...
+                {analysis.data.slice(0, 25)}...
               </Link>
             </Button>
           </CardTitle>
-          <p className="flex flex-row  text-xs items-center">
-            {analysis.data.url}
-          </p>
+          <p className="flex flex-row  text-xs items-center">{analysis.url}</p>
           <p className="z-10 flex flex-row gap-2 text-xs items-center w-full text-muted-foreground">
             <span className="max-w-1/2 truncate">{analysis.team?.name}</span>/
             <span className="max-w-1/2 truncate">{analysis.user?.name}</span>

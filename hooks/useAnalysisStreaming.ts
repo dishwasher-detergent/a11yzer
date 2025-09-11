@@ -1,24 +1,16 @@
 import { useCallback, useRef, useState } from "react";
 
 import { useLimitNotifications } from "@/hooks/useLimitNotifications";
-import { AnalysisResult } from "@/interfaces/analysis.interface";
-
-export interface StreamingStatus {
-  step: number;
-  totalSteps: number;
-  message: string;
-}
 
 export function useAnalysisStreaming(teamId: string) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState("");
-  const [status, setStatus] = useState<StreamingStatus | null>(null);
   const [aiResponse, setAiResponse] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
-  const [cached, setCached] = useState(false);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
+  const [count, setCount] = useState<number | null>(null);
+
   const abortControllerRef = useRef<AbortController | null>(null);
   const { showLimitNotifications } = useLimitNotifications();
 
@@ -29,11 +21,9 @@ export function useAnalysisStreaming(teamId: string) {
 
     setLoading(true);
     setError("");
-    setAnalysis(null);
-    setStatus(null);
     setAiResponse("");
-    setIsStreaming(false);
     setIsCancelling(false);
+    setAnalysisId(null);
 
     try {
       const response = await fetch("/api/analyze", {
@@ -78,37 +68,20 @@ export function useAnalysisStreaming(teamId: string) {
               const data = JSON.parse(line.slice(6));
 
               switch (data.type) {
-                case "status":
-                  setStatus({
-                    step: data.step,
-                    totalSteps: data.totalSteps,
-                    message: data.message,
-                  });
-                  break;
-
                 case "ai_chunk":
-                  if (!isStreaming) {
-                    setIsStreaming(true);
-                    setAiResponse("");
-                  }
                   setAiResponse((prev) => prev + data.content);
                   break;
 
-                case "complete":
-                  setAnalysis(data.data);
-                  setStatus(null);
-                  setIsStreaming(false);
-                  setCached(data.cached || false);
+                case "count":
+                  setCount(data.data);
+                  break;
 
-                  if (data.data.limits) {
-                    showLimitNotifications(data.data.limits);
-                  }
+                case "analysis_id":
+                  setAnalysisId(data.data);
                   break;
 
                 case "error":
                   setError(data.message || "Failed to analyze website");
-                  setStatus(null);
-                  setIsStreaming(false);
                   break;
               }
             } catch (parseError) {
@@ -127,59 +100,47 @@ export function useAnalysisStreaming(teamId: string) {
           "Failed to analyze website. Please check the URL and try again."
         );
       }
-      setStatus(null);
-      setIsStreaming(false);
     } finally {
       setLoading(false);
       setIsCancelling(false);
       abortControllerRef.current = null;
     }
-  }, [url, teamId, showLimitNotifications, isStreaming, loading, isCancelling]);
+  }, [url, teamId, showLimitNotifications]);
 
   const cancelAnalysis = useCallback(() => {
     if (abortControllerRef.current && !isCancelling) {
       setIsCancelling(true);
       abortControllerRef.current.abort();
 
-      // Immediately reset states
       setTimeout(() => {
         setLoading(false);
-        setStatus(null);
-        setIsStreaming(false);
         setError("Analysis was cancelled");
         setIsCancelling(false);
+        setAnalysisId(null);
         abortControllerRef.current = null;
       }, 0);
     }
   }, [isCancelling]);
 
-  const clearAnalysis = () => {
-    setAnalysis(null);
+  const clearAnalysis = useCallback(() => {
     setError("");
-    setStatus(null);
     setAiResponse("");
-    setIsStreaming(false);
     setIsCancelling(false);
-  };
-
-  const clearError = () => {
-    setError("");
-  };
+    setAnalysisId(null);
+  }, []);
 
   return {
     url,
     setUrl,
     loading,
-    analysis,
     error,
-    status,
     aiResponse,
-    isStreaming,
     isCancelling,
     analyzeWebsite,
     cancelAnalysis,
     clearAnalysis,
-    clearError,
-    cached,
+    cached: false, // Placeholder for cached state
+    analysisId,
+    count,
   };
 }

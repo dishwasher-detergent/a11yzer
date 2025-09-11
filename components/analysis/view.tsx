@@ -1,14 +1,11 @@
 "use client";
 
-import { AnalysisIssues } from "@/components/analysis/issues";
-import { AnalysisProblematicElements } from "@/components/analysis/problematic-elements";
-import { TechnicalDetails } from "@/components/analysis/technical-details";
-import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { AnalysisDb } from "@/interfaces/analysis.interface";
+import ReactMarkdown from "react-markdown";
 import { Input } from "../ui/input";
-import { AnalysisOverview } from "./overview";
 
 interface AnalysisViewProps {
-  data?: AnalysisDb<AnalysisResult>;
+  data?: AnalysisDb;
 }
 
 export function AnalysisView({ data }: AnalysisViewProps) {
@@ -16,17 +13,15 @@ export function AnalysisView({ data }: AnalysisViewProps) {
     <main className="flex flex-col flex-nowrap">
       {data && (
         <>
-          <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 md:px-4 py-6 gap-4 grid grid-cols-1 lg:grid-cols-2">
-            <AnalysisOverview summary={data.data.analysis.summary} />
-            <TechnicalDetails accessibilityData={data.data.accessibilityData} />
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            {/* <TechnicalDetails accessibilityData={accessibilityData} />
             <AnalysisProblematicElements
-              screenshotUrl={data.data.screenshotUrl}
-              problematicElements={data.data.problematicElements}
-            />
-            <AnalysisIssues
-              issues={data.data.analysis.issues}
-              overallScore={data.data.analysis.overallScore}
-            />
+              screenshotUrl={screenshotUrl}
+              problematicElements={problematicElements}
+            /> */}
+            <div className="prose prose-neutral dark:prose-invert max-w-none p-4">
+              <ReactMarkdown>{data.data}</ReactMarkdown>
+            </div>
           </div>
           <section className="p-2 md:p-4 w-full bg-background relative before:absolute before:top-0 before:h-px before:w-[200vw] before:bg-border before:-left-[100vw]">
             <div className="p-0.5 border bg-secondary rounded-md space-y-1">
@@ -50,7 +45,7 @@ export function AnalysisView({ data }: AnalysisViewProps) {
                     type="url"
                     disabled={true}
                     className="border-none rounded-none px-4 h-full"
-                    value={data.data.url}
+                    value={data.url}
                   />
                 </div>
               </div>

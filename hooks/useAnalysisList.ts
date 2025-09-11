@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useSession } from "@/hooks/userSession";
-import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { AnalysisDb } from "@/interfaces/analysis.interface";
 import { getUserById } from "@/lib/auth";
 import { ANALYSIS_COLLECTION_ID, DATABASE_ID } from "@/lib/constants";
 import { listAnalysis } from "@/lib/db";
@@ -13,7 +13,7 @@ import { getTeamById } from "@/lib/team";
 import { Models } from "node-appwrite";
 
 interface Props {
-  initialAnalysis?: Models.RowList<AnalysisDb<AnalysisResult>>;
+  initialAnalysis?: Models.RowList<AnalysisDb>;
   teamId?: string;
   userId?: string;
   searchTerm?: string;
@@ -29,9 +29,9 @@ export const useAnalysisList = ({
   limit = 5,
   cursor,
 }: Props) => {
-  const [analysisList, setAnalysisList] = useState<
-    AnalysisDb<AnalysisResult>[]
-  >(initialAnalysis?.rows ?? []);
+  const [analysisList, setAnalysisList] = useState<AnalysisDb[]>(
+    initialAnalysis?.rows ?? []
+  );
   const [fetchLoading, setFetchLoading] = useState<boolean>(
     initialAnalysis ? false : true
   );
@@ -137,7 +137,7 @@ export const useAnalysisList = ({
     let unsubscribe: (() => void) | undefined;
 
     if (client) {
-      unsubscribe = client.subscribe<AnalysisDb<string>>(
+      unsubscribe = client.subscribe<AnalysisDb>(
         `databases.${DATABASE_ID}.collections.${ANALYSIS_COLLECTION_ID}.rows`,
         async (response) => {
           if (teamId && response.payload.teamId !== teamId) return;
@@ -157,7 +157,7 @@ export const useAnalysisList = ({
               setAnalysisList((prev) => [
                 {
                   ...response.payload,
-                  data: JSON.parse(response.payload.data) as AnalysisResult,
+                  data: response.payload.data,
                   user: data,
                   team: teamData,
                 },
@@ -184,9 +184,7 @@ export const useAnalysisList = ({
                         user: data,
                         ...response.payload,
                         team: teamData,
-                        data: JSON.parse(
-                          response.payload.data
-                        ) as AnalysisResult,
+                        data: response.payload.data,
                       }
                     : x
                 )

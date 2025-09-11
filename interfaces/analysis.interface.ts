@@ -140,19 +140,17 @@ export interface AccessibilityData {
 export interface AnalysisResult {
   url: string;
   screenshotUrl: string;
-  originalScreenshot?: string;
-  analysis: Analysis;
-  accessibilityData: AccessibilityData;
-  problematicElements?: LimitedData<ProblematicElement>;
+  analysis: string;
   limits?: AnalysisLimits;
   count: number;
 }
 
-export interface AnalysisDb<T> extends Models.Row {
+export interface AnalysisDb extends Models.Row {
   userId: string;
   user?: UserData;
   teamId: string;
   team?: TeamData;
-  data: T;
+  data: string;
   url: string;
+  screenshot: string;
 }

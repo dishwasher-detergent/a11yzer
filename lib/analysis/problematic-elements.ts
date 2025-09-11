@@ -13,12 +13,10 @@ export async function extractProblematicElements(
   let count = 0;
 
   try {
-    // Check if page is still connected
     if (page.isClosed()) {
       throw new Error("Page is closed or disconnected");
     }
 
-    // Function to truncate text
     const truncateText = (
       text: string,
       maxLength: number = ANALYSIS_LIMITS.MAX_TEXT_LENGTH
@@ -28,7 +26,6 @@ export async function extractProblematicElements(
         : text;
     };
 
-    // Get bounding box for element
     const getBoundingBox = async (selector: string) => {
       try {
         if (page.isClosed()) {
@@ -182,7 +179,7 @@ export async function extractProblematicElements(
     };
   } catch (error) {
     console.error("Error extracting problematic elements:", error);
-    // Return empty result in case of errors
+
     return {
       items: [],
       totalCount: 0,

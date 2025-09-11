@@ -7,10 +7,10 @@ import { useState } from "react";
 import { AnalysisCard } from "@/components/analysis/card";
 import { Button } from "@/components/ui/button";
 import { useAnalysisList } from "@/hooks/useAnalysisList";
-import { AnalysisDb, AnalysisResult } from "@/interfaces/analysis.interface";
+import { AnalysisDb } from "@/interfaces/analysis.interface";
 
 interface AnalysisHistoryProps {
-  initialData?: Models.RowList<AnalysisDb<AnalysisResult>>;
+  initialData?: Models.RowList<AnalysisDb>;
   teamId?: string;
   userId?: string;
 }

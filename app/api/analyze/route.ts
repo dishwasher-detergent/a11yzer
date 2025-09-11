@@ -1,12 +1,10 @@
 import * as cheerio from "cheerio";
 import { NextRequest } from "next/server";
-import { Query } from "node-appwrite";
 import { Browser } from "puppeteer";
 
 import { analyzeWithAIStreaming } from "@/lib/analysis/ai-analyzer";
 import { getBrowser } from "@/lib/analysis/browser";
 import { extractAccessibilityData } from "@/lib/analysis/extractors";
-import { createLimitsInfo } from "@/lib/analysis/limits-info";
 import { extractProblematicElements } from "@/lib/analysis/problematic-elements";
 import {
   createErrorResponse,
@@ -20,7 +18,7 @@ import {
   PROJECT_ID,
   SCREENSHOT_BUCKET_ID,
 } from "@/lib/constants";
-import { createAnalysis, listAnalysis } from "@/lib/db";
+import { createAnalysis } from "@/lib/db";
 import { uploadScreenshotImage } from "@/lib/storage";
 
 export async function POST(request: NextRequest) {
@@ -56,47 +54,33 @@ export async function POST(request: NextRequest) {
         };
 
         try {
-          sendMessage({
-            type: "status",
-            message: "Starting analysis...",
-            step: 1,
-            totalSteps: 6,
-          });
-
           const oneHourAgo = new Date();
           oneHourAgo.setHours(oneHourAgo.getHours() - 1);
           const now = new Date();
 
-          const existingAnalysis = await listAnalysis([
-            Query.limit(1),
-            Query.orderDesc("$createdAt"),
-            Query.equal("url", url),
-            Query.equal("teamId", teamId),
-            Query.between(
-              "$createdAt",
-              oneHourAgo.toISOString(),
-              now.toISOString()
-            ),
-          ]);
+          // const existingAnalysis = await listAnalysis([
+          //   Query.limit(1),
+          //   Query.orderDesc("$createdAt"),
+          //   Query.equal("url", url),
+          //   Query.equal("teamId", teamId),
+          //   Query.between(
+          //     "$createdAt",
+          //     oneHourAgo.toISOString(),
+          //     now.toISOString()
+          //   ),
+          // ]);
 
-          if (existingAnalysis.data && existingAnalysis.data?.rows.length > 0) {
-            sendMessage({
-              type: "complete",
-              data: existingAnalysis.data?.rows[0].data,
-              analysisId: existingAnalysis.data?.rows[0]?.$id,
-              cached: true,
-            });
+          // if (existingAnalysis.data && existingAnalysis.data?.rows.length > 0) {
+          //   sendMessage({
+          //     type: "complete",
+          //     data: existingAnalysis.data?.rows[0].data,
+          //     analysisId: existingAnalysis.data?.rows[0]?.$id,
+          //     cached: true,
+          //   });
 
-            controller.close();
-            return;
-          }
-
-          sendMessage({
-            type: "status",
-            message: "Launching browser and navigating to URL...",
-            step: 2,
-            totalSteps: 6,
-          });
+          //   controller.close();
+          //   return;
+          // }
 
           let browser: Browser | null = null;
           let page = null;
@@ -156,13 +140,6 @@ export async function POST(request: NextRequest) {
               );
             }
 
-            sendMessage({
-              type: "status",
-              message: "Extracting accessibility data...",
-              step: 3,
-              totalSteps: 6,
-            });
-
             const html = await page.content();
             const $ = cheerio.load(html);
 
@@ -173,10 +150,10 @@ export async function POST(request: NextRequest) {
             );
 
             sendMessage({
-              type: "status",
-              message: "Taking screenshot and processing...",
-              step: 4,
-              totalSteps: 6,
+              type: "ai_chunk",
+              content: `{% technical-details data="${Buffer.from(
+                JSON.stringify(accessibilityData)
+              ).toString("base64")}" /%}\n`,
             });
 
             const screenshot = await page.screenshot({
@@ -210,14 +187,22 @@ export async function POST(request: NextRequest) {
               throw new Error("Failed to upload screenshot");
             }
 
+            const screenshotUrl = `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
+              uploadResult.data!.$id
+            }/view?project=${PROJECT_ID}`;
+
             sendMessage({
-              type: "status",
-              message: "Starting AI analysis...",
-              step: 5,
-              totalSteps: 6,
+              type: "ai_chunk",
+              content: `{% problematic-elements screenshot="${screenshotUrl}" elements="${Buffer.from(
+                JSON.stringify(problematicElements)
+              ).toString("base64")}" /%}\n`,
             });
 
-            let analysis = null;
+            sendMessage({
+              type: "ai_chunk",
+              content: `{% ai-result %}\n`,
+            });
+
             let aiResponseBuffer = "";
 
             for await (const chunk of analyzeWithAIStreaming(
@@ -230,54 +215,31 @@ export async function POST(request: NextRequest) {
               });
             }
 
-            try {
-              analysis = JSON.parse(aiResponseBuffer);
-            } catch {
-              analysis = {
-                overallScore: 50,
-                issues: [],
-                summary: "Failed to parse AI response",
-              };
-            }
-
             sendMessage({
-              type: "status",
-              message: "Saving results...",
-              step: 6,
-              totalSteps: 6,
+              type: "ai_chunk",
+              content: `{% /ai-result %}\n`,
             });
-
-            const limitsInfo = createLimitsInfo(accessibilityData);
-
-            const data = {
-              url: url,
-              accessibilityData: accessibilityData,
-              problematicElements: problematicElements,
-              analysis: analysis,
-              screenshotUrl: `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
-                uploadResult.data!.$id
-              }/view?project=${PROJECT_ID}`,
-              limitsInfo: limitsInfo,
-              count: (userData?.count || 0) + 1,
-            };
 
             const analysisResult = await createAnalysis({
               data: {
-                data: JSON.stringify(data),
+                data: aiResponseBuffer,
                 url: url,
                 teamId: teamId,
+                screenshot: screenshotUrl,
               },
             });
-
             if (!analysisResult.success) {
               throw new Error("Failed to create analysis");
             }
 
             sendMessage({
-              type: "complete",
-              data: data,
-              analysisId: analysisResult.data?.$id,
-              cached: false,
+              type: "count",
+              data: (userData?.count || 0) + 1,
+            });
+
+            sendMessage({
+              type: "analysis_id",
+              data: analysisResult?.data?.$id,
             });
 
             controller.close();
