@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           //   return;
           // }
 
-          let browser = (await getBrowser()) as Browser;
+          const browser = (await getBrowser()) as Browser;
           let page = null;
           let totalMessage = "";
 
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
             return;
           }
 
-          let uploadResult = await uploadScreenshotImage({
+          const uploadResult = await uploadScreenshotImage({
             data: screenshotFile,
           });
 
