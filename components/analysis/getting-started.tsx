@@ -1,6 +1,6 @@
 export default function GettingStarted() {
   return (
-    <section className="grid h-full place-items-center">
+    <section className="grid h-full place-items-center mx-auto max-w-5xl w-full">
       <div className="grid grid-cols-3 p-4 gap-2">
         <header className="p-4 col-span-3">
           <h1 className="font-bold text-2xl">Accessibility Analysis</h1>

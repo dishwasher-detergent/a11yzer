@@ -35,7 +35,7 @@ export default async function TeamPage({
   }
 
   return (
-    <main className="space-y-6 p-4">
+    <main className="space-y-6 p-4 max-w-5xl mx-auto w-full">
       <TeamDescription team={data} />
       {isMember && (
         <TeamActions data={data} isOwner={isOwner} isAdmin={isAdmin} />

@@ -27,7 +27,7 @@ export default async function TeamPage({
   ]);
 
   return (
-    <main className="p-4 overflow-y-auto">
+    <main className="p-4 overflow-y-auto max-w-5xl mx-auto w-full">
       <AnalysisHistory initialData={analysisData} teamId={teamId} />
     </main>
   );

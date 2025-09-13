@@ -27,7 +27,7 @@ export default async function ProfilePage() {
   ]);
 
   return (
-    <main className="p-4 space-y-6 overflow-y-auto">
+    <main className="p-4 space-y-6 overflow-y-auto max-w-5xl mx-auto w-full">
       <UserDescription user={data} />
       <UserActions user={data} />
       <section>
