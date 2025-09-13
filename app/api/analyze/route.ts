@@ -65,37 +65,42 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const oneHourAgo = new Date();
-          oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-          const now = new Date();
+          if (process.env.NODE_ENV !== "development") {
+            const oneHourAgo = new Date();
+            oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+            const now = new Date();
 
-          const existingAnalysis = await listAnalysis([
-            Query.limit(1),
-            Query.orderDesc("$createdAt"),
-            Query.equal("url", url),
-            Query.equal("teamId", teamId),
-            Query.between(
-              "$createdAt",
-              oneHourAgo.toISOString(),
-              now.toISOString()
-            ),
-          ]);
+            const existingAnalysis = await listAnalysis([
+              Query.limit(1),
+              Query.orderDesc("$createdAt"),
+              Query.equal("url", url),
+              Query.equal("teamId", teamId),
+              Query.between(
+                "$createdAt",
+                oneHourAgo.toISOString(),
+                now.toISOString()
+              ),
+            ]);
 
-          if (existingAnalysis.data && existingAnalysis.data?.rows.length > 0) {
-            sendMessage({
-              controller,
-              type: MessageType.CACHE,
-              content: existingAnalysis.data?.rows[0].data,
-            });
+            if (
+              existingAnalysis.data &&
+              existingAnalysis.data?.rows.length > 0
+            ) {
+              sendMessage({
+                controller,
+                type: MessageType.CACHE,
+                content: existingAnalysis.data?.rows[0].data,
+              });
 
-            sendMessage({
-              controller,
-              type: MessageType.ANALYSIS_ID,
-              content: existingAnalysis.data?.rows[0].$id,
-            });
+              sendMessage({
+                controller,
+                type: MessageType.ANALYSIS_ID,
+                content: existingAnalysis.data?.rows[0].$id,
+              });
 
-            controller.close();
-            return;
+              controller.close();
+              return;
+            }
           }
 
           const browser = (await getBrowser()) as Browser;

@@ -115,6 +115,8 @@ For each issue, use this format:
 [Actionable steps to fix]
 {% /recommendation %}
 
+IMPORTANT: Ensure ALL markdoc components are properly closed with their closing tags ({% /description %}, {% /recommendation %}, {% /badge %}).
+
 ---
 
 Output only the markdown — no JSON, no code blocks.
@@ -140,7 +142,7 @@ UX: navigation clarity, form UX, task clarity, reducing cognitive load.`;
       {
         role: "system",
         content:
-          "You are an experienced accessibility specialist and product designer. Evaluate the provided page data for WCAG 2.1 AA compliance and high-leverage UI/UX improvements. Return your analysis in markdown format.",
+          "You are an experienced accessibility specialist and product designer. Evaluate the provided page data for WCAG 2.1 AA compliance and high-leverage UI/UX improvements. Return your analysis in markdown format. CRITICAL: Always ensure ALL markdoc components are properly closed with their corresponding closing tags (e.g., {% badge %} must be closed with {% /badge %}, {% description %} with {% /description %}, {% recommendation %} with {% /recommendation %}).",
       },
       {
         role: "user",
