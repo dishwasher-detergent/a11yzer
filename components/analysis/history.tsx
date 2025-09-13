@@ -37,9 +37,11 @@ export function AnalysisHistory({
   };
 
   return (
-    <>
-      <h3 className="font-semibold text-base mb-2">Analysis History</h3>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 3xl:grid-cols-8 grid-cols-1 gap-4">
+    <section>
+      <header>
+        <h2 className="font-semibold text-base mb-2">Analysis History</h2>
+      </header>
+      <main className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grid-cols-1 gap-4">
         {analysisList?.map((item) => (
           <AnalysisCard key={item.$id} {...item} />
         ))}
@@ -49,9 +51,9 @@ export function AnalysisHistory({
             one!
           </p>
         )}
-      </div>
+      </main>
       {analysisList.length > 0 && (
-        <div className="flex flex-col items-center space-y-2 py-8">
+        <footer className="flex flex-col items-center space-y-2 py-8">
           <p className="text-muted-foreground text-sm">
             Showing {analysisList.length} of {totalAnalysis} analysis.
           </p>
@@ -61,17 +63,24 @@ export function AnalysisHistory({
               onClick={handleLoadMore}
               disabled={loading || !nextCursor}
               size="sm"
+              aria-label={`Load more analysis. Currently showing ${analysisList.length} of ${totalAnalysis}`}
             >
               Show More
               {loading ? (
-                <LucideLoader2 className="ml-2 size-3.5 animate-spin" />
+                <LucideLoader2
+                  className="ml-2 size-3.5 animate-spin"
+                  aria-hidden="true"
+                />
               ) : (
-                <LucideChevronDown className="ml-2 size-3.5" />
+                <LucideChevronDown
+                  className="ml-2 size-3.5"
+                  aria-hidden="true"
+                />
               )}
             </Button>
           )}
-        </div>
+        </footer>
       )}
-    </>
+    </section>
   );
 }

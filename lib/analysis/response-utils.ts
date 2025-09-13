@@ -1,37 +1,17 @@
-import { NextResponse } from "next/server";
-
-import { AccessibilityData } from "@/interfaces/analysis.interface";
-import { AIAnalysisResult } from "./ai-analyzer";
-import { LimitsInfo } from "./limits-info";
-
-export interface AnalysisResponse {
-  success: boolean;
-  data?: {
-    url: string;
-    accessibilityData: AccessibilityData;
-    analysis: AIAnalysisResult;
-    screenshotUrl: string;
-    limitsInfo: LimitsInfo;
-    count: number;
-  };
-  error?: string;
+export enum MessageType {
+  ERROR = "error",
+  AI_CHUNK = "ai_chunk",
+  COUNT = "count",
+  ANALYSIS_ID = "analysis_id",
 }
 
-export function createErrorResponse(
-  error: string,
-  status: number = 500
-): NextResponse<AnalysisResponse> {
-  return NextResponse.json(
-    {
-      success: false,
-      error,
-    },
-    { status }
-  );
+export interface SendMessageParams {
+  controller: ReadableStreamDefaultController;
+  type: MessageType;
+  content?: string | number | null;
 }
 
-export function createValidationErrorResponse(
-  message: string
-): NextResponse<AnalysisResponse> {
-  return createErrorResponse(message, 400);
+export function sendMessage({ controller, type, content }: SendMessageParams) {
+  const message = `data: ${JSON.stringify({ type, content })}\n\n`;
+  controller.enqueue(new TextEncoder().encode(message));
 }

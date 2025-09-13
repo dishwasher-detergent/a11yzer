@@ -18,11 +18,5 @@ export default async function TeamPage({
 
   const { data: analysisData } = await getAnalysisById(analysisId);
 
-  return (
-    <div className="w-full h-full col-span-2 max-w-5xl mx-auto border-x justify-center flex flex-row flex-nowrap">
-      <div className="h-full border-r flex-none bg-[repeating-linear-gradient(-45deg,var(--color-border),var(--color-border)_1px,transparent_1px,transparent_6px)] w-8" />
-      <AnalysisView data={analysisData} />
-      <div className="h-full border-l flex-none bg-[repeating-linear-gradient(-45deg,var(--color-border),var(--color-border)_1px,transparent_1px,transparent_6px)] w-8" />
-    </div>
-  );
+  return <AnalysisView data={analysisData} />;
 }

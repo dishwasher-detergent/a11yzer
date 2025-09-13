@@ -6,9 +6,10 @@ import { ElementInfo, LimitedData } from "@/interfaces/analysis.interface";
 import { ANALYSIS_LIMITS } from "@/lib/constants";
 
 export async function extractProblematicElements(
-  page: Page | LocalPage,
-  $: cheerio.CheerioAPI
+  page: Page | LocalPage
 ): Promise<LimitedData<ElementInfo>> {
+  const html = await page.content();
+  const $ = cheerio.load(html);
   const elements: ElementInfo[] = [];
   let count = 0;
 

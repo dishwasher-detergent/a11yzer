@@ -1,15 +1,12 @@
-import * as cheerio from "cheerio";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Browser } from "puppeteer";
 
 import { analyzeWithAIStreaming } from "@/lib/analysis/ai-analyzer";
 import { getBrowser } from "@/lib/analysis/browser";
 import { extractAccessibilityData } from "@/lib/analysis/extractors";
+import { navigateToPage } from "@/lib/analysis/navigation";
 import { extractProblematicElements } from "@/lib/analysis/problematic-elements";
-import {
-  createErrorResponse,
-  createValidationErrorResponse,
-} from "@/lib/analysis/response-utils";
+import { MessageType, sendMessage } from "@/lib/analysis/response-utils";
 import { addHighlightsToScreenshot } from "@/lib/analysis/screenshot-highlights";
 import { getLoggedInUser, getUserData } from "@/lib/auth";
 import {
@@ -26,37 +23,50 @@ export async function POST(request: NextRequest) {
     const { url, teamId } = await request.json();
 
     if (!url) {
-      return createValidationErrorResponse("URL is required");
+      return NextResponse.json(
+        {
+          error: "URL is required.",
+        },
+        { status: 400 }
+      );
     }
 
     if (!teamId) {
-      return createValidationErrorResponse("Team ID is required");
+      return NextResponse.json(
+        {
+          error: "Team ID is required.",
+        },
+        { status: 400 }
+      );
     }
 
     const user = await getLoggedInUser();
     const { data: userData } = await getUserData();
 
     if (!user || !userData) {
-      return createValidationErrorResponse("User is not logged in");
+      return NextResponse.json(
+        {
+          error: "User is not logged in.",
+        },
+        { status: 401 }
+      );
     }
 
     if ((userData?.count || 0) >= MAX_ANALYSIS_LIMIT) {
-      return createValidationErrorResponse("Daily analysis limit reached");
+      return NextResponse.json(
+        {
+          error: "Daily analysis limit reached.",
+        },
+        { status: 429 }
+      );
     }
 
-    const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const sendMessage = (data: any) => {
-          const message = `data: ${JSON.stringify(data)}\n\n`;
-          controller.enqueue(encoder.encode(message));
-        };
-
         try {
-          const oneHourAgo = new Date();
-          oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-          const now = new Date();
+          // const oneHourAgo = new Date();
+          // oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+          // const now = new Date();
 
           // const existingAnalysis = await listAnalysis([
           //   Query.limit(1),
@@ -82,200 +92,224 @@ export async function POST(request: NextRequest) {
           //   return;
           // }
 
-          let browser: Browser | null = null;
+          let browser = (await getBrowser()) as Browser;
           let page = null;
+          let totalMessage = "";
 
           try {
-            browser = (await getBrowser()) as Browser;
-
-            let navigationSuccess = false;
-            const maxRetries = 3;
-
-            for (let attempt = 1; attempt <= maxRetries; attempt++) {
-              try {
-                if (page) {
-                  try {
-                    await page.close();
-                  } catch {
-                    // Ignore errors when closing potentially detached page
-                  }
-                }
-
-                page = await browser.newPage();
-
-                await page.setUserAgent(
-                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                );
-                await page.setViewport({ width: 1920, height: 1080 });
-                const waitStrategy =
-                  attempt === 1
-                    ? "networkidle2"
-                    : attempt === 2
-                    ? "domcontentloaded"
-                    : "load";
-
-                console.log(waitStrategy);
-
-                await page.goto(url, {
-                  waitUntil: waitStrategy,
-                  timeout: 30000,
-                });
-
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-                navigationSuccess = true;
-                break;
-              } catch (navError) {
-                console.log(`Navigation attempt ${attempt} failed:`, navError);
-                navigationSuccess = false;
-
-                if (attempt < maxRetries) {
-                  await new Promise((resolve) => setTimeout(resolve, 1000));
-                }
-              }
-            }
-
-            if (!navigationSuccess || !page) {
-              throw new Error(
-                `Failed to navigate to ${url} after ${maxRetries} attempts`
-              );
-            }
-
-            const html = await page.content();
-            const $ = cheerio.load(html);
-
-            const accessibilityData = await extractAccessibilityData(page);
-            const problematicElements = await extractProblematicElements(
-              page,
-              $
-            );
-
-            sendMessage({
-              type: "ai_chunk",
-              content: `{% technical-details data="${Buffer.from(
-                JSON.stringify(accessibilityData)
-              ).toString("base64")}" /%}\n`,
+            const navigationResult = await navigateToPage(browser, {
+              url,
+              maxRetries: 3,
+              timeout: 30000,
+              viewport: { width: 1920, height: 1080 },
             });
 
-            const screenshot = await page.screenshot({
+            page = navigationResult.page;
+          } catch (navigationError) {
+            console.error("Navigation error:", navigationError);
+
+            sendMessage({
+              controller,
+              type: MessageType.ERROR,
+              content: "Failed to analyze webpage.",
+            });
+            controller.close();
+            return;
+          }
+
+          let accessibilityData;
+          let problematicElements;
+
+          try {
+            accessibilityData = await extractAccessibilityData(page);
+          } catch (error) {
+            console.error("Failed to extract accessibility data:", error);
+            sendMessage({
+              controller,
+              type: MessageType.ERROR,
+              content: "Failed to extract accessibility data from webpage.",
+            });
+            controller.close();
+            return;
+          }
+
+          try {
+            problematicElements = await extractProblematicElements(page);
+          } catch (error) {
+            console.error("Failed to extract problematic elements:", error);
+            sendMessage({
+              controller,
+              type: MessageType.ERROR,
+              content: "Failed to extract problematic elements from webpage.",
+            });
+            controller.close();
+            return;
+          }
+
+          const techDetailsContent = `{% technical-details data="${Buffer.from(
+            JSON.stringify(accessibilityData)
+          ).toString("base64")}" /%}\n`;
+
+          sendMessage({
+            controller,
+            type: MessageType.AI_CHUNK,
+            content: techDetailsContent,
+          });
+
+          totalMessage += techDetailsContent;
+
+          let screenshot;
+          try {
+            screenshot = await page.screenshot({
               encoding: "base64",
               fullPage: true,
             });
+          } catch (error) {
+            console.error("Failed to take screenshot:", error);
 
-            const highlightedScreenshot = await addHighlightsToScreenshot(
+            sendMessage({
+              controller,
+              type: MessageType.ERROR,
+              content: "Failed to capture webpage screenshot.",
+            });
+
+            controller.close();
+            return;
+          }
+
+          let highlightedScreenshot;
+          try {
+            highlightedScreenshot = await addHighlightsToScreenshot(
               browser,
               screenshot as string,
               problematicElements.items
             );
+          } catch (error) {
+            console.error("Failed to add highlights to screenshot:", error);
 
+            sendMessage({
+              controller,
+              type: MessageType.ERROR,
+              content:
+                "Failed to highlight problematic elements in screenshot.",
+            });
+
+            controller.close();
+            return;
+          }
+
+          let screenshotFile;
+          try {
             const screenshotBuffer = Buffer.from(
               highlightedScreenshot,
               "base64"
             );
-            const screenshotFile = new File(
-              [screenshotBuffer],
-              "screenshot.png",
-              {
-                type: "image/png",
-              }
-            );
-
-            const uploadResult = await uploadScreenshotImage({
-              data: screenshotFile,
+            screenshotFile = new File([screenshotBuffer], "screenshot.png", {
+              type: "image/png",
             });
-
-            if (!uploadResult.success) {
-              throw new Error("Failed to upload screenshot");
-            }
-
-            const screenshotUrl = `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
-              uploadResult.data!.$id
-            }/view?project=${PROJECT_ID}`;
+          } catch (error) {
+            console.error("Failed to create screenshot file:", error);
 
             sendMessage({
-              type: "ai_chunk",
-              content: `{% problematic-elements screenshot="${screenshotUrl}" elements="${Buffer.from(
-                JSON.stringify(problematicElements)
-              ).toString("base64")}" /%}\n`,
-            });
-
-            sendMessage({
-              type: "ai_chunk",
-              content: `{% ai-result %}\n`,
-            });
-
-            let aiResponseBuffer = "";
-
-            for await (const chunk of analyzeWithAIStreaming(
-              accessibilityData
-            )) {
-              aiResponseBuffer += chunk;
-              sendMessage({
-                type: "ai_chunk",
-                content: chunk,
-              });
-            }
-
-            sendMessage({
-              type: "ai_chunk",
-              content: `{% /ai-result %}\n`,
-            });
-
-            const analysisResult = await createAnalysis({
-              data: {
-                data: aiResponseBuffer,
-                url: url,
-                teamId: teamId,
-                screenshot: screenshotUrl,
-              },
-            });
-            if (!analysisResult.success) {
-              throw new Error("Failed to create analysis");
-            }
-
-            sendMessage({
-              type: "count",
-              data: (userData?.count || 0) + 1,
-            });
-
-            sendMessage({
-              type: "analysis_id",
-              data: analysisResult?.data?.$id,
+              controller,
+              type: MessageType.ERROR,
+              content: "Failed to prepare screenshot for upload.",
             });
 
             controller.close();
-          } catch (browserError) {
-            console.error("Browser operation error:", browserError);
-            throw browserError;
-          } finally {
-            // Always cleanup browser resources with proper error handling
-            try {
-              if (page && !page.isClosed()) {
-                await page.close().catch(() => {
-                  // Ignore errors during page cleanup
-                });
-              }
-            } catch (pageCleanupError) {
-              console.error("Page cleanup error:", pageCleanupError);
-            }
-
-            try {
-              if (browser && browser.isConnected()) {
-                await browser.close().catch(() => {
-                  // Ignore errors during browser cleanup
-                });
-              }
-            } catch (browserCleanupError) {
-              console.error("Browser cleanup error:", browserCleanupError);
-            }
+            return;
           }
-        } catch (error) {
-          console.error("Analysis error:", error);
-          sendMessage({
-            type: "error",
-            message: "Failed to analyze webpage",
-            error: error instanceof Error ? error.message : "Unknown error",
+
+          let uploadResult = await uploadScreenshotImage({
+            data: screenshotFile,
           });
+
+          if (!uploadResult.success) {
+            sendMessage({
+              controller,
+              type: MessageType.ERROR,
+              content: "Failed to upload screenshot to storage.",
+            });
+
+            controller.close();
+            return;
+          }
+
+          const screenshotUrl = `${ENDPOINT}/storage/buckets/${SCREENSHOT_BUCKET_ID}/files/${
+            uploadResult.data!.$id
+          }/view?project=${PROJECT_ID}`;
+
+          const problematicElementsContent = `{% problematic-elements screenshot="${screenshotUrl}" elements="${Buffer.from(
+            JSON.stringify(problematicElements)
+          ).toString("base64")}" /%}\n`;
+
+          sendMessage({
+            controller,
+            type: MessageType.AI_CHUNK,
+            content: problematicElementsContent,
+          });
+
+          totalMessage += problematicElementsContent;
+
+          sendMessage({
+            controller,
+            type: MessageType.AI_CHUNK,
+            content: `{% ai-result %}\n`,
+          });
+
+          totalMessage += `{% ai-result %}\n`;
+
+          let aiResponseBuffer = "";
+
+          for await (const chunk of analyzeWithAIStreaming(accessibilityData)) {
+            aiResponseBuffer += chunk;
+            sendMessage({
+              controller,
+              type: MessageType.AI_CHUNK,
+              content: chunk,
+            });
+          }
+
+          sendMessage({
+            controller,
+            type: MessageType.AI_CHUNK,
+            content: `{% /ai-result %}\n`,
+          });
+
+          const analysisResult = await createAnalysis({
+            data: {
+              data: totalMessage + aiResponseBuffer,
+              url: url,
+              teamId: teamId,
+              screenshot: screenshotUrl,
+            },
+          });
+
+          if (!analysisResult.success) {
+            sendMessage({
+              controller,
+              type: MessageType.ERROR,
+              content: "Failed to create analysis record.",
+            });
+          }
+
+          sendMessage({
+            controller,
+            type: MessageType.COUNT,
+            content: (userData?.count || 0) + 1,
+          });
+
+          sendMessage({
+            controller,
+            type: MessageType.ANALYSIS_ID,
+            content: analysisResult?.data?.$id,
+          });
+
           controller.close();
+        } catch (browserError) {
+          console.error("Browser operation error:", browserError);
+
+          throw browserError;
         }
       },
     });
@@ -294,6 +328,12 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Analysis error:", error);
-    return createErrorResponse("Failed to analyze webpage");
+
+    return NextResponse.json(
+      {
+        error: "Failed to analyze website.",
+      },
+      { status: 500 }
+    );
   }
 }

@@ -73,41 +73,18 @@ export function AnalysisProblematicElements({
   );
 
   return (
-    <section
-      className="col-span-2 col-start-1"
-      aria-labelledby="problematic-elements-heading"
-      role="region"
-    >
+    <section className="not-prose col-span-2 col-start-1">
       <header className="p-4">
-        <h2
-          id="problematic-elements-heading"
-          className="font-semibold text-lg pb-2"
-        >
-          Problematic Elements
-        </h2>
-        <p
-          className="text-muted-foreground text-sm"
-          aria-live="polite"
-          aria-atomic="true"
-        >
+        <h2 className="font-semibold text-lg pb-2">Problematic Elements</h2>
+        <p className="text-muted-foreground text-sm">
           {elementCount} {elementCount === 1 ? "element" : "elements"} found
           with issues.
         </p>
       </header>
-      <div
-        className="flex flex-col lg:flex-row border rounded-md overflow-hidden"
-        role="group"
-        aria-labelledby="screenshot-and-elements"
-      >
-        <h3 id="screenshot-and-elements" className="sr-only">
-          Website screenshot and problematic elements list
-        </h3>
-
-        <div
+      <main className="flex flex-col lg:flex-row border rounded-md overflow-hidden">
+        <figure
           ref={imageContainerRef}
           className="max-h-96 overflow-y-auto w-full border-b lg:border-b-0 lg:border-r"
-          role="img"
-          aria-labelledby="screenshot-description"
         >
           <img
             ref={imageRef}
@@ -115,35 +92,19 @@ export function AnalysisProblematicElements({
             alt="Website screenshot showing accessibility problem areas highlighted for analysis"
             className="w-full"
             loading="lazy"
-            aria-describedby="screenshot-description"
           />
-          <div id="screenshot-description" className="sr-only">
-            Screenshot of the analyzed website with highlighted areas indicating
-            accessibility issues. The highlighted elements correspond to the
-            issues listed in the adjacent panel.
-          </div>
-        </div>
+        </figure>
 
         {problematicElements && problematicElements.items.length > 0 && (
-          <div
+          <nav
             className="max-h-96 overflow-y-auto w-full lg:w-2/5 flex-none"
-            role="complementary"
-            aria-labelledby="elements-list-heading"
+            aria-label="Problematic elements list"
           >
-            <h4 id="elements-list-heading" className="sr-only">
-              List of problematic elements
-            </h4>
-            <ul
-              className="space-y-1 divide-y"
-              role="list"
-              aria-label={`${elementCount} problematic elements found`}
-            >
+            <ul className="space-y-1 divide-y" role="list">
               {problematicElements.items.map((element, index) => (
                 <li
                   key={index}
                   className="border-dashed flex items-start gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded p-2 transition-colors focus-within:bg-muted/50"
-                  role="listitem"
-                  aria-describedby={`element-description-${index}`}
                   onClick={() => handleElementClick(element)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -152,14 +113,10 @@ export function AnalysisProblematicElements({
                     }
                   }}
                   tabIndex={0}
-                  title="Click to scroll to this element in the screenshot"
-                  aria-label={`Click to view ${
-                    element.issue
-                  } issue on element: ${element.text || element.selector}`}
+                  role="button"
                 >
                   <Badge
                     variant={element.priority}
-                    aria-label={`Priority ${element.priority}: ${element.issue}`}
                     title={`Issue: ${element.issue} (Priority: ${element.priority})`}
                   >
                     {(() => {
@@ -179,9 +136,9 @@ export function AnalysisProblematicElements({
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
         )}
-      </div>
+      </main>
     </section>
   );
 }

@@ -30,7 +30,9 @@ export default async function ProfilePage() {
     <main className="p-4 space-y-6 overflow-y-auto">
       <UserDescription user={data} />
       <UserActions user={data} />
-      <AnalysisHistory initialData={analysisData} userId={user.$id} />
+      <section>
+        <AnalysisHistory initialData={analysisData} userId={user.$id} />
+      </section>
     </main>
   );
 }
