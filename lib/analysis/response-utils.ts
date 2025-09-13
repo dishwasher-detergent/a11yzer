@@ -3,6 +3,7 @@ export enum MessageType {
   AI_CHUNK = "ai_chunk",
   COUNT = "count",
   ANALYSIS_ID = "analysis_id",
+  CACHE = "cache",
 }
 
 export interface SendMessageParams {

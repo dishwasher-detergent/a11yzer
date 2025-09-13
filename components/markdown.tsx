@@ -1,7 +1,9 @@
 import Markdoc from "@markdoc/markdoc";
 import React from "react";
-import { AnalysisProblematicElements } from "./analysis/problematic-elements";
-import { TechnicalDetails } from "./analysis/technical-details";
+
+import { AnalysisProblematicElements } from "@/components/analysis/problematic-elements";
+import { TechnicalDetails } from "@/components/analysis/technical-details";
+import { Badge } from "@/components/ui/badge";
 
 const config = {
   tags: {
@@ -31,6 +33,23 @@ const config = {
       render: "AiResult",
       attributes: {},
     },
+    badge: {
+      render: "Badge",
+      attributes: {
+        variant: {
+          type: String,
+          required: true,
+        },
+      },
+    },
+    recommendation: {
+      render: "Recommendation",
+      attributes: {},
+    },
+    description: {
+      render: "Description",
+      attributes: {},
+    },
   },
 };
 
@@ -58,9 +77,43 @@ const components = {
   },
   AiResult: ({ children }: { children: React.ReactNode }) => {
     return (
-      <section className="prose prose-neutral dark:prose-invert max-w-none overflow-x-hidden">
+      <section className="prose prose-neutral dark:prose-invert max-w-none overflow-x-hidden rounded-lg border bg-background p-4">
         {children}
       </section>
+    );
+  },
+  Badge: ({
+    children,
+    variant,
+  }: {
+    children: React.ReactNode;
+    variant:
+      | "critical"
+      | "high"
+      | "medium"
+      | "low"
+      | "accessibility"
+      | "ui"
+      | "ux";
+  }) => {
+    return <Badge variant={variant}>{children}</Badge>;
+  },
+  Recommendation: ({ children }: { children: React.ReactNode }) => {
+    return (
+      <>
+        <p className="font-bold mb-2">Recommendation</p>
+        <div className="border bg-muted text-muted-foreground text-sm rounded-lg px-2">
+          {children}
+        </div>
+      </>
+    );
+  },
+  Description: ({ children }: { children: React.ReactNode }) => {
+    return (
+      <>
+        <p className="font-bold mb-0">Description</p>
+        <div className="text-sm rounded-lg">{children}</div>
+      </>
     );
   },
 };
@@ -75,7 +128,7 @@ export function Markdown({ content }: { content: string }) {
   };
 
   return (
-    <div className="prose prose-neutral dark:prose-invert max-w-none overflow-x-hidden">
+    <div className="p-2 bg-secondary border rounded-lg max-w-5xl w-full mx-auto">
       {renderMarkdoc(content)}
     </div>
   );

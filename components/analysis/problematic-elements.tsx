@@ -73,18 +73,18 @@ export function AnalysisProblematicElements({
   );
 
   return (
-    <section className="not-prose col-span-2 col-start-1">
-      <header className="p-4">
-        <h2 className="font-semibold text-lg pb-2">Problematic Elements</h2>
+    <section className="not-prose col-span-2 col-start-1 bg-background border rounded-lg mb-4 p-2">
+      <header className="p-2 pb-4">
+        <h2 className="font-semibold text-lg">Problematic Elements</h2>
         <p className="text-muted-foreground text-sm">
           {elementCount} {elementCount === 1 ? "element" : "elements"} found
           with issues.
         </p>
       </header>
-      <main className="flex flex-col lg:flex-row border rounded-md overflow-hidden">
+      <main className="flex flex-col border rounded-md overflow-hidden">
         <figure
           ref={imageContainerRef}
-          className="max-h-96 overflow-y-auto w-full border-b lg:border-b-0 lg:border-r"
+          className="max-h-96 overflow-y-auto w-full border-b"
         >
           <img
             ref={imageRef}
@@ -96,10 +96,7 @@ export function AnalysisProblematicElements({
         </figure>
 
         {problematicElements && problematicElements.items.length > 0 && (
-          <nav
-            className="max-h-96 overflow-y-auto w-full lg:w-2/5 flex-none"
-            aria-label="Problematic elements list"
-          >
+          <nav className="max-h-96 overflow-y-auto w-full">
             <ul className="space-y-1 divide-y" role="list">
               {problematicElements.items.map((element, index) => (
                 <li

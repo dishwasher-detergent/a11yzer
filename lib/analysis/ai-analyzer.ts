@@ -103,15 +103,17 @@ Return a well-structured markdown document with the following sections:
 
 For each issue, use this format:
 ### [Issue Title]
-**Type:** accessibility | ui | ux  
-**Priority:** critical | high | medium | low  
-**WCAG Criterion:** [ID: Name - Link] (if applicable)
+**Type:** {% badge variant="accessibility" %} accessibility {% /badge %} {% badge variant="ui" %} ui {% /badge %} {% badge variant="ux" %} ux {% /badge %}  
+**Priority:** {% badge variant="critical" %} critical {% /badge %} {% badge variant="high" %} high {% /badge %} {% badge variant="medium" %} medium {% /badge %} | {% badge variant="low" %} low {% /badge %}  
+**WCAG Criterion:** [Name](url)
 
-**Description:**
+{% description %}
 [Detailed explanation of the issue]
+{% /description %}
 
-**Recommendation:**
+{% recommendation %}
 [Actionable steps to fix]
+{% /recommendation %}
 
 ---
 

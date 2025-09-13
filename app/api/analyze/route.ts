@@ -15,8 +15,9 @@ import {
   PROJECT_ID,
   SCREENSHOT_BUCKET_ID,
 } from "@/lib/constants";
-import { createAnalysis } from "@/lib/db";
+import { createAnalysis, listAnalysis } from "@/lib/db";
 import { uploadScreenshotImage } from "@/lib/storage";
+import { Query } from "node-appwrite";
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,33 +65,38 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // const oneHourAgo = new Date();
-          // oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-          // const now = new Date();
+          const oneHourAgo = new Date();
+          oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+          const now = new Date();
 
-          // const existingAnalysis = await listAnalysis([
-          //   Query.limit(1),
-          //   Query.orderDesc("$createdAt"),
-          //   Query.equal("url", url),
-          //   Query.equal("teamId", teamId),
-          //   Query.between(
-          //     "$createdAt",
-          //     oneHourAgo.toISOString(),
-          //     now.toISOString()
-          //   ),
-          // ]);
+          const existingAnalysis = await listAnalysis([
+            Query.limit(1),
+            Query.orderDesc("$createdAt"),
+            Query.equal("url", url),
+            Query.equal("teamId", teamId),
+            Query.between(
+              "$createdAt",
+              oneHourAgo.toISOString(),
+              now.toISOString()
+            ),
+          ]);
 
-          // if (existingAnalysis.data && existingAnalysis.data?.rows.length > 0) {
-          //   sendMessage({
-          //     type: "complete",
-          //     data: existingAnalysis.data?.rows[0].data,
-          //     analysisId: existingAnalysis.data?.rows[0]?.$id,
-          //     cached: true,
-          //   });
+          if (existingAnalysis.data && existingAnalysis.data?.rows.length > 0) {
+            sendMessage({
+              controller,
+              type: MessageType.CACHE,
+              content: existingAnalysis.data?.rows[0].data,
+            });
 
-          //   controller.close();
-          //   return;
-          // }
+            sendMessage({
+              controller,
+              type: MessageType.ANALYSIS_ID,
+              content: existingAnalysis.data?.rows[0].$id,
+            });
+
+            controller.close();
+            return;
+          }
 
           const browser = (await getBrowser()) as Browser;
           let page = null;
@@ -278,7 +284,7 @@ export async function POST(request: NextRequest) {
 
           const analysisResult = await createAnalysis({
             data: {
-              data: totalMessage + aiResponseBuffer,
+              data: totalMessage + aiResponseBuffer + `{% /ai-result %}\n`,
               url: url,
               teamId: teamId,
               screenshot: screenshotUrl,

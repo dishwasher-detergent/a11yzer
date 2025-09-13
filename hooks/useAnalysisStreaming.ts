@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { useLimitNotifications } from "@/hooks/useLimitNotifications";
+import { MessageType } from "@/lib/analysis/response-utils";
 
 export function useAnalysisStreaming(teamId: string) {
   const [loading, setLoading] = useState(false);
@@ -9,6 +10,7 @@ export function useAnalysisStreaming(teamId: string) {
   const [isCancelling, setIsCancelling] = useState(false);
   const [analysisId, setAnalysisId] = useState<string | null>(null);
   const [count, setCount] = useState<number | null>(null);
+  const [cached, setCached] = useState(false);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const { showLimitNotifications } = useLimitNotifications();
@@ -68,20 +70,24 @@ export function useAnalysisStreaming(teamId: string) {
                 const data = JSON.parse(line.slice(6));
 
                 switch (data.type) {
-                  case "ai_chunk":
+                  case MessageType.AI_CHUNK:
                     setAiResponse((prev) => prev + data.content);
                     break;
 
-                  case "count":
+                  case MessageType.COUNT:
                     setCount(data.data);
                     break;
 
-                  case "analysis_id":
+                  case MessageType.ANALYSIS_ID:
                     setAnalysisId(data.data);
                     break;
 
-                  case "error":
+                  case MessageType.ERROR:
                     setError(data.message || "Failed to analyze website");
+                    break;
+                  case MessageType.CACHE:
+                    setAiResponse(data.content);
+                    setCached(true);
                     break;
                 }
               } catch (parseError) {
@@ -139,7 +145,7 @@ export function useAnalysisStreaming(teamId: string) {
     analyzeWebsite,
     cancelAnalysis,
     clearAnalysis,
-    cached: false, // Placeholder for cached state
+    cached,
     analysisId,
     count,
   };

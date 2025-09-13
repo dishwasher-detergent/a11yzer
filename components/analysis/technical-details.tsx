@@ -13,9 +13,9 @@ export function TechnicalDetails({ accessibilityData }: TechnicalDetailsProps) {
   });
 
   return (
-    <section className="not-prose p-4">
+    <section className="not-prose p-4 rounded-lg bg-background border mb-4">
       <header className="pb-4">
-        <h2 className="font-semibold text-lg pb-2">Technical Details</h2>
+        <h2 className="font-semibold text-lg">Technical Details</h2>
         <p className="text-muted-foreground text-sm">
           This includes an analysis of the semantic structure and key content
           elements like headings, images, and links.
@@ -24,7 +24,7 @@ export function TechnicalDetails({ accessibilityData }: TechnicalDetailsProps) {
       <main className="grid grid-cols-1 md:grid-cols-2 gap-6 rounded-md">
         <section>
           <h3 className="font-semibold mb-2">Semantic Structure</h3>
-          <dl className="text-sm space-y-2">
+          <dl className="text-sm space-y-1">
             {[
               { key: "hasMain" as const, label: "Main element" },
               { key: "hasNav" as const, label: "Navigation" },
@@ -53,7 +53,7 @@ export function TechnicalDetails({ accessibilityData }: TechnicalDetailsProps) {
         </section>
         <section>
           <h3 className="font-semibold mb-2">Content Analysis</h3>
-          <dl className="text-sm space-y-2">
+          <dl className="text-sm space-y-1">
             <div className="flex justify-between items-center">
               <dt className="font-medium">Headings:</dt>
               <dd>

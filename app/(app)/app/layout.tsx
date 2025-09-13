@@ -18,7 +18,8 @@ export default async function AppLayout({
           <SidebarTrigger />
           <p className="font-bold">A11yzer</p>
         </header>
-        <div className="max-w-5xl mx-auto w-full h-full">{children}</div>
+        {/* <div className="max-w-5xl mx-auto w-full h-full">{children}</div> */}
+        {children}
       </SidebarInset>
     </SidebarProvider>
   );

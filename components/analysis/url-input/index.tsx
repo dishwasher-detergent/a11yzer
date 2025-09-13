@@ -65,7 +65,7 @@ export function UrlInput({
   }
 
   return (
-    <section>
+    <section className="max-w-5xl mx-auto">
       <div className="p-0.5 border bg-secondary rounded-md space-y-1">
         {error && (
           <AlertMessage id="error-message" message={error} type="error" />

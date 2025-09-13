@@ -21,6 +21,9 @@ const badgeVariants = cva(
         high: "bg-rose-600/80 text-white border-1 border-rose-600",
         medium: "bg-amber-600/80 text-white border-1 border-amber-600",
         low: "bg-emerald-600/80 text-white border-1 border-emerald-600",
+        accessibility: "bg-violet-600/80 text-white border-1 border-violet-600",
+        ui: "bg-pink-600/80 text-white border-1 border-pink-600",
+        ux: "bg-cyan-600/80 text-white border-1 border-cyan-600",
       },
     },
     defaultVariants: {

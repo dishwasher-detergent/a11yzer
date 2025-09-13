@@ -21,16 +21,18 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
     aiResponse,
   } = useAnalysisStreaming(teamId);
 
+  console.log(aiResponse);
+
   const currentCount = newCount ?? count;
 
   return (
-    <section className="h-full flex-1 flex flex-col flex-nowrap overflow-hidden">
-      <main className="h-full flex-1 w-full overflow-y-auto p-4">
+    <article className="h-full flex-1 flex flex-col flex-nowrap overflow-hidden py-4">
+      <main className="h-full flex-1 overflow-y-auto [scrollbar-gutter:stable_both-edges]">
         {aiResponse.length === 0 && !loading && <GettingStarted />}
         {aiResponse && <Markdown content={aiResponse} />}
         {loading && <p aria-live="polite">Thinking...</p>}
       </main>
-      <footer className="flex-none w-full p-4">
+      <footer className="flex-none w-full px-4 pt-4">
         <UrlInput
           onAnalyze={analyzeWebsite}
           onCancel={cancelAnalysis}
@@ -40,6 +42,6 @@ export function AnalysisCreate({ teamId, count }: AnalysisCreateProps) {
           cached={cached}
         />
       </footer>
-    </section>
+    </article>
   );
 }
