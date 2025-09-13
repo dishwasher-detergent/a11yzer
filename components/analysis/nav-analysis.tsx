@@ -12,6 +12,7 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { AnalysisDb } from "@/interfaces/analysis.interface";
+import { getSummary } from "@/lib/utils";
 
 interface NavAnalysisProps {
   data: AnalysisDb[];
@@ -68,7 +69,7 @@ function Content({ data, loading }: NavAnalysisProps) {
               <Badge variant="secondary">{index + 1}</Badge>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {item.data.slice(0, 25)}...
+                  {getSummary(item.data)}...
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
                   {item.url}

@@ -23,3 +23,14 @@ export function getInitials(name?: string, maxLength: number = 2): string {
     .join("")
     .toUpperCase();
 }
+
+export function getSummary(data: string) {
+  const summaryIndex = data.indexOf("## Summary");
+  if (summaryIndex !== -1) {
+    const startIndex = data.indexOf("\n", summaryIndex) + 1;
+    const nextSectionIndex = data.indexOf("\n##", startIndex);
+    const endIndex = nextSectionIndex !== -1 ? nextSectionIndex : data.length;
+    return data.slice(startIndex, endIndex).trim();
+  }
+  return data.slice(0, 100);
+}

@@ -7,15 +7,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnalysisDb } from "@/interfaces/analysis.interface";
+import { getSummary } from "@/lib/utils";
 
 export function AnalysisCard(analysis: AnalysisDb) {
+  const summary = getSummary(analysis.data);
+
   return (
     <Card className="rounded-md overflow-hidden py-0 gap-0 ">
       <CardContent className="p-0 relative">
         <AspectRatio ratio={1} className="w-full">
           <img
             src={analysis.screenshot}
-            alt={analysis.data.slice(0, 25)}
+            alt={summary.slice(0, 25)}
             className="object-cover object-left-top bg-primary"
           />
         </AspectRatio>
@@ -38,7 +41,7 @@ export function AnalysisCard(analysis: AnalysisDb) {
               <Link
                 href={`/app/teams/${analysis.teamId}/analysis/${analysis.$id}`}
               >
-                {analysis.data.slice(0, 25)}...
+                {summary.slice(0, 50)}...
               </Link>
             </Button>
           </CardTitle>

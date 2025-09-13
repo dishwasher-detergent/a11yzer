@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { ShineBorder } from "@/components/shine-border";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -16,18 +17,22 @@ const urlSchema = z.object({
   url: z
     .string()
     .min(1, "URL is required")
-    .url("Please enter a valid URL")
     .refine(
       (url) => {
+        if (url.includes("://")) {
+          return false;
+        }
+
         try {
-          const urlObj = new URL(url);
-          return urlObj.protocol === "http:" || urlObj.protocol === "https:";
+          const urlObj = new URL(`https://${url}`);
+          return urlObj.hostname.includes(".");
         } catch {
           return false;
         }
       },
       {
-        message: "URL must start with http:// or https://",
+        message:
+          "Please enter a domain without http:// or https:// (e.g., example.com)",
       }
     ),
 });
@@ -61,7 +66,8 @@ export function UrlInput({
   });
 
   async function onSubmit(values: UrlFormData) {
-    onAnalyze(values.url);
+    const urlWithProtocol = `https://${values.url}`;
+    onAnalyze(urlWithProtocol);
   }
 
   return (
@@ -99,6 +105,9 @@ export function UrlInput({
                 "var(--color-blue-300)",
               ]}
             />
+            <div className="h-full flex items-center pl-3">
+              <Badge variant="secondary">https://</Badge>
+            </div>
             <div className="flex-1 h-full pr-2">
               <FormField
                 control={form.control}
@@ -109,7 +118,7 @@ export function UrlInput({
                       <Input
                         {...field}
                         type="url"
-                        placeholder="https://kennethbass.com"
+                        placeholder="kennethbass.com"
                         className="border-none rounded-none px-4 h-full"
                       />
                     </FormControl>
