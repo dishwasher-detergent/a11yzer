@@ -138,16 +138,14 @@ export const useAnalysisList = ({
 
     if (client) {
       unsubscribe = client.subscribe<AnalysisDb>(
-        `databases.${DATABASE_ID}.collections.${ANALYSIS_COLLECTION_ID}.rows`,
+        `databases.${DATABASE_ID}.tables.${ANALYSIS_COLLECTION_ID}.rows`,
         async (response) => {
           if (teamId && response.payload.teamId !== teamId) return;
           if (userId && response.payload.userId !== userId) return;
 
           if (searchTerm === undefined) {
             if (
-              response.events.includes(
-                "databases.*.collections.*.rows.*.create"
-              )
+              response.events.includes("databases.*.tables.*.rows.*.create")
             ) {
               const { data } = await getUserById(response.payload.userId);
               const { data: teamData } = await getTeamById(
@@ -168,9 +166,7 @@ export const useAnalysisList = ({
             }
 
             if (
-              response.events.includes(
-                "databases.*.collections.*.rows.*.update"
-              )
+              response.events.includes("databases.*.tables.*.rows.*.update")
             ) {
               const { data } = await getUserById(response.payload.userId);
               const { data: teamData } = await getTeamById(
@@ -192,9 +188,7 @@ export const useAnalysisList = ({
             }
 
             if (
-              response.events.includes(
-                "databases.*.collections.*.rows.*.delete"
-              )
+              response.events.includes("databases.*.tables.*.rows.*.delete")
             ) {
               setAnalysisList((prev) =>
                 prev.filter((x) => x.$id !== response.payload.$id)

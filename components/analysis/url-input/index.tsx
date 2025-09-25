@@ -117,7 +117,6 @@ export function UrlInput({
                     <FormControl>
                       <Input
                         {...field}
-                        type="url"
                         placeholder="kennethbass.com"
                         className="border-none rounded-none px-4 h-full"
                       />
