@@ -284,12 +284,12 @@ export async function POST(request: NextRequest) {
           sendMessage({
             controller,
             type: MessageType.AI_CHUNK,
-            content: `{% /ai-result %}\n`,
+            content: `\n{% /ai-result %}\n`,
           });
 
           const analysisResult = await createAnalysis({
             data: {
-              data: totalMessage + aiResponseBuffer + `{% /ai-result %}\n`,
+              data: totalMessage + aiResponseBuffer + `\n{% /ai-result %}\n`,
               url: url,
               teamId: teamId,
               screenshot: screenshotUrl,
