@@ -1,6 +1,6 @@
 {
-  "name": "a11yzer",
-  "version": "0.1.0",
+  "name": "accessibility-checker",
+  "version": "1.0.0",
   "description": "AI-powered web accessibility analysis tool",
   "private": true,
   "scripts": {

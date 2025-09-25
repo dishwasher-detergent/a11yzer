@@ -18,7 +18,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "A11yzer",
+  title: "Accessibility Checker",
   description: "Analyze the accessibility of your web pages.",
 };
 

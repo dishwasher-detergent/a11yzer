@@ -11,7 +11,7 @@ export default async function Home() {
       <header className="w-full border-b">
         <nav className="max-w-4xl mx-auto flex justify-between items-center py-2 px-4">
           <h1 className="font-bold">
-            <Link href="/app">A11yzer</Link>
+            <Link href="/app">Accessibility Checker</Link>
           </h1>
           <div className="flex items-center gap-2">
             {user ? (

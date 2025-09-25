@@ -91,7 +91,12 @@ export function SignInForm() {
           </Button>
         </form>
       </Form>
-      <Separator />
+      <div className="relative py-2">
+        <p className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-card px-2 text-sm text-muted-foreground">
+          Or Continue With
+        </p>
+        <Separator />
+      </div>
       <form className="w-full" action={signUpWithGithub}>
         <Button type="submit" variant="secondary" className="w-full">
           Github
